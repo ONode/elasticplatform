@@ -1,7 +1,8 @@
-var elasticsearch = require('elasticsearch');
+const confighost = env.ESHOST || 'localhost:9200';
 
+var elasticsearch = require('elasticsearch');
 var elasticClient = new elasticsearch.Client({
-    host: 'localhost:9200',
+    host: confighost,
     log: 'info'
 });
 
