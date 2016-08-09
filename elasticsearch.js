@@ -1,12 +1,10 @@
-const confighost = env.ESHOST || 'localhost:9200';
-
-var elasticsearch = require('elasticsearch');
-var elasticClient = new elasticsearch.Client({
+const confighost = process.env.ESHOST || 'localhost:9200';
+const elasticsearch = require('elasticsearch');
+const elasticClient = new elasticsearch.Client({
     host: confighost,
     log: 'info'
 });
-
-var indexName = "randomindex";
+const indexName = "randomindex";
 
 /**
 * Delete an existing index
