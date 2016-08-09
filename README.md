@@ -1,2 +1,2 @@
-# elasticplatform
-learn start
+# ES platform
+doing all the hacks
