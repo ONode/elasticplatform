@@ -69,59 +69,24 @@ var mapping_files = function (json) {
 
     exePatch(filequeue, 1, function () {
         console.log("==========================================");
-        console.log("=== scan completed for files of 10========");
+        console.log("=== scan completed for files ========");
         console.log("==========================================");
     });
 };
-
-var pdfdecode_v1 = function (outdest, cb) {
-    extract(outdest, {splitPages: false}, function (err, text) {
-        if (err) {
-            console.log(logTag, "Error start ==================");
-            console.dir(err);
-            return;
-        }
-        console.log("==========================================");
-        console.dir(text);
-    });
-};
-
-var pdfdecode_v3 = function (outdest, callback) {
-    var inspect = require('eyespect').inspector({maxLength: 20000});
-    var pdf_extract = require('pdf-extract');
-    //var absolute_path_to_pdf = '~/Downloads/electronic.pdf'
-    var options = {
-        type: 'text'  // extract the actual text in the pdf file
-    };
-    var processor = pdf_extract(outdest, options, function (err) {
-        if (err) {
-            return callback(err);
-        }
-    });
-    processor.on('complete', function (data) {
-        inspect(data.text_pages, 'extracted text pages');
-        callback(null, data.text_pages);
-    });
-    processor.on('error', function (err) {
-        inspect(err, 'error while extracting pages');
-        return callback(err);
-    });
-};
-
-var pdfdecode_v2 = function (outdest, cb) {
-    const fs = require('fs');
-    const pdfParser = new PDFParser();
-    pdfParser.on("pdfParser_dataError", function (err) {
-        console.error(err.parserError);
-    });
-    pdfParser.on("pdfParser_dataReady", function (pdfdata) {
-        console.log("==========================================");
-        console.log(logTag, "done with file path at " + outdest);
-        fs.writeFile(outdest + ".txt", pdfParser.getRawTextContent());
-        cb();
-    });
-    pdfParser.loadPDF(outdest);
-};
+/*var pdfdecode_v2 = function (outdest, cb) {
+ const fs = require('fs');
+ const pdfParser = new PDFParser();
+ pdfParser.on("pdfParser_dataError", function (err) {
+ console.error(err.parserError);
+ });
+ pdfParser.on("pdfParser_dataReady", function (pdfdata) {
+ console.log("==========================================");
+ console.log(logTag, "done with file path at " + outdest);
+ fs.writeFile(outdest + ".txt", pdfParser.getRawTextContent());
+ cb();
+ });
+ pdfParser.loadPDF(outdest);
+ };*/
 var exeFunc = function (file_src, n) {
     const dest = path.dirname(module.main) + "/tmp/";
     const out = dest + "/hansard_" + n + ".pdf";
@@ -130,7 +95,7 @@ var exeFunc = function (file_src, n) {
         console.log(logTag, "start request url at");
         const stream = request(url).pipe(fs.createWriteStream(out, {flags: 'w'}));
         stream.on('finish', function () {
-            pdfdecode_v3(out, cb);
+            require("./pdf_process_v3")(out, cb);
         });
         stream.on('error', function (err) {
             return cb(err);
