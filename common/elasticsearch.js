@@ -1,4 +1,5 @@
-const confighost = process.env.ESHOST || 'localhost:9200';
+//const confighost = process.env.ESHOST || 'localhost:9200';
+const confighost = process.env.ESHOST || '';
 const elasticsearch = require('elasticsearch');
 const elasticClient = new elasticsearch.Client({
     host: confighost,
@@ -7,8 +8,8 @@ const elasticClient = new elasticsearch.Client({
 const indexName = "randomindex";
 
 /**
-* Delete an existing index
-*/
+ * Delete an existing index
+ */
 function deleteIndex() {
     return elasticClient.indices.delete({
         index: indexName
@@ -17,8 +18,8 @@ function deleteIndex() {
 exports.deleteIndex = deleteIndex;
 
 /**
-* create the index
-*/
+ * create the index
+ */
 function initIndex() {
     return elasticClient.indices.create({
         index: indexName
@@ -27,8 +28,8 @@ function initIndex() {
 exports.initIndex = initIndex;
 
 /**
-* check if the index exists
-*/
+ * check if the index exists
+ */
 function indexExists() {
     return elasticClient.indices.exists({
         index: indexName
@@ -42,8 +43,8 @@ function initMapping() {
         type: "document",
         body: {
             properties: {
-                title: { type: "string" },
-                content: { type: "string" },
+                title: {type: "string"},
+                content: {type: "string"},
                 suggest: {
                     type: "completion",
                     analyzer: "simple",
@@ -88,4 +89,37 @@ function getSuggestions(input) {
         }
     })
 }
+
+function importdata() {
+    //Add a few book titles for the autocomplete
+//elasticsearch offers a bulk functionality as well, but this is for a different time
+    indexExists().then(function (exists) {
+        if (exists) {
+            return deleteIndex();
+        }
+    }).then(function () {
+        return initIndex().then(initMapping).then(function () {
+            var promises = [
+                'Thing Explainer',
+                'The Internet Is a Playground',
+                'The Pragmatic Programmer',
+                'The Hitchhikers Guide to the Galaxy',
+                'Trial of the Clone',
+                'All Quiet on the Western Front',
+                'The Animal Farm',
+                'The Circle'
+            ].map(function (bookTitle) {
+                return addDocument({
+                    title: bookTitle,
+                    content: bookTitle + " content!",
+                    metadata: {
+                        titleLength: bookTitle.length
+                    }
+                });
+            });
+            return Promise.all(promises);
+        });
+    });
+}
+exports.importdat = importdata;
 exports.getSuggestions = getSuggestions;

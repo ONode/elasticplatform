@@ -4,7 +4,6 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const elastic = require('./common/elasticsearch');
 const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -51,40 +50,5 @@ app.use(function (err, req, res, next) {
         error: {}
     });
 });
-
-//Add a few book titles for the autocomplete
-//elasticsearch offers a bulk functionality as well, but this is for a different time
-/*
-
-
- elastic.indexExists().then(function (exists) {
- if (exists) {
- return elastic.deleteIndex();
- }
- }).then(function () {
- return elastic.initIndex().then(elastic.initMapping).then(function () {
- var promises = [
- 'Thing Explainer',
- 'The Internet Is a Playground',
- 'The Pragmatic Programmer',
- 'The Hitchhikers Guide to the Galaxy',
- 'Trial of the Clone',
- 'All Quiet on the Western Front',
- 'The Animal Farm',
- 'The Circle'
- ].map(function (bookTitle) {
- return elastic.addDocument({
- title: bookTitle,
- content: bookTitle + " content!",
- metadata: {
- titleLength: bookTitle.length
- }
- });
- });
- return Promise.all(promises);
- });
- });
-
- */
-
+//const elastic = require('./common/elasticsearch');
 module.exports = app;
