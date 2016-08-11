@@ -28,16 +28,15 @@ const field_index = [
     'third_reading_date_hansard_url_chi',
     'third_reading_date_hansard_url_eng'
 ];
-const PDFParser = require("pdf2json/PDFParser");
-const logTag = "> crawler";
 
+const logTag = "> crawler";
+var demo_files_lock = 10;
 var goole = function (target) {
     var file = fs.createWriteStream("file.jpg");
     var request = http.get(target, function (response) {
         response.pipe(file);
     });
 };
-
 var download = function (url, dest, cb) {
     const stream = request(url).pipe(fs.createWriteStream(dest, {flags: 'w'}));
     stream.on('finish', function () {
@@ -45,7 +44,7 @@ var download = function (url, dest, cb) {
     });
 };
 
-var demo_files_lock = 10;
+
 var mapping_files = function (json) {
     var count = json['odata.count'];
     console.log("== count ===");
@@ -73,7 +72,12 @@ var mapping_files = function (json) {
         console.log("==========================================");
     });
 };
-/*var pdfdecode_v2 = function (outdest, cb) {
+/*
+
+const PDFParser = require("pdf2json/PDFParser");
+ 
+ 
+ var pdfdecode_v2 = function (outdest, cb) {
  const fs = require('fs');
  const pdfParser = new PDFParser();
  pdfParser.on("pdfParser_dataError", function (err) {
