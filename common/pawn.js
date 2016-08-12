@@ -93,7 +93,7 @@ const PDFParser = require("pdf2json/PDFParser");
  };*/
 var exeFunc = function (file_src, n) {
     const dest = path.dirname(module.main) + "/tmp/";
-    const out = dest + "/hansard_" + n + ".pdf";
+    const out = dest + "hansard_" + n + ".pdf";
     const url = file_src;
     return function (cb) {
         console.log(logTag, "start request url at");

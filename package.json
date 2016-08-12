@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-	"heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
-    "heroku-postbuild": "echo This runs afterwards."
+    "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
+    "heroku-postbuild": "echo This runs afterwards.",
+    "test": "node ./common/testxpdf"
   },
   "dependencies": {
     "body-parser": "1.15.2",
@@ -22,6 +23,7 @@
     "pdftotextjs": "^0.3.1",
     "pdf-extract": "^1.0.9",
     "pdf-text-extract": "~1.4.1",
+    "pdf-to-text": "~0.0.6",
     "request": "^2.74.0",
     "serve-favicon": "~2.3.0"
   }
