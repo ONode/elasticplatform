@@ -10,7 +10,7 @@ module.exports = function (outdest, callback) {
         from: 0,
         to: 10
     };
-
+    console.log("=== pdft to text ====");
     pdfUtil.pdfToText(outdesc, options, function (err, data) {
         if (err) {
             console.log("=== error form the processing ========");
@@ -20,5 +20,10 @@ module.exports = function (outdest, callback) {
         console.log("=== scan completed ========");
         return callback(data);
     });
-
+    
+    pdfUtil.info(outdesc, function(err, info) {
+        if (err) throw(err);
+        console.log("=== log info========");
+        console.log(info);
+    });
 };
