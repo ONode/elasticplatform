@@ -3,27 +3,35 @@
  * XDPF Util
  */
 const pdfUtil = require('pdf-util');
-module.exports = function (localpath, callback) {
-    var options = {
+module.exports = function (localpath, isEnglish, taskconfig, callback) {
+    const options = {
         remove_space_asian_character: true,
         new_paragraph: true,
         from: 0,
         to: 10
     };
-    console.log("=== pdf-t to text ====");
-    //  var buffer = [];
+    if (isEnglish) {
+        options.remove_space_asian_character = false;
+        options.new_paragraph = true;
+    }
+    console.log("=== pdf to text ===");
     pdfUtil.info(localpath, function (err, info) {
         if (err) throw(err);
-        console.log("=== log info========");
+        console.log("=== log info ===");
         console.log(info);
-
+        options.to = info.pages;
         pdfUtil.pdfToText(localpath, options, function (err, data) {
             if (err) {
-                console.log("=== error form the processing ========");
+                console.log("=== error form the processing ===");
                 return callback(err);
             }
-            console.log("=== scan completed ========");
-            return callback(data, info.pages);
+            console.log("=== scan completed ===");
+            return callback(null, {
+                content: data,
+                src: taskconfig.url,
+                title: "Minutes " + taskconfig.fieldname + " pages:" + info.pages,
+                metadata: []
+            });
         });
     });
 };

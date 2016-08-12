@@ -1,11 +1,12 @@
 //const confighost = process.env.ESHOST || 'localhost:9200';
 const confighost = process.env.ESHOST || '';
 const elasticsearch = require('elasticsearch');
+const wordfreqProgram = require('wordfreq');
 const elasticClient = new elasticsearch.Client({
     host: confighost,
     log: 'info'
 });
-const indexName = "randomindex";
+const indexName = "legcoindex";
 
 /**
  * Delete an existing index
@@ -45,6 +46,7 @@ function initMapping() {
             properties: {
                 title: {type: "string"},
                 content: {type: "string"},
+                source: {type: "string"},
                 suggest: {
                     type: "completion",
                     analyzer: "simple",
@@ -56,6 +58,25 @@ function initMapping() {
     });
 }
 exports.initMapping = initMapping;
+
+function addDocFullText(document) {
+
+    return elasticClient.index({
+        index: indexName,
+        type: "document",
+        body: {
+            title: document.title,
+            content: document.content,
+            source: document.src,
+            suggest: {
+                input: document.title.split(" "),
+                output: document.title,
+                payload: document.metadata || {}
+            }
+        }
+    });
+}
+exports.addDocFullText = addDocFullText;
 
 function addDocument(document) {
     return elasticClient.index({
@@ -91,7 +112,7 @@ function getSuggestions(input) {
 }
 
 function importdata() {
-    //Add a few book titles for the autocomplete
+//Add a few book titles for the autocomplete
 //elasticsearch offers a bulk functionality as well, but this is for a different time
     indexExists().then(function (exists) {
         if (exists) {

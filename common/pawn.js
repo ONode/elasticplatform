@@ -7,9 +7,8 @@ const path = require('path');
 const async = require('async');
 var request = require("request");
 var _ = require("lodash");
-//var pdftotext = require('pdftotextjs');
-//var pdfText = require('pdf-text');
-const extract = require('pdf-text-extract');
+var es = require("./elasticsearch");
+const logTag = "> crawler";
 const field_index = [
     'first_reading_date_hansard_url_chi',
     'first_reading_date_hansard_url_eng',
@@ -28,99 +27,94 @@ const field_index = [
     'third_reading_date_hansard_url_chi',
     'third_reading_date_hansard_url_eng'
 ];
+var demo_files_lock = 3;
 
-const logTag = "> crawler";
-var demo_files_lock = 10;
-var goole = function (target) {
-    var file = fs.createWriteStream("file.jpg");
-    var request = http.get(target, function (response) {
-        response.pipe(file);
-    });
-};
-var download = function (url, dest, cb) {
-    const stream = request(url).pipe(fs.createWriteStream(dest, {flags: 'w'}));
+// create a queue object with concurrency 2
+const dragonQ = async.queue(function (task, callback) {
+    //   console.log('hello ' + task.name);
+    const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
     stream.on('finish', function () {
-        cb();
+        require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
     });
+    stream.on('error', function (err) {
+        return callback(err);
+    });
+}, 2);
+// assign a callback
+dragonQ.drain = function () {
+    console.log("=====================================");
+    console.log("=== scan completed for files ========");
+    console.log("=====================================");
 };
-
-
-var mapping_files = function (json) {
+const step_2 = function (json, res) {
     var count = json['odata.count'];
-    console.log("== count ===");
+    console.log("=== count ===");
     console.log(count);
-    console.log("===========");
-    var filequeue = [];
+    console.log("=============");
     var n = 0;
+    const dest = path.dirname(module.main) + "/tmp/";
+    res.json({
+        pathstart: dest,
+        processpdfs: count,
+        message: "started making queues"
+    });
     _.forEach(json.value, function (val) {
         _.forEach(field_index, function (h) {
             if (!_.isEmpty(val[h])) {
-                // console.log("=======");
-                // console.log(val[h]);
-                // console.log("=======");
                 if (n < demo_files_lock) {
-                    filequeue.push(exeFunc(val[h], n));
+                    dragonQ.push({
+                        url: val[h],
+                        out: dest + "hansard_" + n + ".pdf",
+                        fieldname: h,
+                        isEnglish: h.indexOf("_eng") !== -1
+                    }, function (err, elasticObject) {
+                        if (err) {
+                            console.error('failure to make conversion', err);
+                        } else {
+                            console.log("> produced document", elasticObject.title);
+                            console.log('finished processing foo');
+                        }
+                    });
                 }
                 n++;
             }
         });
     });
-
-    exePatch(filequeue, 1, function () {
-        console.log("==========================================");
-        console.log("=== scan completed for files ========");
-        console.log("==========================================");
-    });
 };
+
+
 /*
-
-const PDFParser = require("pdf2json/PDFParser");
- 
- 
- var pdfdecode_v2 = function (outdest, cb) {
- const fs = require('fs');
- const pdfParser = new PDFParser();
- pdfParser.on("pdfParser_dataError", function (err) {
- console.error(err.parserError);
+ var exeFunc = function (file_src, n, isEnglish) {
+ const dest = path.dirname(module.main) + "/tmp/";
+ const out = dest + "hansard_" + n + ".pdf";
+ const url = file_src;
+ return function (cb) {
+ console.log(logTag, "start request url at");
+ const stream = request(url).pipe(fs.createWriteStream(out, {flags: 'w'}));
+ stream.on('finish', function () {
+ require("./pdf_process_v4")(out, isEnglish, cb);
  });
- pdfParser.on("pdfParser_dataReady", function (pdfdata) {
- console.log("==========================================");
- console.log(logTag, "done with file path at " + outdest);
- fs.writeFile(outdest + ".txt", pdfParser.getRawTextContent());
- cb();
+ stream.on('error', function (err) {
+ return cb(err);
  });
- pdfParser.loadPDF(outdest);
- };*/
-var exeFunc = function (file_src, n) {
-    const dest = path.dirname(module.main) + "/tmp/";
-    const out = dest + "hansard_" + n + ".pdf";
-    const url = file_src;
-    return function (cb) {
-        console.log(logTag, "start request url at");
-        const stream = request(url).pipe(fs.createWriteStream(out, {flags: 'w'}));
-        stream.on('finish', function () {
-            require("./pdf_process_v3")(out, cb);
-        });
-        stream.on('error', function (err) {
-            return cb(err);
-        });
-    }
-};
-var exePatch = function (tasks, processors, next) {
-    console.log(logTag, "exePatch process start");
-    if (processors > 0) {
-        async.parallelLimit(tasks, processors, function (err, results) {
-            console.log(logTag, "exePatch process done");
-            next();
-        });
-    } else {
-        async.parallel(tasks, function (err, results) {
-            console.log(logTag, "exePatch process done");
-            next();
-        });
-    }
-};
+ }
+ };
 
+ var exePatch = function (tasks, processors, next) {
+ console.log(logTag, "exePatch process start");
+ if (processors > 0) {
+ async.parallelLimit(tasks, processors, function (err, results) {
+ console.log(logTag, "exePatch process done");
+ next();
+ });
+ } else {
+ async.parallel(tasks, function (err, results) {
+ console.log(logTag, "exePatch process done");
+ next();
+ });
+ }
+ };
+ */
 var conference_json = function (m, res) {
     console.log("start request");
     request({
@@ -128,10 +122,9 @@ var conference_json = function (m, res) {
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 200) {
-            mapping_files(body);
-            res.render('index', {title: 'Successfully requested'});
+            step_2(body, res);
         } else {
-            res.render('index', {title: 'Legco Center'});
+            res.render('index', {title: 'Legco Center wrong request'});
         }
     });
 };

@@ -16,13 +16,10 @@ const pdf_process_v4 = function (res) {
     const home_tmp_folder = path.dirname(module.main) + "/tmp/";
     const file = home_tmp_folder + "hansard_0.pdf";
     console.log("> fili", "processing files");
-    t4(file, function (dat, pages) {
+    t4(file, false, function (err, dat) {
         console.log("> result xPDF::: ", dat);
         // buffer.push(data);
-        res.json({
-            p: pages,
-            content: dat
-        });
+        res.json(dat);
     });
 };
 module.exports.pdf_process_v3 = pdf_process_v3;
