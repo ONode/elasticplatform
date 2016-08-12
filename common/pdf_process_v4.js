@@ -2,15 +2,16 @@
  * Created by zJJ on 8/12/2016.
  * XDPF Util
  */
-const pdfUtil = require('pdf-to-text');
+const pdfUtil = require('pdf-util');
 module.exports = function (localpath, callback) {
     var options = {
-        type: 'text',  // extract the actual text in the pdf file
+        remove_space_asian_character: true,
+        new_paragraph: true,
         from: 0,
         to: 10
     };
     console.log("=== pdf-t to text ====");
-  //  var buffer = [];
+    //  var buffer = [];
     pdfUtil.info(localpath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info========");
