@@ -48,6 +48,12 @@ router.get('/test_v2/', function (req, res, next) {
         to: 15,
         customwork: function (line) {
             /**
+             * look ahead selection
+             * \d{3,4}(?=[\u7acb\u6cd5\u6703\u2500]+(19\d\d|200\d|201\d)[\u5e74](1\d|\d)[\u6708](1\d|2\d|3\d|\d)[\u65e5])
+             *
+             * select the number
+             *
+             * 
              * (\d\d\d\d)[\u7acb]
              * catch the pages first and second
              */
@@ -64,7 +70,7 @@ router.get('/test_v2/', function (req, res, next) {
              * catch all
              * 立法會─2013年2月6日
              */
-            line = line.replace(/[\u7acb\u6cd5\u6703\u2500](19\d\d|200\d|201\d)[\u5e74](1\d|\d)[\u6708](1\d|2\d|3\d|\d)[\u65e5]/g, '');
+            line = line.replace(/[\u7acb\u6cd5\u6703\u2500]+(19\d\d|200\d|201\d)[\u5e74](1\d|\d)[\u6708](1\d|2\d|3\d|\d)[\u65e5]/g, '');
             return line;
         }
     }, res);
