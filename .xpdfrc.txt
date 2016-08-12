@@ -1,8 +1,0 @@
-#----- begin Chinese Traditional support package (2011-sep-02)
-cidToUnicode Adobe-CNS1	vendor/xpdf/xpdf-chinese-traditional/Adobe-CNS1.cidToUnicode
-unicodeMap Big5	vendor/xpdf/xpdf-chinese-traditional/Big5.unicodeMap
-unicodeMap Big5ascii vendor/xpdf/xpdf-chinese-traditional/Big5ascii.unicodeMap
-cMapDir	Adobe-CNS1 vendor/xpdf/xpdf-chinese-traditional/CMap
-toUnicodeDir vendor/xpdf/xpdf-chinese-traditional/CMap
-textEncoding UTF-8
-#----- end Chinese Traditional support package
