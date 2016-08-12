@@ -22,16 +22,22 @@ module.exports = function (localpath, isEnglish, taskconfig, callback) {
         options.to = info.pages;
         pdfUtil.pdfToText(localpath, options, function (err, data) {
             if (err) {
-                console.log("=== error form the processing ===");
+                console.log("=== error form pdfToText ===");
                 return callback(err);
             }
-            console.log("=== scan completed ===");
-            return callback(null, {
+            const result = {
                 content: data,
                 src: taskconfig.url,
                 title: "Minutes " + taskconfig.fieldname + " pages:" + info.pages,
                 metadata: []
-            });
+            };
+            if (typeof taskconfig.postProcess === 'function') {
+                console.log("now start ESK processing now");
+                taskconfig.postProcess(result, callback);
+            } else {
+                console.log("=== scan completed ===");
+                return callback(null, result);
+            }
         });
     });
 };

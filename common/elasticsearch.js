@@ -7,7 +7,10 @@ const elasticClient = new elasticsearch.Client({
     log: 'info'
 });
 const indexName = "legcoindex";
-
+function isESReady() {
+    return confighost == '';
+};
+exports.isESReady = isESReady;
 /**
  * Delete an existing index
  */

@@ -21,8 +21,8 @@ router.get('/crawl/', function (req, res, next) {
     pawn.connect_cron_job(convert, res);
 });
 
-router.get('/crtest/', function (req, res, next) {
-    xpdf.pdf_process_v4(res);
+router.get('/test/', function (req, res, next) {
+    xpdf.pdf_demo_text(res);
 });
 
 
