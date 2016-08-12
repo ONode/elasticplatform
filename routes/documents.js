@@ -22,7 +22,7 @@ router.get('/crawl/', function (req, res, next) {
 });
 
 router.get('/crtest/', function (req, res, next) {
-    xpdf.pdf_process_v4();
+    xpdf.pdf_process_v4(res);
 });
 
 

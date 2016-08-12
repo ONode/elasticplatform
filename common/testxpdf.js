@@ -22,7 +22,7 @@ const pdf_process_v4 = function (res) {
         res.json({
             p: pages,
             content: dat
-        })
+        });
     });
 };
 module.exports.pdf_process_v3 = pdf_process_v3;
