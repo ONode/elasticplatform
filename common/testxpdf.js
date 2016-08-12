@@ -3,13 +3,8 @@
  */
 const path = require('path');
 const pdfUtil = require('pdf-util');
-const options = {
-    remove_space_asian_character: true,
-    new_paragraph: true,
-    from: 0,
-    to: 20
-};
-const pdf_demo_text = function (res) {
+
+const pdf_demo_text = function (options, res) {
     const home_tmp_folder = path.dirname(module.main) + "/tmp/";
     const file = home_tmp_folder + "hansard_0.pdf";
     console.log("> fili", "processing files");

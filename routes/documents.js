@@ -22,11 +22,31 @@ router.get('/crawl/', function (req, res, next) {
 });
 
 router.get('/test/', function (req, res, next) {
-    xpdf.pdf_demo_text(res);
+    xpdf.pdf_demo_text({
+            remove_space_asian_character: true,
+            new_paragraph: true,
+            from: 0,
+            to: 20
+        },
+        res);
+});
+router.get('/test_v1/', function (req, res, next) {
+    xpdf.pdf_demo_text({
+        remove_space_asian_character: false,
+        new_paragraph: false,
+        from: 0,
+        to: 15
+    }, res);
 });
 
 
-
-
+router.get('/test_v2/', function (req, res, next) {
+    xpdf.pdf_demo_text({
+        remove_space_asian_character: true,
+        new_paragraph: false,
+        from: 0,
+        to: 15
+    }, res);
+});
 
 module.exports = router;
