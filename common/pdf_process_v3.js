@@ -3,13 +3,13 @@
  */
 const pdf_extract = require('pdf-extract');
 const eyec = require('eyespect');
-module.exports = function (outdest, callback) {
+module.exports = function (localpath, callback) {
     var inspect = eyec.inspector({maxLength: 20000});
     //var absolute_path_to_pdf = '~/Downloads/electronic.pdf'
     var options = {
         type: 'text'  // extract the actual text in the pdf file
     };
-    var processor = pdf_extract(outdest, options, function (err) {
+    var processor = pdf_extract(localpath, options, function (err) {
         if (err) {
             return callback(err);
         }
