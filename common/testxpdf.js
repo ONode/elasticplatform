@@ -20,5 +20,5 @@ const pdf_process_v4 = function () {
         console.log("> result xPDF::: ", dat);
     });
 };
-module.exports = pdf_process_v3;
-module.exports = pdf_process_v4;
+module.exports.pdf_process_v3 = pdf_process_v3;
+module.exports.pdf_process_v4 = pdf_process_v4;

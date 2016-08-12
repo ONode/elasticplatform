@@ -1,5 +1,6 @@
 /**
  * Created by zJJ on 8/12/2016.
+ * XDPF Util
  */
 const pdfUtil = require('pdf-to-text');
 module.exports = function (outdest, callback) {
