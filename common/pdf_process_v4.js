@@ -10,17 +10,19 @@ module.exports = function (localpath, callback) {
         to: 10
     };
     console.log("=== pdf-t to text ====");
-    pdfUtil.pdfToText(localpath, options, function (err, data) {
-        if (err) {
-            console.log("=== error form the processing ========");
-            return callback(err);
-        }
-        console.log("=== scan completed ========");
-        return callback(data);
-    });
-    pdfUtil.info(localpath, function(err, info) {
+  //  var buffer = [];
+    pdfUtil.info(localpath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info========");
         console.log(info);
+
+        pdfUtil.pdfToText(localpath, options, function (err, data) {
+            if (err) {
+                console.log("=== error form the processing ========");
+                return callback(err);
+            }
+            console.log("=== scan completed ========");
+            return callback(data, info.pages);
+        });
     });
 };

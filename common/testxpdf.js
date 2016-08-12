@@ -12,15 +12,18 @@ const pdf_process_v3 = function () {
         console.log("> y", "processed files");
     });
 };
-const pdf_process_v4 = function () {
+const pdf_process_v4 = function (res) {
     const home_tmp_folder = path.dirname(module.main) + "/tmp/";
     const file = home_tmp_folder + "hansard_0.pdf";
     console.log("> fili", "processing files");
-    t4(file, function (dat) {
+    t4(file, function (dat, pages) {
         console.log("> result xPDF::: ", dat);
+        // buffer.push(data);
+        res.json({
+            p: pages,
+            content: dat
+        })
     });
-
-
 };
 module.exports.pdf_process_v3 = pdf_process_v3;
 module.exports.pdf_process_v4 = pdf_process_v4;

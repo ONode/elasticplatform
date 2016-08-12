@@ -8,6 +8,10 @@
     "heroku-postbuild": "echo This runs afterwards.",
     "test": "node ./common/testxpdf"
   },
+  "devDependencies": {
+    "mocha": "~1.21.4",
+    "should": "~4.0.4"
+  },
   "dependencies": {
     "body-parser": "1.15.2",
     "cookie-parser": "1.4.3",
