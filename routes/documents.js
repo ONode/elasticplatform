@@ -58,10 +58,13 @@ router.get('/test_v2/', function (req, res, next) {
                 return "(page no.$1)$2";
             });
             /**
+             * http://www.elasticsearchtutorial.com/elasticsearch-in-5-minutes.html
+             *
+             *
              * catch all
              * 立法會─2013年2月6日
              */
-            line = line.replace(/...[\u7acb\u6cd5\u6703\u2500](19\d\d|200\d|201\d)[\u5e74](1\d|\d)[\u6708](1\d|2\d|3\d|\d)[\u65e5]/g, '');
+            line = line.replace(/[\u7acb\u6cd5\u6703\u2500](19\d\d|200\d|201\d)[\u5e74](1\d|\d)[\u6708](1\d|2\d|3\d|\d)[\u65e5]/g, '');
             return line;
         }
     }, res);
