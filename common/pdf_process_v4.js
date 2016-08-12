@@ -9,7 +9,7 @@ module.exports = function (localpath, callback) {
         from: 0,
         to: 10
     };
-    console.log("=== pdft to text ====");
+    console.log("=== pdf-t to text ====");
     pdfUtil.pdfToText(localpath, options, function (err, data) {
         if (err) {
             console.log("=== error form the processing ========");

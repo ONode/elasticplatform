@@ -38,3 +38,5 @@ jspm_packages
 
 tmp/*.pdf
 tmp/*.txt
+
+.idea
