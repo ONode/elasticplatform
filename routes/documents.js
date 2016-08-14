@@ -17,16 +17,7 @@ router.post('/', function (req, res, next) {
 });
 /**   */
 router.get('/crawl/:year', function (req, res, next) {
-    const head = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq ";
-    if (!isNaN(req.params.year)) {
-        var allqueries = head + req.params.year;
-        pawn.searchByYear(allqueries, res);
-    } else {
-        res.json({
-            error: "no years found"
-        });
-    }
-
+    pawn.searchByYear(req, res);
 });
 
 router.get('/test/', function (req, res, next) {

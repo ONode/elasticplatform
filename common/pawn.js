@@ -44,7 +44,7 @@ dragonQ.drain = function () {
     console.log("=== scan completed for files ========");
     console.log("=====================================");
 };
-const step_2 = function (json, res) {
+const step_2 = function (year_code, json, res) {
     var count = json['odata.count'];
     console.log("=== files found ===");
     console.log(count);
@@ -79,7 +79,7 @@ const step_2 = function (json, res) {
             },
             function (callback) {
                 console.log("> === ini es mapping");
-                es.initMapping();
+                es.initMapping(year_code);
                 callback(null, true);
             }
         ], function (err, results) {
@@ -155,18 +155,24 @@ const step_2 = function (json, res) {
  }
  };
  */
-var searchByYear = function (m, res) {
-    console.log("start request");
-    request({
-        url: target_domain + m,
-        json: true
-    }, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            step_2(body, res);
-        } else {
-            res.render('index', {title: 'Legco Center wrong request'});
-        }
-    });
+var searchByYear = function (req, res) {
+    const head = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq ";
+    if (!isNaN(req.params.year)) {
+        var allqueries = head + req.params.year;
+        console.log("start request from the year of: ", req.params.year);
+        request({
+            url: target_domain + allqueries,
+            json: true
+        }, function (error, response, body) {
+            if (!error && response.statusCode === 200) {
+                step_2(req.params.year, body, res);
+            } else {
+                res.render('index', {title: 'Legco Center server side error'});
+            }
+        });
+    } else {
+        res.render('index', {title: 'Legco Center no year request is found'});
+    }
 };
 module.exports.searchByYear = searchByYear;
 /**

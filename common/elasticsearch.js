@@ -1,12 +1,12 @@
 const elasticsearch = require('elasticsearch');
 //const wordfreqProgram = require('wordfreq');
-const indexName = "logstash-legcoxx";
+const indexName = "logstash-legcoxx-";
 const elasticClient = new elasticsearch.Client({
     host: getBonsaiUrl(),
     log: 'info'
 });
 function isESReady() {
-    return  getBonsaiUrl() != '';
+    return getBonsaiUrl() != '';
 }
 function getBonsaiUrl() {
     return process.env.BONSAI_URL || '';
@@ -42,7 +42,7 @@ function indexExists() {
 }
 exports.indexExists = indexExists;
 
-function initMapping() {
+function initMapping(legco_year) {
     elasticClient.ping({
             requestTimeout: 30000,
             hello: "elasticsearch"
@@ -57,11 +57,11 @@ function initMapping() {
     );
 
     return elasticClient.indices.putMapping({
-        index: indexName,
+        index: indexName + legco_year,
         type: "document",
         body: {
             properties: {
-                title: {type: "string"},
+                title: {type: "string", "analyzer": "english"},
                 content: {type: "string"},
                 source: {type: "string"},
                 suggest: {
