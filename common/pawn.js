@@ -26,8 +26,7 @@ const field_index = [
     'third_reading_date_hansard_url_chi',
     'third_reading_date_hansard_url_eng'
 ];
-var demo_files_lock = 3;
-
+var demo_files_lock = 1;
 // create a queue object with concurrency 2
 const dragonQ = async.queue(function (task, callback) {
     //   console.log('hello ' + task.name);
@@ -57,38 +56,48 @@ const step_2 = function (json, res) {
         processpdfs: count,
         message: "started making queues"
     });
-    _.forEach(json.value, function (val) {
-        _.forEach(field_index, function (h) {
-            if (!_.isEmpty(val[h])) {
-                if (n < demo_files_lock) {
-                    dragonQ.push({
-                        url: val[h],
-                        out: dest + "hansard_" + n + ".pdf",
-                        fieldname: h,
-                        isEnglish: h.indexOf("_eng") !== -1,
-                        postProcess: function (estask, callback) {
-                            if(es.isESReady()){
-                                /**
-                                 * ELS process start in here
-                                 */
-                                es.addDocFullText(estask);
-                                return callback(null, estask);
-                            }else{
-                                return callback(new Error("elastic search engine is not setup properly."))
+    es.indexExists().then(function (exist) {
+        if (exists) {
+            console.log("> === remove previous index");
+            return deleteIndex();
+        }
+    }).then(function () {
+        console.log("> === ini es mapping");
+        return es.initIndex().then(es.initMapping());
+    }).then(function () {
+        _.forEach(json.value, function (val) {
+            _.forEach(field_index, function (h) {
+                if (!_.isEmpty(val[h])) {
+                    if (n < demo_files_lock) {
+                        dragonQ.push({
+                            url: val[h],
+                            out: dest + "hansard_" + n + ".pdf",
+                            fieldname: h,
+                            isEnglish: h.indexOf("_eng") !== -1,
+                            postProcess: function (estask, callback) {
+                                if (es.isESReady()) {
+                                    /**
+                                     * ELS process start in here
+                                     */
+                                    es.addDocFullText(estask);
+                                    return callback(null, estask);
+                                } else {
+                                    return callback(new Error("elastic search engine is not setup properly."))
+                                }
                             }
-                        }
-                    }, function (err, elasticObject) {
-                        if (err) {
-                            console.error('failure to make conversion', err);
-                        } else {
-                            console.log("> produced document", elasticObject.title);
-                            console.log('process one file done');
-                            console.log('====================================');
-                        }
-                    });
+                        }, function (err, elasticObject) {
+                            if (err) {
+                                console.error('failure to make conversion', err);
+                            } else {
+                                console.log("> produced document", elasticObject.title);
+                                console.log('process one file done');
+                                console.log('====================================');
+                            }
+                        });
+                    }
+                    n++;
                 }
-                n++;
-            }
+            });
         });
     });
 };

@@ -6,7 +6,7 @@ const elasticClient = new elasticsearch.Client({
     log: 'info'
 });
 function isESReady() {
-    return getBonsaiUrl() != '';
+    return  getBonsaiUrl() != '';
 }
 function getBonsaiUrl() {
     return process.env.BONSAI_URL || '';
@@ -43,6 +43,19 @@ function indexExists() {
 exports.indexExists = indexExists;
 
 function initMapping() {
+    elasticClient.ping({
+            requestTimeout: 30000,
+            hello: "elasticsearch"
+        },
+        function (error) {
+            if (error) {
+                console.error('elasticsearch cluster is down!');
+            } else {
+                console.log('All is well');
+            }
+        }
+    );
+
     return elasticClient.indices.putMapping({
         index: indexName,
         type: "document",
@@ -82,6 +95,9 @@ function addDocFullText(document) {
 exports.addDocFullText = addDocFullText;
 
 function addDocument(document) {
+    if (document.content) {
+        console.log(document.content);
+    }
     return elasticClient.index({
         index: indexName,
         type: "document",
