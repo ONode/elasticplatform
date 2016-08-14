@@ -1,12 +1,12 @@
 const elasticsearch = require('elasticsearch');
-const wordfreqProgram = require('wordfreq');
+//const wordfreqProgram = require('wordfreq');
+const indexName = "logstash-legcoxx";
 const elasticClient = new elasticsearch.Client({
     host: getBonsaiUrl(),
     log: 'info'
 });
-const indexName = "logstash-legcoxx";
 function isESReady() {
-    return getBonsaiUrl() == '';
+    return getBonsaiUrl() != '';
 }
 function getBonsaiUrl() {
     return process.env.BONSAI_URL || '';
