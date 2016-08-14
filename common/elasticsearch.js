@@ -1,15 +1,16 @@
-//const confighost = process.env.ESHOST || 'localhost:9200';
-const confighost = process.env.ESHOST || '';
 const elasticsearch = require('elasticsearch');
 const wordfreqProgram = require('wordfreq');
 const elasticClient = new elasticsearch.Client({
-    host: confighost,
+    host: getBonsaiUrl(),
     log: 'info'
 });
 const indexName = "legcoindex";
 function isESReady() {
-    return confighost == '';
-};
+    return getBonsaiUrl() == '';
+}
+function getBonsaiUrl() {
+    return process.env.BONSAI_URL || '';
+}
 exports.isESReady = isESReady;
 /**
  * Delete an existing index
