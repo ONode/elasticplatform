@@ -4,7 +4,7 @@ const elasticClient = new elasticsearch.Client({
     host: getBonsaiUrl(),
     log: 'info'
 });
-const indexName = "legcoindex";
+const indexName = "logstash-legcoxx";
 function isESReady() {
     return getBonsaiUrl() == '';
 }
