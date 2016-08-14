@@ -1,5 +1,4 @@
 const target_domain = "http://app.legco.gov.hk/BillsDB/odata/Vbills";
-const config = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq 2013";
 var http = require('http');
 var fs = require('fs');
 var fse = require('fs-extra');
@@ -48,7 +47,7 @@ dragonQ.drain = function () {
 };
 const step_2 = function (json, res) {
     var count = json['odata.count'];
-    console.log("=== count ===");
+    console.log("=== files found ===");
     console.log(count);
     console.log("=============");
     var n = 0;
@@ -127,7 +126,7 @@ const step_2 = function (json, res) {
  }
  };
  */
-var conference_json = function (m, res) {
+var searchByYear = function (m, res) {
     console.log("start request");
     request({
         url: target_domain + m,
@@ -140,7 +139,7 @@ var conference_json = function (m, res) {
         }
     });
 };
-module.exports.connect_cron_job = conference_json;
+module.exports.searchByYear = searchByYear;
 /**
  開放資料網頁應用程式介面可在以下網址執行：
  http://app.legco.gov.hk/BillsDB/odata/Vbills （JSON 格式）

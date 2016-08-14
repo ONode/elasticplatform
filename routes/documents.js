@@ -16,9 +16,17 @@ router.post('/', function (req, res, next) {
     });
 });
 /**   */
-router.get('/crawl/', function (req, res, next) {
-    const convert = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq 2013";
-    pawn.connect_cron_job(convert, res);
+router.get('/crawl/:year', function (req, res, next) {
+    const head = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq ";
+    if (!isNaN(req.params.year)) {
+        var allqueries = head + req.params.year;
+        pawn.searchByYear(allqueries, res);
+    } else {
+        res.json({
+            error: "no years found"
+        });
+    }
+
 });
 
 router.get('/test/', function (req, res, next) {
@@ -53,16 +61,16 @@ router.get('/test_v2/', function (req, res, next) {
              *
              * select the number
              *
-             * 
+             *
              * (\d\d\d\d)[\u7acb]
              * catch the pages first and second
              */
             /*line = line.replace(/([\u65e5])(\d\d\d\d)/g, function (ex) {
-                return "$1(page no.$2)";
-            });
-            line = line.replace(/(\d\d\d\d)([\u7acb])/g, function (ex) {
-                return "(page no.$1)$2";
-            });*/
+             return "$1(page no.$2)";
+             });
+             line = line.replace(/(\d\d\d\d)([\u7acb])/g, function (ex) {
+             return "(page no.$1)$2";
+             });*/
             /**
              * http://www.elasticsearchtutorial.com/elasticsearch-in-5-minutes.html
              *

@@ -63,7 +63,6 @@ function initMapping() {
 exports.initMapping = initMapping;
 
 function addDocFullText(document) {
-
     return elasticClient.index({
         index: indexName,
         type: "document",
