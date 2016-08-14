@@ -61,15 +61,30 @@ const step_2 = function (json, res) {
         console.log("> === operation aborted.");
         return;
     } else {
-        es.indexExists().then(function (exist) {
-            if (exists) {
-                console.log("> === remove previous index");
-                return es.deleteIndex();
+        console.log("> === ES is prepared.");
+
+        async.series([
+            function (callback) {
+                var exists = es.indexExists();
+                if (exists) {
+                    console.log("> === remove previous index");
+                    es.deleteIndex();
+                }
+                callback(null, true);
+            },
+            function (callback) {
+                console.log("> === ini index");
+                es.initIndex();
+                callback(null, true);
+            },
+            function (callback) {
+                console.log("> === ini es mapping");
+                es.initMapping();
+                callback(null, true);
             }
-        }).then(function () {
-            console.log("> === ini es mapping");
-            return es.initIndex().then(es.initMapping());
-        }).then(function () {
+        ], function (err, results) {
+
+
             _.forEach(json.value, function (val) {
                 _.forEach(field_index, function (h) {
                     if (!_.isEmpty(val[h])) {
@@ -80,15 +95,11 @@ const step_2 = function (json, res) {
                                 fieldname: h,
                                 isEnglish: h.indexOf("_eng") !== -1,
                                 postProcess: function (estask, callback) {
-                                    if (es.isESReady()) {
-                                        /**
-                                         * ELS process start in here
-                                         */
-                                        es.addDocFullText(estask);
-                                        return callback(null, estask);
-                                    } else {
-                                        return callback(new Error("elastic search engine is not setup properly."))
-                                    }
+                                    /**
+                                     * ELS process start in here
+                                     */
+                                    es.addDocFullText(estask);
+                                    return callback(null, estask);
                                 }
                             }, function (err, elasticObject) {
                                 if (err) {
@@ -104,7 +115,10 @@ const step_2 = function (json, res) {
                     }
                 });
             });
+
         });
+
+
     }
 };
 
