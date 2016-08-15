@@ -4,7 +4,7 @@
 const elasticsearch = require('elasticsearch'),
     util = require("util"),
     events = require("events");
-const indexName = "logstash-legcoxx-";
+const indexName = "legco-";
 //const wordfreqProgram = require('wordfreq');
 function elClient(config) {
     this.options = config;
