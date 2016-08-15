@@ -50,7 +50,7 @@ const dragonQ = async.queue(function (task, callback) {
                     console.log("> doc title", doc.title);
                     //console.log("> xpdf the internal key", doc.data_internal_key);
                     console.log("> xpdf data length", doc.content.length);
-                   // task.elengine.addDoc(doc);
+                    // task.elengine.addDoc(doc);
                 } else {
                     console.log("> xpdf preview", "document skipped");
                 }
@@ -96,17 +96,19 @@ const step_2 = function (year_code, json, res) {
             function (callback) {
                 var exists = elastic.indexExists();
                 if (exists) {
-                    elastic.deleteIndex().then(function(body){
+                    elastic.deleteIndex().then(function (body) {
                         console.log("> === remove previous index");
                         callback(null, true);
-                    }, function(error){
+                    }, function (error) {
                         console.log("> === remove index error", error);
                     });
                 }
             },
             function (callback) {
-                console.log("> === ini index");
-                elastic.initIndex().then(elastic.initMapping).then(function(){
+                console.log("> === start indexing ");
+                elastic.initIndex().then(elastic.initMapping, function (reject) {
+                    console.log("> === failure to index");
+                }).then(function () {
                     console.log("> === elasticsearch mapping");
                     callback(null, true);
                 });
