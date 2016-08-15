@@ -14,11 +14,11 @@ const options_instance = {
     to: 10
 };
 function xPDFpathStarter(localpath, isEnglish, taskconfig, AysncCallback) {
-    if (isEnglish) {
-        options.remove_space_asian_character = false;
-        options.new_paragraph = true;
-    }
     this.options = options_instance;
+    if (isEnglish) {
+        this.options.remove_space_asian_character = false;
+        this.options.new_paragraph = true;
+    }
     console.log("=== pdf to text ===");
     this.set_config(taskconfig, AysncCallback);
     pdfUtil.info(localpath, function (err, info) {
