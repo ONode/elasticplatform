@@ -38,7 +38,7 @@ const dragonQ = async.queue(function (task, callback) {
         getdoc.on("scanpage", function (doc) {
             console.log("> xpdf preview", "===================");
             console.log("> xpdf preview", doc.title);
-            console.log("> xpdf preview", doc.date);
+            console.log("> xpdf preview", doc.data_internal_key);
             console.log("> xpdf preview", "===================");
             task.elengine.addDoc(doc);
         });

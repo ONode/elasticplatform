@@ -75,19 +75,23 @@ elClient.prototype.addDoc = function (document) {
     //  var timeInMs = new Date();
     var timeInMs = Date.now();
     // timeInMs.toUTCString()
-    return this.esclient.index({
-        index: this.getIndexName(),
-        type: "document",
-        body: {
-            path: "legco/hansard/" + document.data_read_order,
-            title: document.title,
-            content: document.content,
-            source: document.src,
-            doc_index: document.data_internal_key,
-            _timestamp: timeInMs,
-            suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
-        }
-    });
+    try {
+        return this.esclient.index({
+            index: this.getIndexName(),
+            type: "document",
+            body: {
+                path: "legco/hansard/" + document.data_read_order,
+                title: document.title,
+                content: document.content,
+                source: document.src,
+                doc_index: document.data_internal_key,
+                _timestamp: timeInMs,
+                suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
+            }
+        });
+    } catch (e) {
+        console.log("> check", e);
+    }
 };
 elClient.prototype.getSuggestions = function (input) {
     return this.esclient.suggest({

@@ -54,7 +54,7 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
         const result = {
             content: data,
             src: this.getExternal().url,
-            title: "Minutes " + this.getExternal().fieldname + " pages:" + this.getConfig().total_pages,
+            title: "Minutes " + this.getExternal().fieldname + " p: " + this.getConfig().from + " : " + this.getConfig().to,
             metadata: []
         };
         console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
