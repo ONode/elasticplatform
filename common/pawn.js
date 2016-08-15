@@ -37,7 +37,7 @@ const dragonQ = async.queue(function (task, callback) {
         var getdoc = new V5(task.out, task.isEnglish, task, callback);
         getdoc.on("scanpage", function (doc) {
             console.log("> repreview", doc);
-            task.elengine.addDocFullText(doc);
+            task.elengine.addDoc(doc);
         });
     });
     stream.on('error', function (err) {
