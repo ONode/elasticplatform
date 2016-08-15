@@ -7,6 +7,7 @@ const async = require('async');
 var request = require("request");
 var _ = require("lodash");
 var es2 = require("./el2");
+var Promise = require("promise");
 const logTag = "> crawler";
 const field_index = [
     'first_reading_date_hansard_url_chi',
@@ -28,41 +29,7 @@ const field_index = [
 ];
 var V5 = require("./pdf_process_v5");
 var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
-// create a queue object with concurrency 2
-const dragonQ = async.queue(function (task, callback) {
-    fse.createFile(task.out, function (err) {
-        if (err) {
-            console.log("> xpdf file creation", "===================");
-            console.log(err);
-            console.log("> xpdf end", "===================");
-        }
-        const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
-        stream.on('finish', function () {
-            const getdoc = new V5(task);
-            getdoc.on("scanpage", function (doc) {
-                task.el.addDoc(doc).then(function (body) {
-                    console.log("> xpdf preview", body);
-                    getdoc.next_wave();
-                }, function (err) {
-                    console.log("> xpdf error", err);
-                });
-            });
-            getdoc.on("complete", function (msg) {
-                console.log("> xpdf complete", msg);
-                return callback(null, task);
-            });
-        });
-        stream.on('error', function (err) {
-            return callback(err);
-        });
-    });
-}, 1);
-// assign a callback
-dragonQ.drain = function () {
-    console.log("=====================================");
-    console.log("=== scan completed for files ========");
-    console.log("=====================================");
-};
+
 const step_2 = function (year_code, json, res) {
     var count = json['odata.count'];
     console.log("=== files found ===");
@@ -106,7 +73,7 @@ const step_2 = function (year_code, json, res) {
                 });
             }
         ], function (err, results) {
-            var n = 0;
+            var n = 0, array = [];
             _.forEach(json.value, function (val) {
                 _.forEach(field_index, function (h) {
                     var base_file_val = val[h];
@@ -116,37 +83,118 @@ const step_2 = function (year_code, json, res) {
                         read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
                     }
                     if (!_.isEmpty(base_file_val) && n < demo_files_lock) {
-                        dragonQ.push({
-                                url: base_file_val,
-                                out: dest + "hansard_" + n + ".pdf",
-                                fieldname: h,
-                                isEnglish: isenglish,
-                                el: elastic,
-                                data_read_order: read_order,
-                                data_internal_key: parseInt(val.internal_key)
-                            },
-                            function (err, elasticObject) {
-                                if (err) {
-                                    console.error('failure to make conversion', err);
-                                } else {
-                                    console.log("> produced document");
-                                    console.log('this file is done scanning');
-                                    console.log('====================================');
-                                }
-                            }
-                        );
+                        const datactivity = {
+                            url: base_file_val,
+                            out: dest + "hansard_" + n + ".pdf",
+                            fieldname: h,
+                            isEnglish: isenglish,
+                            el: elastic,
+                            data_read_order: read_order,
+                            data_internal_key: parseInt(val.internal_key)
+                        };
+                        /* dragon_q(datactivity);*/
+                        array.push(getSerialPromise(datactivity));
                         n++;
                     }
                 });
             });
             console.log("prepared to process files - " + n);
+            //Promise.all(array);
+            startSerial(array);
         });
-
-
     }
 };
 
+function getSerialPromise(activity) {
+    return function (callback) {
+        fse.createFile(activity.out, function (err) {
+            if (err) {
+                console.log("> xpdf file creation", "===================");
+                console.log(err);
+                console.log("> xpdf end", "===================");
+            }
+            const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
+            stream.on('finish', function () {
+                const getdoc = new V5(activity);
+                getdoc.on("scanpage", function (doc) {
+                    activity.el.addDoc(doc).then(function (body) {
+                        console.log("> xpdf preview", body);
+                        getdoc.next_wave();
+                    }, function (err) {
+                        console.log("> xpdf error", err);
+                    });
+                });
+                getdoc.on("complete", function (msg) {
+                    console.log("> xpdf complete", msg);
+                    return callback(null, activity);
+                });
+            });
+            stream.on('error', function (err) {
+                return callback(err);
+            });
+        });
+    }
+}
+function startSerial(array_fun) {
+    async.series(array_fun, function (err, result) {
+        if (err) {
+            console.error('failure to make conversion', err);
+        } else {
+            console.log("=====================================");
+            console.log("=== scan completed: " + array_fun.length + " for files ========");
+            console.log("=====================================");
+        }
+    });
+}
+// create a queue object with concurrency 2
+const dragonQ = async.queue(function (task, callback) {
+    fse.createFile(task.out, function (err) {
+        if (err) {
+            console.log("> xpdf file creation", "===================");
+            console.log(err);
+            console.log("> xpdf end", "===================");
+        }
+        const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
+        stream.on('finish', function () {
+            const getdoc = new V5(task);
+            getdoc.on("scanpage", function (doc) {
+                task.el.addDoc(doc).then(function (body) {
+                    console.log("> xpdf preview", body);
+                    getdoc.next_wave();
+                }, function (err) {
+                    console.log("> xpdf error", err);
+                });
+            });
+            getdoc.on("complete", function (msg) {
+                console.log("> xpdf complete", msg);
+                return callback(null, task);
+            });
+        });
+        stream.on('error', function (err) {
+            return callback(err);
+        });
+    });
+}, 1);
 
+var dragon_q = function (activity) {
+    dragonQ.push(activity,
+        function (err, elasticObject) {
+            if (err) {
+                console.error('failure to make conversion', err);
+            } else {
+                console.log("> produced document");
+                console.log('this file is done scanning');
+                console.log('====================================');
+            }
+        }
+    );
+};
+// assign a callback
+dragonQ.drain = function () {
+    console.log("=====================================");
+    console.log("=== scan completed for files ========");
+    console.log("=====================================");
+};
 /*
  var exeFunc = function (file_src, n, isEnglish) {
  const dest = path.dirname(module.main) + "/tmp/";
