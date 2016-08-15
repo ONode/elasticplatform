@@ -48,7 +48,6 @@ xPDFpathStarter.prototype.getExternal = function () {
 xPDFpathStarter.prototype.asyncCallback = function () {
     return this.getConfig().asyncallback;
 };
-util.inherits(xPDFpathStarter, events.EventEmitter);
 xPDFpathStarter.prototype.process_pages = function (localpath) {
     pdfUtil.pdfToText(localpath, this.options, function (err, data) {
         if (err) {
@@ -79,49 +78,13 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
             } else {
                 if (typeof this.getExternal().postProcess === 'function') {
                     console.log("now start ESK processing now");
-                    this.getExternal().postProcess(result, this.asyncCallback());
+                    this.getExternal().postProcess(result, this.asyncCallback);
                 }
             }
-        } else {
-            if (typeof this.getExternal().postProcess === 'function') {
-                console.log("now start ESK processing now");
-                this.getExternal().postProcess(result, this.asyncCallback());
-            }
+        } else if (delta < 0) {
+            console.error("xpdf process Error : delta < 0 ");
         }
     }.bind(this));
 };
-
-/*
-
- function process_pages(localpath, total) {
- pdfUtil.pdfToText(localpath, this.options, function (err, data) {
- if (err) {
- console.log("=== error form pdfToText ===");
- return callback(err);
- }
- const result = {
- content: data,
- src: taskconfig.url,
- title: "Minutes " + taskconfig.fieldname + " pages:" + info.pages,
- metadata: []
- };
- if (typeof taskconfig.postProcess === 'function') {
- console.log("now start ESK processing now");
- taskconfig.postProcess(result, callback);
- }
-
-
- console.log("now processed pages from " + options.from + " to " + options.to);
-
- if (options.to < total) {
- var newTo = options.from + options.interval_pages;
- var newFrom = options.to + 1;
- options.from = newFrom;
- options.to = newTo;
- process_pages(localpath, options, total);
- }
- });
- }
- */
-
+util.inherits(xPDFpathStarter, events.EventEmitter);
 module.exports = xPDFpathStarter;

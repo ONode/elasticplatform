@@ -36,7 +36,7 @@ const dragonQ = async.queue(function (task, callback) {
         //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
         var getdoc = new V5(task.out, task.isEnglish, task, callback);
         getdoc.on("scanpage", function (doc) {
-            console.log("> repreview", doc);
+            console.log("> xpdf preview", doc);
             task.elengine.addDoc(doc);
         });
     });
@@ -114,9 +114,6 @@ const step_2 = function (year_code, json, res) {
                                     elengine: elastic,
                                     data_read_order: read_order,
                                     postProcess: function (estask, callback) {
-                                        /**
-                                         * ELS process start in here
-                                         */
                                         return callback(null, estask);
                                     }
                                 },
