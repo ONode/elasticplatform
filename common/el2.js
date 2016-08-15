@@ -8,7 +8,7 @@ const indexName = process.env.SEARCHFARM_INDEXPREFIX || "legco-";
 //const wordfreqProgram = require('wordfreq');
 function elClient(config) {
     this.options = config;
-    this.options.connection_url = process.env.BONSAI_URL || '';
+    this.options.connection_url = process.env.BONSAI_URL || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io';
     if (this.isReady()) {
         const elasticClient = new elasticsearch.Client({
             host: this.options.connection_url,
