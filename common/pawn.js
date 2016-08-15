@@ -139,7 +139,7 @@ const step_2 = function (year_code, json, res) {
                     }
                 });
             });
-            console.log("prepared to process files" + n);
+            console.log("prepared to process files - " + n);
         });
 
 

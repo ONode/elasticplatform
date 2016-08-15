@@ -28,12 +28,13 @@ function xPDFpathStarter(config) {
     }
     console.log("=== pdf to text ===");
     this.set_config(config);
-    pdfUtil.info(localpath, function (err, info) {
+    pdfUtil.info(this.filepath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info ===");
         console.log(info);
+        console.log("================");
         this.startConfig(0, options_instance.interval_pages, info.pages);
-        this.process_pages(localpath);
+        this.process_pages(this.filepath);
     }.bind(this));
 }
 xPDFpathStarter.prototype.set_config = function (config) {
