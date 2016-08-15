@@ -31,27 +31,32 @@ var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
 // create a queue object with concurrency 2
 const dragonQ = async.queue(function (task, callback) {
     //   console.log('hello ' + task.name);
-    const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
-    stream.on('finish', function () {
-        //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
-        var getdoc = new V5(task.out, task.isEnglish, task, callback);
-        getdoc.on("scanpage", function (doc) {
-            doc.data_internal_key = task.data_internal_key;
-            doc.data_read_order = task.data_read_order;
-            doc.data_source_url = task.url;
-            console.log("> xpdf preview", "===================");
-            console.log("> doc title", doc.title);
-            //console.log("> xpdf the internal key", doc.data_internal_key);
-            console.log("> xpdf data length", doc.content.length);
-            console.log("> xpdf preview", "===================");
-            task.elengine.addDoc(doc);
+    fse.createFile(task.out, function (err) {
+        if (err) {
+            console.log(err);
+        }
+        const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
+        stream.on('finish', function () {
+            //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
+            var getdoc = new V5(task.out, task.isEnglish, task, callback);
+            getdoc.on("scanpage", function (doc) {
+                doc.data_internal_key = task.data_internal_key;
+                doc.data_read_order = task.data_read_order;
+                doc.data_source_url = task.url;
+                console.log("> xpdf preview", "===================");
+                console.log("> doc title", doc.title);
+                //console.log("> xpdf the internal key", doc.data_internal_key);
+                console.log("> xpdf data length", doc.content.length);
+                console.log("> xpdf preview", "===================");
+                task.elengine.addDoc(doc);
+            });
+            getdoc.on("complete", function () {
+                return callback(null, task);
+            });
         });
-        getdoc.on("complete", function () {
-            return callback(null, task);
+        stream.on('error', function (err) {
+            return callback(err);
         });
-    });
-    stream.on('error', function (err) {
-        return callback(err);
     });
 }, 2);
 // assign a callback
