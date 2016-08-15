@@ -55,21 +55,18 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
             console.log("=== error form pdfToText ===");
             this.emit("error", err);
         }
-
         const result = {
             content: data,
-            title: this.getExternal().fieldname + " p: " + this.getConfig().from + " - " + this.getConfig().to,
+            title: "minutes page " + this.getConfig().from + "-" + this.getConfig().to,
             metadata: []
         };
-
         console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
         result.data_internal_key = this.getExternal().data_internal_key;
         result.data_read_order = this.getExternal().data_read_order;
         result.data_source_url = this.getExternal().url;
-        console.log(result);
-
-        this.getExternal().elengine.addDoc(result).then(function (body) {
-            this.emit('scanpage', body);
+        //  console.log(result);
+        this.getExternal().el.addDoc(result).then(function (body) {
+            this.emit('scanpage', result);
             var delta = this.getConfig().total_pages - this.getConfig().to;
             if (delta > this.getConfig().interval_pages) {
                 var newFrom = this.getConfig().to + 1;

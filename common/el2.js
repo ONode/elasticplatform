@@ -98,8 +98,9 @@ elClient.prototype.addDocCB = function (document, callback) {
 elClient.prototype.addDoc = function (document) {
     //  var timeInMs = new Date();
     var timeInMs = Date.now();
-    // timeInMs.toUTCString()
-    //    id: timeInMs,
+    //timeInMs.toUTCString()
+    //id: timeInMs,
+    console.log(document);
     return this.esclient.index({
         index: this.getIndexName(),
         type: "page",
