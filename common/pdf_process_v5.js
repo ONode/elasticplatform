@@ -43,10 +43,10 @@ xPDFpathStarter.prototype.getConfig = function () {
     return this.options;
 };
 xPDFpathStarter.prototype.getExternal = function () {
-    return this.getConfig().external;
+    return this.options.external;
 };
 xPDFpathStarter.prototype.asyncCallback = function () {
-    return this.getConfig().asyncallback;
+    return this.options.asyncallback;
 };
 xPDFpathStarter.prototype.process_pages = function (localpath) {
     pdfUtil.pdfToText(localpath, this.options, function (err, data) {
