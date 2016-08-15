@@ -14,10 +14,10 @@ const options_instance = {
     from: 0,
     to: 10
 };
-function xPDFpathStarter(localpath, isEnglish, taskconfig) {
+function xPDFpathStarter(config) {
     this.options = options_instance;
-    this.filepath = localpath;
-    if (isEnglish) {
+    this.filepath = config.out;
+    if (config.isEnglish) {
         this.options.remove_space_asian_character = false;
         this.options.new_paragraph = true;
         this.options.remove_single_n_english = true;
@@ -27,7 +27,7 @@ function xPDFpathStarter(localpath, isEnglish, taskconfig) {
         this.options.remove_single_n_english = false;
     }
     console.log("=== pdf to text ===");
-    this.set_config(taskconfig);
+    this.set_config(config);
     pdfUtil.info(localpath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info ===");
@@ -36,8 +36,8 @@ function xPDFpathStarter(localpath, isEnglish, taskconfig) {
         this.process_pages(localpath);
     }.bind(this));
 }
-xPDFpathStarter.prototype.set_config = function (taskconfig) {
-    this.options.external = taskconfig;
+xPDFpathStarter.prototype.set_config = function (config) {
+    this.options.external = config;
 };
 xPDFpathStarter.prototype.startConfig = function (from, to, maxpages) {
     this.options.from = from;
@@ -56,18 +56,21 @@ xPDFpathStarter.prototype.next_wave = function () {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().from + this.getConfig().interval_pages;
         this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+        console.log("next wave 1");
         this.process_pages();
     } else if (delta < this.getConfig().interval_pages) {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().total_pages;
         if (newFrom < newTo) {
             this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+            console.log("next wave 2");
             this.process_pages();
         } else {
             if (this.getExternal().postProcess != null && typeof this.getExternal().postProcess === 'function') {
                 console.log("now start ESK processing now");
                 this.getExternal().postProcess("done");
             }
+            console.log("next wave 3");
             this.emit('complete', 'done');
         }
     } else if (delta < 0) {
