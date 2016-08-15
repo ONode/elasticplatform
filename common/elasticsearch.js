@@ -1,6 +1,9 @@
-const elasticsearch = require('elasticsearch');
-//const wordfreqProgram = require('wordfreq');
+const elasticsearch = require('elasticsearch'),
+    util = require("util"),
+    events = require("events");
 const indexName = "logstash-legcoxx-";
+//const wordfreqProgram = require('wordfreq');
+
 const elasticClient = new elasticsearch.Client({
     host: getBonsaiUrl(),
     log: 'info'

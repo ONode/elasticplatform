@@ -6,7 +6,7 @@ const path = require('path');
 const async = require('async');
 var request = require("request");
 var _ = require("lodash");
-var es = require("./elasticsearch");
+var es2 = require("./el2");
 const logTag = "> crawler";
 const field_index = [
     'first_reading_date_hansard_url_chi',
@@ -37,7 +37,7 @@ const dragonQ = async.queue(function (task, callback) {
         var getdoc = new V5(task.out, task.isEnglish, task, callback);
         getdoc.on("scanpage", function (doc) {
             console.log("> repreview", doc);
-            es.addDocFullText(doc);
+            task.elengine.addDocFullText(doc);
         });
     });
     stream.on('error', function (err) {
@@ -62,7 +62,10 @@ const step_2 = function (year_code, json, res) {
         processpdfs: count,
         message: "started making queues"
     });
-    if (!es.isESReady()) {
+    var elastic = new es2.instance({
+        year: year_code
+    });
+    if (!elastic.isReady()) {
         console.error("elastic search engine is not setup properly.");
         console.log("> === operation aborted.");
         return;
@@ -70,21 +73,21 @@ const step_2 = function (year_code, json, res) {
         console.log("> === ES is prepared.");
         async.series([
             function (callback) {
-                var exists = es.indexExists();
+                var exists = elastic.indexExists();
                 if (exists) {
                     console.log("> === remove previous index");
-                    es.deleteIndex();
+                    elastic.deleteIndex();
                 }
                 callback(null, true);
             },
             function (callback) {
                 console.log("> === ini index");
-                es.initIndex();
+                elastic.initIndex();
                 callback(null, true);
             },
             function (callback) {
-                console.log("> === ini es mapping");
-                es.initMapping(year_code);
+                console.log("> === init elasticsearch mapping");
+                elastic.initMapping();
                 callback(null, true);
             }
         ], function (err, results) {
@@ -108,12 +111,12 @@ const step_2 = function (year_code, json, res) {
                                     out: dest + "hansard_" + n + ".pdf",
                                     fieldname: h,
                                     isEnglish: isenglish,
+                                    elengine: elastic,
                                     data_read_order: read_order,
                                     postProcess: function (estask, callback) {
                                         /**
                                          * ELS process start in here
                                          */
-                                        //   es.addDocFullText(estask);
                                         return callback(null, estask);
                                     }
                                 },
