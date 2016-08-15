@@ -63,19 +63,18 @@ elClient.prototype.initMapping = function () {
                 path: {type: "string", index: "not_analyzed"},
                 title: {type: "string", analyzer: "english"},
                 content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
-                source: {type: "string", index: "not_analyzed"},
-                suggest: {
-                    type: "completion",
-                    analyzer: "simple",
-                    search_analyzer: "simple",
-                    payloads: true
-                }
+                source: {type: "string", index: "not_analyzed", "format": "Url"},
+                doc_index: {type: "number", index: "not_analyzed"},
+                _timestamp: {type: "Date", index: "not_analyzed"},
+                suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
             }
         }
     });
 };
-
 elClient.prototype.addDoc = function (document) {
+    //  var timeInMs = new Date();
+    var timeInMs = Date.now();
+    // timeInMs.toUTCString()
     return this.esclient.index({
         index: this.getIndexName(),
         type: "document",
@@ -84,11 +83,9 @@ elClient.prototype.addDoc = function (document) {
             title: document.title,
             content: document.content,
             source: document.src,
-            suggest: {
-                input: document.title.split(" "),
-                output: document.title,
-                payload: document.metadata || {}
-            }
+            doc_index: document.data_internal_key,
+            _timestamp: timeInMs,
+            suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
         }
     });
 };

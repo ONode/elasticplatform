@@ -36,7 +36,10 @@ const dragonQ = async.queue(function (task, callback) {
         //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
         var getdoc = new V5(task.out, task.isEnglish, task, callback);
         getdoc.on("scanpage", function (doc) {
-            console.log("> xpdf preview", doc);
+            console.log("> xpdf preview", "===================");
+            console.log("> xpdf preview", doc.title);
+            console.log("> xpdf preview", doc.date);
+            console.log("> xpdf preview", "===================");
             task.elengine.addDoc(doc);
         });
         getdoc.on("complete", function () {
@@ -104,7 +107,9 @@ const step_2 = function (year_code, json, res) {
                     if (regex.test(h)) {
                         // h.match()
                         read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
-                        //    console.log(read_order);
+                        //console.log(read_order);
+                    } else {
+
                     }
 
                     if (!_.isEmpty(base_file_val)) {
@@ -116,6 +121,7 @@ const step_2 = function (year_code, json, res) {
                                     isEnglish: isenglish,
                                     elengine: elastic,
                                     data_read_order: read_order,
+                                    data_internal_key: parseInt(val.internal_key),
                                     postProcess: function (estask) {
 
                                     }
@@ -124,8 +130,8 @@ const step_2 = function (year_code, json, res) {
                                     if (err) {
                                         console.error('failure to make conversion', err);
                                     } else {
-                                        console.log("> produced document", elasticObject.title);
-                                        console.log('process one file done');
+                                        console.log("> produced document");
+                                        console.log('this file is done scanning');
                                         console.log('====================================');
                                     }
                                 }

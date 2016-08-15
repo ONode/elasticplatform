@@ -19,7 +19,6 @@ router.post('/', function (req, res, next) {
 router.get('/crawl/:year', function (req, res, next) {
     pawn.searchByYear(req, res);
 });
-
 router.get('/test/', function (req, res, next) {
     xpdf.pdf_demo_text({
             remove_space_asian_character: true,
@@ -37,8 +36,6 @@ router.get('/test_v1/', function (req, res, next) {
         to: 15
     }, res);
 });
-
-
 router.get('/test_v2/', function (req, res, next) {
     xpdf.pdf_demo_text({
         remove_space_asian_character: true,
