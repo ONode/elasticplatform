@@ -98,26 +98,6 @@ function addDocFullText(document) {
     });
 }
 exports.addDocFullText = addDocFullText;
-/*
- function addDocument(document) {
- if (document.content) {
- console.log(document.content);
- }
- return elasticClient.index({
- index: indexName,
- type: "document",
- body: {
- title: document.title,
- content: document.content,
- suggest: {
- input: document.title.split(" "),
- output: document.title,
- payload: document.metadata || {}
- }
- }
- });
- }
- exports.addDocument = addDocument;*/
 
 function getSuggestions(input) {
     return elasticClient.suggest({
