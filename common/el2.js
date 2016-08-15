@@ -4,15 +4,16 @@
 const elasticsearch = require('elasticsearch'),
     util = require("util"),
     events = require("events");
-const indexName = process.env.SEARCHFARM_INDEXPREFIX || "legco-";
+const indexName = process.env.SEARCHFARM_INDEXPREFIX || "leco-";
 //const wordfreqProgram = require('wordfreq');
 function elClient(config) {
     this.options = config;
-    this.options.connection_url = process.env.BONSAI_URL || '';
+    this.options.connection_url = process.env.BONSAI_URL || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io';
     if (this.isReady()) {
         const elasticClient = new elasticsearch.Client({
             host: this.options.connection_url,
-            log: 'info'
+            log: 'info',
+            keepAlive: false
         });
 
         elasticClient.ping({
@@ -77,24 +78,21 @@ elClient.prototype.addDoc = function (document) {
     //  var timeInMs = new Date();
     var timeInMs = Date.now();
     // timeInMs.toUTCString()
-    try {
-        return this.esclient.index({
-            index: this.getIndexName(),
-            type: "document",
-            body: {
-                path: "legco/hansard/" + document.data_read_order,
-                title: document.title,
-                content: document.content,
-                source: document.data_source_url,
-                doc_index: document.data_internal_key,
-                read: document.data_read_order,
-                _timestamp: timeInMs,
-                suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
-            }
-        });
-    } catch (e) {
-        console.log("> error found", e);
-    }
+    return this.esclient.index({
+        id: timeInMs,
+        index: this.getIndexName(),
+        type: "document",
+        body: {
+            path: "legco/hansard/" + document.data_read_order,
+            title: document.title,
+            content: document.content,
+            source: document.data_source_url,
+            doc_index: document.data_internal_key,
+            read: document.data_read_order,
+            _timestamp: timeInMs,
+            suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
+        }
+    });
 };
 elClient.prototype.getSuggestions = function (input) {
     return this.esclient.suggest({

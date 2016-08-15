@@ -106,7 +106,7 @@ const step_2 = function (year_code, json, res) {
             },
             function (callback) {
                 console.log("> === start indexing ");
-                elastic.initIndex().then(elastic.initMapping, function (reject) {
+                elastic.initIndex().then(elastic.initMapping(), function (reject) {
                     console.log("> === failure to index");
                 }).then(function () {
                     console.log("> === elasticsearch mapping");
