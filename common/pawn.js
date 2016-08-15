@@ -42,9 +42,9 @@ const dragonQ = async.queue(function (task, callback) {
             //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
             var getdoc = new V5(task.out, task.isEnglish, task, callback);
             getdoc.on("scanpage", function (doc) {
-      /*          doc.data_internal_key = task.data_internal_key;
-                doc.data_read_order = task.data_read_order;
-                doc.data_source_url = task.url;*/
+                /*  doc.data_internal_key = task.data_internal_key;
+                 doc.data_read_order = task.data_read_order;
+                 doc.data_source_url = task.url;*/
                 console.log("> xpdf preview", "===================");
                 if (doc.content.length > 0) {
                     console.log("> doc title", doc.title);
@@ -64,7 +64,7 @@ const dragonQ = async.queue(function (task, callback) {
             return callback(err);
         });
     });
-}, 2);
+}, 1);
 // assign a callback
 dragonQ.drain = function () {
     console.log("=====================================");
@@ -126,33 +126,29 @@ const step_2 = function (year_code, json, res) {
                     } else {
 
                     }
+                    if (!_.isEmpty(base_file_val) && n < demo_files_lock) {
+                        dragonQ.push({
+                                url: base_file_val,
+                                out: dest + "hansard_" + n + ".pdf",
+                                fieldname: h,
+                                isEnglish: isenglish,
+                                elengine: elastic,
+                                data_read_order: read_order,
+                                data_internal_key: parseInt(val.internal_key),
+                                postProcess: function (estask) {
 
-                    if (!_.isEmpty(base_file_val)) {
-                        if (n < demo_files_lock) {
-                            dragonQ.push({
-                                    url: base_file_val,
-                                    out: dest + "hansard_" + n + ".pdf",
-                                    fieldname: h,
-                                    isEnglish: isenglish,
-                                    elengine: elastic,
-                                    data_read_order: read_order,
-                                    data_internal_key: parseInt(val.internal_key),
-                                    postProcess: function (estask) {
-
-                                    }
-                                },
-                                function (err, elasticObject) {
-                                    if (err) {
-                                        console.error('failure to make conversion', err);
-                                    } else {
-                                        console.log("> produced document");
-                                        console.log('this file is done scanning');
-                                        console.log('====================================');
-                                    }
                                 }
-                            )
-                            ;
-                        }
+                            },
+                            function (err, elasticObject) {
+                                if (err) {
+                                    console.error('failure to make conversion', err);
+                                } else {
+                                    console.log("> produced document");
+                                    console.log('this file is done scanning');
+                                    console.log('====================================');
+                                }
+                            }
+                        );
                         n++;
                     }
                 });
