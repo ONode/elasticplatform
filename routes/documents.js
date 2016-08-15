@@ -93,7 +93,7 @@ router.get('/localmock/', function (req, res, next) {
         year: 2012
     });
     if (elastic.isReady()) {
-
+        
         async.series([
             function (callback) {
                 var exists = elastic.indexExists();

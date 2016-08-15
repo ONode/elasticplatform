@@ -16,6 +16,7 @@ const options_instance = {
 };
 function xPDFpathStarter(localpath, isEnglish, taskconfig) {
     this.options = options_instance;
+    this.filepath = localpath;
     if (isEnglish) {
         this.options.remove_space_asian_character = false;
         this.options.new_paragraph = true;
@@ -49,8 +50,32 @@ xPDFpathStarter.prototype.getConfig = function () {
 xPDFpathStarter.prototype.getExternal = function () {
     return this.options.external;
 };
-xPDFpathStarter.prototype.process_pages = function (localpath) {
-    pdfUtil.pdfToText(localpath, this.options, function (err, data) {
+xPDFpathStarter.prototype.next_wave = function () {
+    var delta = this.getConfig().total_pages - this.getConfig().to;
+    if (delta > this.getConfig().interval_pages) {
+        var newFrom = this.getConfig().to + 1;
+        var newTo = this.getConfig().from + this.getConfig().interval_pages;
+        this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+        this.process_pages();
+    } else if (delta < this.getConfig().interval_pages) {
+        var newFrom = this.getConfig().to + 1;
+        var newTo = this.getConfig().total_pages;
+        if (newFrom < newTo) {
+            this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+            this.process_pages();
+        } else {
+            if (typeof this.getExternal().postProcess === 'function') {
+                console.log("now start ESK processing now");
+                this.getExternal().postProcess(result);
+            }
+            this.emit('complete', result);
+        }
+    } else if (delta < 0) {
+        console.error("xpdf process Error : delta < 0 ");
+    }
+};
+xPDFpathStarter.prototype.process_pages = function () {
+    pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
         if (err) {
             console.log("=== error form pdfToText ===");
             this.emit("error", err);
@@ -61,40 +86,16 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
             metadata: []
         };
         console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
+        
         result.data_internal_key = this.getExternal().data_internal_key;
         result.data_read_order = this.getExternal().data_read_order;
         result.data_source_url = this.getExternal().url;
-        //  console.log(result);
-        this.getExternal().el.addDoc(result).then(function (body) {
+
+        if (data.length > 0) {
             this.emit('scanpage', result);
-            var delta = this.getConfig().total_pages - this.getConfig().to;
-            if (delta > this.getConfig().interval_pages) {
-                var newFrom = this.getConfig().to + 1;
-                var newTo = this.getConfig().from + this.getConfig().interval_pages;
-                this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-                this.process_pages(localpath);
-            } else if (delta < this.getConfig().interval_pages) {
-                var newFrom = this.getConfig().to + 1;
-                var newTo = this.getConfig().total_pages;
-                if (newFrom < newTo) {
-                    this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-                    this.process_pages(localpath);
-                } else {
-                    if (typeof this.getExternal().postProcess === 'function') {
-                        console.log("now start ESK processing now");
-                        this.getExternal().postProcess(result);
-                    }
-                    this.emit('complete', result);
-                }
-            } else if (delta < 0) {
-                console.error("xpdf process Error : delta < 0 ");
-            }
-
-            console.error("xpdf process web body return: ", body);
-        }, function (error) {
-            console.error("> xpdf process Error", error);
-        });
-
+        } else {
+            this.next_wave();
+        }
     }.bind(this));
 };
 util.inherits(xPDFpathStarter, events.EventEmitter);

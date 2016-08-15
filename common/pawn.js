@@ -38,16 +38,14 @@ const dragonQ = async.queue(function (task, callback) {
         }
         const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
         stream.on('finish', function () {
-            var getdoc = new V5(task.out, task.isEnglish, task, callback);
+            const getdoc = new V5(task.out, task.isEnglish, task, callback);
             getdoc.on("scanpage", function (doc) {
-                console.log("> xpdf preview", "===================");
-                if (doc.content.length > 0) {
-                    console.log("> doc title", doc.title);
-                    console.log("> xpdf data length", doc.content.length);
-                } else {
-                    console.log("> xpdf preview", "document skipped");
-                }
-                console.log("> xpdf preview", "===================");
+                task.el.addDoc(doc).then(function (body) {
+                    console.log("> xpdf preview", body);
+                    getdoc.next_wave();
+                }, function (err) {
+                    console.log("> xpdf preview", err);
+                });
             });
             getdoc.on("complete", function () {
                 return callback(null, task);

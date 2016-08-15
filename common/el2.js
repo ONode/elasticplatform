@@ -13,7 +13,7 @@ function elClient(config) {
         const elasticClient = new elasticsearch.Client({
             host: this.options.connection_url,
             log: 'info',
-            keepAlive: false
+            keepAlive: true
         });
         elasticClient.ping({
                 requestTimeout: 30000,
@@ -27,7 +27,6 @@ function elClient(config) {
                 }
             }
         );
-
         this.esclient = elasticClient;
     } else {
         console.log("Elasticsearch is not connected.")
@@ -69,31 +68,9 @@ elClient.prototype.initMapping = function () {
                 read: {type: "number", index: "not_analyzed"},
                 suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
             }
-        }
+        },
+        ignore: [404]
     });
-};
-elClient.prototype.addDocCB = function (document, callback) {
-    //  var timeInMs = new Date();
-    var timeInMs = Date.now();
-    // timeInMs.toUTCString()
-    // id: timeInMs,
-    return this.esclient.index({
-        index: this.getIndexName(),
-        type: "page",
-        body: {
-            path: "legco/hansard/" + document.data_read_order,
-            title: document.title,
-            content: document.content,
-            source: document.data_source_url,
-            doc_index: document.data_internal_key,
-            read: document.data_read_order,
-            suggest: {
-                input: document.title.split(" "),
-                output: document.title,
-                payload: document.metadata || {}
-            }
-        }
-    }, callback);
 };
 elClient.prototype.addDoc = function (document) {
     //  var timeInMs = new Date();
