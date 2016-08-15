@@ -27,7 +27,7 @@ const field_index = [
     'third_reading_date_hansard_url_eng'
 ];
 var V5 = require("./pdf_process_v5");
-var demo_files_lock = process.env.SEARCHFARM_SCAN_FILES_LIMIT || 1;
+var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
 // create a queue object with concurrency 2
 const dragonQ = async.queue(function (task, callback) {
     //   console.log('hello ' + task.name);
