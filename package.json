@@ -1,6 +1,6 @@
 {
-  "name": "autocompleter",
-  "version": "0.1.0",
+  "name": "pdfmining",
+  "version": "0.1.5",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -31,5 +31,35 @@
     "request": "^2.74.0",
     "wordfreq": "^0.1.0-dev",
     "serve-favicon": "~2.3.0"
+  },
+  "logo": "https://cdn.rawgit.com/omc/heroku-kibana/master/kibana.svg",
+  "addons": [
+    "bonsai:staging"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/ONode/heroku-buildpack-poppler"
+    },
+    {
+      "url": "https://github.com/ONode/heroku-buildpack-tesseract"
+    },
+    {
+      "url": "https://github.com/ONode/heroku-buildpack-ghostscript"
+    },
+    {
+      "url": "https://github.com/ONode/heroku-buildpack-xpdf"
+    }
+  ],
+  "env": {
+    "SEARCHFARM_INDEXPREFIX": {
+      "description": "Check ths index prefix.",
+      "value": "xlegco-",
+      "required": true
+    },
+    "SEARCHFARM_SCAN_FILES_LIMIT": {
+      "description": "Limitation from the indexing file count",
+      "value": "50",
+      "required": true
+    }
   }
 }

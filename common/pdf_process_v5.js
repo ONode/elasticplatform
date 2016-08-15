@@ -63,11 +63,9 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
         };
 
         console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
-
         result.data_internal_key = this.getExternal().data_internal_key;
         result.data_read_order = this.getExternal().data_read_order;
         result.data_source_url = this.getExternal().url;
-
         console.log(result);
 
         this.getExternal().elengine.addDoc(result).then(function (body) {

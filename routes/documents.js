@@ -115,8 +115,8 @@ router.get('/localmock/', function (req, res, next) {
                     callback(null, true);
                 });
             }
-        ], function (err, results) {
-            console.log("xpdf: ", results);
+        ], function (err, serialresults) {
+            console.log("xpdf: ", result);
             elastic.addDoc(result).then(function (body) {
                 console.log("xpdf process web body return: ", body);
                 res.json(body);
