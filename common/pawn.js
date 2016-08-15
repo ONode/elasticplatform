@@ -155,10 +155,15 @@ var searchByYear = function (req, res) {
             url: target_domain + allqueries,
             json: true
         }, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
+            if (error) {
+                res.render('error', error);
+                return;
+            }
+            if (response.statusCode === 200) {
                 step_2(req.params.year, body, res);
-            } else {
-                res.render('index', {title: 'Legco Center server side error'});
+            }else{
+                res.render('index', {title: 'The gov center maybe down.'});
+                return;
             }
         });
     } else {
