@@ -63,29 +63,44 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
             metadata: []
         };
         console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
-        this.emit('scanpage', result);
-        var delta = this.getConfig().total_pages - this.getConfig().to;
-        if (delta > this.getConfig().interval_pages) {
-            var newFrom = this.getConfig().to + 1;
-            var newTo = this.getConfig().from + this.getConfig().interval_pages;
-            this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-            this.process_pages(localpath);
-        } else if (delta < this.getConfig().interval_pages) {
-            var newFrom = this.getConfig().to + 1;
-            var newTo = this.getConfig().total_pages;
-            if (newFrom < newTo) {
+
+        result.data_internal_key = this.getExternal().data_internal_key;
+        result.data_read_order = this.getExternal().data_read_order;
+        result.data_source_url = this.getExternal().url;
+
+        this.getExternal().elengine.addDoc(result).then(function (body) {
+
+            this.emit('scanpage', result);
+
+            var delta = this.getConfig().total_pages - this.getConfig().to;
+            if (delta > this.getConfig().interval_pages) {
+                var newFrom = this.getConfig().to + 1;
+                var newTo = this.getConfig().from + this.getConfig().interval_pages;
                 this.startConfig(newFrom, newTo, this.getConfig().total_pages);
                 this.process_pages(localpath);
-            } else {
-                if (typeof this.getExternal().postProcess === 'function') {
-                    console.log("now start ESK processing now");
-                    this.getExternal().postProcess(result);
+            } else if (delta < this.getConfig().interval_pages) {
+                var newFrom = this.getConfig().to + 1;
+                var newTo = this.getConfig().total_pages;
+                if (newFrom < newTo) {
+                    this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+                    this.process_pages(localpath);
+                } else {
+                    if (typeof this.getExternal().postProcess === 'function') {
+                        console.log("now start ESK processing now");
+                        this.getExternal().postProcess(result);
+                    }
+                    this.emit('complete', result);
                 }
-                this.emit('complete', result);
+            } else if (delta < 0) {
+                console.error("xpdf process Error : delta < 0 ");
             }
-        } else if (delta < 0) {
-            console.error("xpdf process Error : delta < 0 ");
-        }
+
+            console.error("xpdf process web body return: ", body);
+        }, function (error) {
+            console.error("> xpdf process Error", error);
+        });
+
+
     }.bind(this));
 };
 util.inherits(xPDFpathStarter, events.EventEmitter);

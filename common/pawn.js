@@ -33,7 +33,9 @@ const dragonQ = async.queue(function (task, callback) {
     //   console.log('hello ' + task.name);
     fse.createFile(task.out, function (err) {
         if (err) {
+            console.log("> xpdf file creation", "===================");
             console.log(err);
+            console.log("> xpdf end", "===================");
         }
         const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
         stream.on('finish', function () {
@@ -48,7 +50,7 @@ const dragonQ = async.queue(function (task, callback) {
                     console.log("> doc title", doc.title);
                     //console.log("> xpdf the internal key", doc.data_internal_key);
                     console.log("> xpdf data length", doc.content.length);
-                    task.elengine.addDoc(doc);
+                   // task.elengine.addDoc(doc);
                 } else {
                     console.log("> xpdf preview", "document skipped");
                 }
@@ -94,24 +96,22 @@ const step_2 = function (year_code, json, res) {
             function (callback) {
                 var exists = elastic.indexExists();
                 if (exists) {
-                    console.log("> === remove previous index");
-                    elastic.deleteIndex();
+                    elastic.deleteIndex().then(function(body){
+                        console.log("> === remove previous index");
+                        callback(null, true);
+                    }, function(error){
+                        console.log("> === remove index error", error);
+                    });
                 }
-                callback(null, true);
             },
             function (callback) {
                 console.log("> === ini index");
-                elastic.initIndex();
-                callback(null, true);
-            },
-            function (callback) {
-                console.log("> === init elasticsearch mapping");
-                elastic.initMapping();
-                callback(null, true);
+                elastic.initIndex().then(elastic.initMapping).then(function(){
+                    console.log("> === elasticsearch mapping");
+                    callback(null, true);
+                });
             }
         ], function (err, results) {
-
-
             _.forEach(json.value, function (val) {
                 _.forEach(field_index, function (h) {
                     var base_file_val = val[h];

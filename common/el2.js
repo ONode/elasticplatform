@@ -41,7 +41,8 @@ elClient.prototype.isReady = function () {
 };
 elClient.prototype.deleteIndex = function () {
     return this.esclient.indices.delete({
-        index: this.getIndexName()
+        index: this.getIndexName(),
+        ignore: [404]
     });
 };
 elClient.prototype.initIndex = function () {
