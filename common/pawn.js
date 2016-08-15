@@ -39,7 +39,6 @@ const dragonQ = async.queue(function (task, callback) {
         const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
         stream.on('finish', function () {
             var getdoc = new V5(task.out, task.isEnglish, task, callback);
-            
             getdoc.on("scanpage", function (doc) {
                 console.log("> xpdf preview", "===================");
                 if (doc.content.length > 0) {
@@ -126,7 +125,7 @@ const step_2 = function (year_code, json, res) {
                                 out: dest + "hansard_" + n + ".pdf",
                                 fieldname: h,
                                 isEnglish: isenglish,
-                                elengine: elastic,
+                                el: elastic,
                                 data_read_order: read_order,
                                 data_internal_key: parseInt(val.internal_key),
                                 postProcess: function (estask) {
