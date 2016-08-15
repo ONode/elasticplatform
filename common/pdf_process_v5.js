@@ -73,8 +73,15 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
         } else if (delta < this.getConfig().interval_pages) {
             var newFrom = this.getConfig().to + 1;
             var newTo = this.getConfig().total_pages;
-            this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-            this.process_pages(localpath);
+            if (newFrom < newTo) {
+                this.startConfig(newFrom, newTo, this.getConfig().total_pages);
+                this.process_pages(localpath);
+            } else {
+                if (typeof this.getExternal().postProcess === 'function') {
+                    console.log("now start ESK processing now");
+                    this.getExternal().postProcess(result, this.asyncCallback());
+                }
+            }
         } else {
             if (typeof this.getExternal().postProcess === 'function') {
                 console.log("now start ESK processing now");
