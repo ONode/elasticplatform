@@ -67,7 +67,7 @@ const step_2 = function (year_code, json, res) {
     console.log("=== files found ===");
     console.log(count);
     console.log("=============");
-    var n = 0;
+
     const dest = path.dirname(module.main) + "/tmp/";
     res.json({
         pathstart: dest,
@@ -97,25 +97,22 @@ const step_2 = function (year_code, json, res) {
             },
             function (callback) {
                 console.log("> === start indexing ");
-                elastic.initIndex().then(elastic.initMapping(), function (reject) {
-                    console.log("> === failure to index");
-                }).then(function () {
-                    console.log("> === elasticsearch mapping");
+                elastic.initIndex().then(elastic.initMapping()).then(function (success) {
+                    console.log("> === configuring mappings", success);
                     callback(null, true);
+                }, function (err) {
+                    console.log("> === ended has err", err);
                 });
             }
         ], function (err, results) {
+            var n = 0;
             _.forEach(json.value, function (val) {
                 _.forEach(field_index, function (h) {
                     var base_file_val = val[h];
                     var regex = /_+\d+_/;
                     var isenglish = h.indexOf("_eng") !== -1, read_order = 1;
                     if (regex.test(h)) {
-                        // h.match()
                         read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
-                        //console.log(read_order);
-                    } else {
-
                     }
                     if (!_.isEmpty(base_file_val) && n < demo_files_lock) {
                         dragonQ.push({
@@ -141,7 +138,7 @@ const step_2 = function (year_code, json, res) {
                     }
                 });
             });
-
+            console.log("prepared to process files" + n);
         });
 
 
