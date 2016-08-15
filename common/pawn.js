@@ -44,11 +44,15 @@ const dragonQ = async.queue(function (task, callback) {
                 doc.data_read_order = task.data_read_order;
                 doc.data_source_url = task.url;
                 console.log("> xpdf preview", "===================");
-                console.log("> doc title", doc.title);
-                //console.log("> xpdf the internal key", doc.data_internal_key);
-                console.log("> xpdf data length", doc.content.length);
+                if (doc.content.length > 0) {
+                    console.log("> doc title", doc.title);
+                    //console.log("> xpdf the internal key", doc.data_internal_key);
+                    console.log("> xpdf data length", doc.content.length);
+                    task.elengine.addDoc(doc);
+                } else {
+                    console.log("> xpdf preview", "document skipped");
+                }
                 console.log("> xpdf preview", "===================");
-                task.elengine.addDoc(doc);
             });
             getdoc.on("complete", function () {
                 return callback(null, task);
