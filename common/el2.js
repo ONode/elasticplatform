@@ -77,7 +77,7 @@ elClient.prototype.addDoc = function (document) {
     var timeInMs = Date.now();
     //timeInMs.toUTCString()
     //id: timeInMs,
-    console.log(document);
+    //console.log(document);
     return this.esclient.index({
         index: this.getIndexName(),
         type: "page",
