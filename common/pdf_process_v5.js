@@ -13,14 +13,14 @@ const options_instance = {
     from: 0,
     to: 10
 };
-function xPDFpathStarter(localpath, isEnglish, taskconfig, AysncCallback) {
+function xPDFpathStarter(localpath, isEnglish, taskconfig) {
     this.options = options_instance;
     if (isEnglish) {
         this.options.remove_space_asian_character = false;
         this.options.new_paragraph = true;
     }
     console.log("=== pdf to text ===");
-    this.set_config(taskconfig, AysncCallback);
+    this.set_config(taskconfig);
     pdfUtil.info(localpath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info ===");
@@ -30,9 +30,8 @@ function xPDFpathStarter(localpath, isEnglish, taskconfig, AysncCallback) {
         this.process_pages(localpath);
     }.bind(this));
 }
-xPDFpathStarter.prototype.set_config = function (taskconfig, AysncCallback) {
+xPDFpathStarter.prototype.set_config = function (taskconfig) {
     this.options.external = taskconfig;
-    this.options.asyncallback = AysncCallback;
 };
 xPDFpathStarter.prototype.startConfig = function (from, to, maxpages) {
     this.options.from = from;
@@ -44,9 +43,6 @@ xPDFpathStarter.prototype.getConfig = function () {
 };
 xPDFpathStarter.prototype.getExternal = function () {
     return this.options.external;
-};
-xPDFpathStarter.prototype.asyncCallback = function () {
-    return this.options.asyncallback;
 };
 xPDFpathStarter.prototype.process_pages = function (localpath) {
     pdfUtil.pdfToText(localpath, this.options, function (err, data) {
@@ -78,8 +74,9 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
             } else {
                 if (typeof this.getExternal().postProcess === 'function') {
                     console.log("now start ESK processing now");
-                    this.getExternal().postProcess(result, this.asyncCallback);
+                    this.getExternal().postProcess(result);
                 }
+                this.emit('complete', result);
             }
         } else if (delta < 0) {
             console.error("xpdf process Error : delta < 0 ");

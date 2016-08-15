@@ -39,6 +39,9 @@ const dragonQ = async.queue(function (task, callback) {
             console.log("> xpdf preview", doc);
             task.elengine.addDoc(doc);
         });
+        getdoc.on("complete", function () {
+            return callback(null, task);
+        });
     });
     stream.on('error', function (err) {
         return callback(err);
@@ -101,7 +104,7 @@ const step_2 = function (year_code, json, res) {
                     if (regex.test(h)) {
                         // h.match()
                         read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
-                        console.log(read_order);
+                        //    console.log(read_order);
                     }
 
                     if (!_.isEmpty(base_file_val)) {
@@ -113,8 +116,8 @@ const step_2 = function (year_code, json, res) {
                                     isEnglish: isenglish,
                                     elengine: elastic,
                                     data_read_order: read_order,
-                                    postProcess: function (estask, callback) {
-                                        return callback(null, estask);
+                                    postProcess: function (estask) {
+
                                     }
                                 },
                                 function (err, elasticObject) {
