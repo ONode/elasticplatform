@@ -116,6 +116,7 @@ router.get('/localmock/', function (req, res, next) {
                 });
             }
         ], function (err, results) {
+            console.log("xpdf: ", results);
             elastic.addDoc(result).then(function (body) {
                 console.log("xpdf process web body return: ", body);
                 res.json(body);
@@ -124,12 +125,8 @@ router.get('/localmock/', function (req, res, next) {
                 res.json(err);
             });
         });
-
-
     } else {
         console.log("not ready");
     }
 });
-
-
 module.exports = router;

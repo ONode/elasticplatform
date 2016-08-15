@@ -30,7 +30,6 @@ var V5 = require("./pdf_process_v5");
 var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
 // create a queue object with concurrency 2
 const dragonQ = async.queue(function (task, callback) {
-    //   console.log('hello ' + task.name);
     fse.createFile(task.out, function (err) {
         if (err) {
             console.log("> xpdf file creation", "===================");
@@ -39,18 +38,13 @@ const dragonQ = async.queue(function (task, callback) {
         }
         const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
         stream.on('finish', function () {
-            //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
             var getdoc = new V5(task.out, task.isEnglish, task, callback);
+            
             getdoc.on("scanpage", function (doc) {
-                /*  doc.data_internal_key = task.data_internal_key;
-                 doc.data_read_order = task.data_read_order;
-                 doc.data_source_url = task.url;*/
                 console.log("> xpdf preview", "===================");
                 if (doc.content.length > 0) {
                     console.log("> doc title", doc.title);
-                    //console.log("> xpdf the internal key", doc.data_internal_key);
                     console.log("> xpdf data length", doc.content.length);
-                    // task.elengine.addDoc(doc);
                 } else {
                     console.log("> xpdf preview", "document skipped");
                 }

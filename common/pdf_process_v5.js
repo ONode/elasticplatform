@@ -68,6 +68,8 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
         result.data_read_order = this.getExternal().data_read_order;
         result.data_source_url = this.getExternal().url;
 
+        console.log(result);
+
         this.getExternal().elengine.addDoc(result).then(function (body) {
             this.emit('scanpage', body);
             var delta = this.getConfig().total_pages - this.getConfig().to;
