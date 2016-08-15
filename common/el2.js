@@ -4,18 +4,17 @@
 const elasticsearch = require('elasticsearch'),
     util = require("util"),
     events = require("events");
-const indexName = process.env.SEARCHFARM_INDEXPREFIX || "leco-";
+const indexName = process.env.SEARCHFARM_INDEXPREFIX || "legco-";
 //const wordfreqProgram = require('wordfreq');
 function elClient(config) {
     this.options = config;
-    this.options.connection_url = process.env.BONSAI_URL || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io';
+    this.options.connection_url = process.env.BONSAI_URL || '';
     if (this.isReady()) {
         const elasticClient = new elasticsearch.Client({
             host: this.options.connection_url,
             log: 'info',
             keepAlive: false
         });
-
         elasticClient.ping({
                 requestTimeout: 30000,
                 hello: "elasticsearch"
@@ -77,8 +76,9 @@ elClient.prototype.addDoc = function (document) {
     //  var timeInMs = new Date();
     var timeInMs = Date.now();
     // timeInMs.toUTCString()
+    //    id: timeInMs,
     return this.esclient.index({
-        id: timeInMs,
+    
         index: this.getIndexName(),
         type: "page",
         body: {

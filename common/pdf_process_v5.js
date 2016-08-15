@@ -32,7 +32,6 @@ function xPDFpathStarter(localpath, isEnglish, taskconfig) {
         console.log("=== log info ===");
         console.log(info);
         this.startConfig(0, options_instance.interval_pages, info.pages);
-        //options.to = info.pages;
         this.process_pages(localpath);
     }.bind(this));
 }
@@ -54,7 +53,6 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
     pdfUtil.pdfToText(localpath, this.options, function (err, data) {
         if (err) {
             console.log("=== error form pdfToText ===");
-            //  return callback(err);
             this.emit("error", err);
         }
         const result = {
@@ -69,7 +67,6 @@ xPDFpathStarter.prototype.process_pages = function (localpath) {
         result.data_source_url = this.getExternal().url;
 
         this.getExternal().elengine.addDoc(result).then(function (body) {
-
             this.emit('scanpage', result);
 
             var delta = this.getConfig().total_pages - this.getConfig().to;
