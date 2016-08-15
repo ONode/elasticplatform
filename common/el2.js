@@ -59,7 +59,7 @@ elClient.prototype.indexExists = function () {
 elClient.prototype.initMapping = function () {
     return this.esclient.indices.putMapping({
         index: this.getIndexName(),
-        type: "document",
+        type: "page",
         body: {
             properties: {
                 path: {type: "string", index: "not_analyzed"},
@@ -68,7 +68,6 @@ elClient.prototype.initMapping = function () {
                 source: {type: "string", index: "not_analyzed", "format": "Url"},
                 doc_index: {type: "number", index: "not_analyzed"},
                 read: {type: "number", index: "not_analyzed"},
-                _timestamp: {type: "Date", index: "not_analyzed"},
                 suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
             }
         }
@@ -81,7 +80,7 @@ elClient.prototype.addDoc = function (document) {
     return this.esclient.index({
         id: timeInMs,
         index: this.getIndexName(),
-        type: "document",
+        type: "page",
         body: {
             path: "legco/hansard/" + document.data_read_order,
             title: document.title,
@@ -89,7 +88,6 @@ elClient.prototype.addDoc = function (document) {
             source: document.data_source_url,
             doc_index: document.data_internal_key,
             read: document.data_read_order,
-            _timestamp: timeInMs,
             suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
         }
     });
@@ -97,7 +95,7 @@ elClient.prototype.addDoc = function (document) {
 elClient.prototype.getSuggestions = function (input) {
     return this.esclient.suggest({
         index: this.getIndexName(),
-        type: "document",
+        type: "page",
         body: {
             docsuggest: {
                 text: input,
