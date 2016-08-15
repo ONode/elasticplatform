@@ -36,6 +36,10 @@ const dragonQ = async.queue(function (task, callback) {
         //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
         var getdoc = new V5(task.out, task.isEnglish, task, callback);
         getdoc.on("scanpage", function (doc) {
+            doc.data_internal_key = task.data_internal_key;
+            doc.data_read_order = task.data_read_order;
+            doc.data_source_url = task.url;
+
             console.log("> xpdf preview", "===================");
             console.log("> xpdf preview", doc.title);
             console.log("> xpdf preview", doc.data_internal_key);
