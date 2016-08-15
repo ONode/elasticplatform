@@ -26,13 +26,19 @@ const field_index = [
     'third_reading_date_hansard_url_chi',
     'third_reading_date_hansard_url_eng'
 ];
+var V5 = require("./pdf_process_v5");
 var demo_files_lock = 1;
 // create a queue object with concurrency 2
 const dragonQ = async.queue(function (task, callback) {
     //   console.log('hello ' + task.name);
     const stream = request(task.url).pipe(fs.createWriteStream(task.out, {flags: 'w'}));
     stream.on('finish', function () {
-        require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
+        //  require("./pdf_process_v4")(task.out, task.isEnglish, task, callback);
+        var getdoc = new V5(task.out, task.isEnglish, task, callback);
+        getdoc.on("scanpage", function (doc) {
+            console.log("> repreview", doc);
+            es.addDocFullText(doc);
+        });
     });
     stream.on('error', function (err) {
         return callback(err);
@@ -107,7 +113,7 @@ const step_2 = function (year_code, json, res) {
                                         /**
                                          * ELS process start in here
                                          */
-                                        es.addDocFullText(estask);
+                                        //   es.addDocFullText(estask);
                                         return callback(null, estask);
                                     }
                                 },
