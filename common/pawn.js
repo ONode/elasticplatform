@@ -47,7 +47,7 @@ const dragonQ = async.queue(function (task, callback) {
                     console.log("> xpdf preview", err);
                 });
             });
-            getdoc.on("complete", function () {
+            getdoc.on("complete", function (msg) {
                 return callback(null, task);
             });
         });
@@ -125,10 +125,7 @@ const step_2 = function (year_code, json, res) {
                                 isEnglish: isenglish,
                                 el: elastic,
                                 data_read_order: read_order,
-                                data_internal_key: parseInt(val.internal_key),
-                                postProcess: function (estask) {
-
-                                }
+                                data_internal_key: parseInt(val.internal_key)
                             },
                             function (err, elasticObject) {
                                 if (err) {
