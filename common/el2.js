@@ -72,13 +72,12 @@ elClient.prototype.initMapping = function () {
         }
     });
 };
-elClient.prototype.addDoc = function (document) {
+elClient.prototype.addDocCB = function (document, callback) {
     //  var timeInMs = new Date();
     var timeInMs = Date.now();
     // timeInMs.toUTCString()
-    //    id: timeInMs,
+    // id: timeInMs,
     return this.esclient.index({
-    
         index: this.getIndexName(),
         type: "page",
         body: {
@@ -88,7 +87,34 @@ elClient.prototype.addDoc = function (document) {
             source: document.data_source_url,
             doc_index: document.data_internal_key,
             read: document.data_read_order,
-            suggest: {input: document.title.split(" "), output: document.title, payload: document.metadata || {}}
+            suggest: {
+                input: document.title.split(" "),
+                output: document.title,
+                payload: document.metadata || {}
+            }
+        }
+    }, callback);
+};
+elClient.prototype.addDoc = function (document) {
+    //  var timeInMs = new Date();
+    var timeInMs = Date.now();
+    // timeInMs.toUTCString()
+    //    id: timeInMs,
+    return this.esclient.index({
+        index: this.getIndexName(),
+        type: "page",
+        body: {
+            path: "legco/hansard/" + document.data_read_order,
+            title: document.title,
+            content: document.content,
+            source: document.data_source_url,
+            doc_index: document.data_internal_key,
+            read: document.data_read_order,
+            suggest: {
+                input: document.title.split(" "),
+                output: document.title,
+                payload: document.metadata || {}
+            }
         }
     });
 };
