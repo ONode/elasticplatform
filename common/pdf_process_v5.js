@@ -8,8 +8,9 @@ const pdfUtil = require('pdf-util'),
 
 const options_instance = {
     interval_pages: 10,
-    remove_space_asian_character: true,
-    new_paragraph: true,
+    remove_space_asian_character: false,
+    new_paragraph: false,
+    remove_single_n_english: false,
     from: 0,
     to: 10
 };
@@ -18,6 +19,11 @@ function xPDFpathStarter(localpath, isEnglish, taskconfig) {
     if (isEnglish) {
         this.options.remove_space_asian_character = false;
         this.options.new_paragraph = true;
+        this.options.remove_single_n_english = true;
+    } else {
+        this.options.remove_space_asian_character = true;
+        this.options.new_paragraph = true;
+        this.options.remove_single_n_english = false;
     }
     console.log("=== pdf to text ===");
     this.set_config(taskconfig);

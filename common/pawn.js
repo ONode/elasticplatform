@@ -39,10 +39,10 @@ const dragonQ = async.queue(function (task, callback) {
             doc.data_internal_key = task.data_internal_key;
             doc.data_read_order = task.data_read_order;
             doc.data_source_url = task.url;
-
             console.log("> xpdf preview", "===================");
-            console.log("> xpdf preview", doc.title);
-            console.log("> xpdf preview", doc.data_internal_key);
+            console.log("> doc title", doc.title);
+            //console.log("> xpdf the internal key", doc.data_internal_key);
+            console.log("> xpdf data length", doc.content.length);
             console.log("> xpdf preview", "===================");
             task.elengine.addDoc(doc);
         });

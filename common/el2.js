@@ -61,7 +61,7 @@ elClient.prototype.initMapping = function () {
         body: {
             properties: {
                 path: {type: "string", index: "not_analyzed"},
-                title: {type: "string", analyzer: "english"},
+                title: {type: "string", index: "analyzed", analyzer: "english"},
                 content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
                 source: {type: "string", index: "not_analyzed", "format": "Url"},
                 doc_index: {type: "number", index: "not_analyzed"},
@@ -92,7 +92,7 @@ elClient.prototype.addDoc = function (document) {
             }
         });
     } catch (e) {
-        console.log("> check", e);
+        console.log("> error found", e);
     }
 };
 elClient.prototype.getSuggestions = function (input) {
