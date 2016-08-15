@@ -62,7 +62,6 @@ const step_2 = function (year_code, json, res) {
         return;
     } else {
         console.log("> === ES is prepared.");
-
         async.series([
             function (callback) {
                 var exists = es.indexExists();
@@ -87,29 +86,42 @@ const step_2 = function (year_code, json, res) {
 
             _.forEach(json.value, function (val) {
                 _.forEach(field_index, function (h) {
-                    if (!_.isEmpty(val[h])) {
+                    var base_file_val = val[h];
+                    var regex = /_+\d+_/;
+                    var isenglish = h.indexOf("_eng") !== -1, read_order = 1;
+                    if (regex.test(h)) {
+                        // h.match()
+                        read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
+                        console.log(read_order);
+                    }
+
+                    if (!_.isEmpty(base_file_val)) {
                         if (n < demo_files_lock) {
                             dragonQ.push({
-                                url: val[h],
-                                out: dest + "hansard_" + n + ".pdf",
-                                fieldname: h,
-                                isEnglish: h.indexOf("_eng") !== -1,
-                                postProcess: function (estask, callback) {
-                                    /**
-                                     * ELS process start in here
-                                     */
-                                    es.addDocFullText(estask);
-                                    return callback(null, estask);
+                                    url: base_file_val,
+                                    out: dest + "hansard_" + n + ".pdf",
+                                    fieldname: h,
+                                    isEnglish: isenglish,
+                                    data_read_order: read_order,
+                                    postProcess: function (estask, callback) {
+                                        /**
+                                         * ELS process start in here
+                                         */
+                                        es.addDocFullText(estask);
+                                        return callback(null, estask);
+                                    }
+                                },
+                                function (err, elasticObject) {
+                                    if (err) {
+                                        console.error('failure to make conversion', err);
+                                    } else {
+                                        console.log("> produced document", elasticObject.title);
+                                        console.log('process one file done');
+                                        console.log('====================================');
+                                    }
                                 }
-                            }, function (err, elasticObject) {
-                                if (err) {
-                                    console.error('failure to make conversion', err);
-                                } else {
-                                    console.log("> produced document", elasticObject.title);
-                                    console.log('process one file done');
-                                    console.log('====================================');
-                                }
-                            });
+                            )
+                            ;
                         }
                         n++;
                     }

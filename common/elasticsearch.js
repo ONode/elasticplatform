@@ -61,9 +61,10 @@ function initMapping(legco_year) {
         type: "document",
         body: {
             properties: {
-                title: {type: "string", "analyzer": "english"},
-                content: {type: "string"},
-                source: {type: "string"},
+                path: {type: "string", index: "not_analyzed"},
+                title: {type: "string", analyzer: "english"},
+                content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
+                source: {type: "string", index: "not_analyzed"},
                 suggest: {
                     type: "completion",
                     analyzer: "simple",
@@ -81,6 +82,7 @@ function addDocFullText(document) {
         index: indexName,
         type: "document",
         body: {
+            path: "legco/hansard/" + document.data_read_order,
             title: document.title,
             content: document.content,
             source: document.src,
@@ -93,26 +95,26 @@ function addDocFullText(document) {
     });
 }
 exports.addDocFullText = addDocFullText;
-
-function addDocument(document) {
-    if (document.content) {
-        console.log(document.content);
-    }
-    return elasticClient.index({
-        index: indexName,
-        type: "document",
-        body: {
-            title: document.title,
-            content: document.content,
-            suggest: {
-                input: document.title.split(" "),
-                output: document.title,
-                payload: document.metadata || {}
-            }
-        }
-    });
-}
-exports.addDocument = addDocument;
+/*
+ function addDocument(document) {
+ if (document.content) {
+ console.log(document.content);
+ }
+ return elasticClient.index({
+ index: indexName,
+ type: "document",
+ body: {
+ title: document.title,
+ content: document.content,
+ suggest: {
+ input: document.title.split(" "),
+ output: document.title,
+ payload: document.metadata || {}
+ }
+ }
+ });
+ }
+ exports.addDocument = addDocument;*/
 
 function getSuggestions(input) {
     return elasticClient.suggest({
@@ -149,17 +151,17 @@ function importdata() {
                 'The Animal Farm',
                 'The Circle'
             ].map(function (bookTitle) {
-                return addDocument({
-                    title: bookTitle,
-                    content: bookTitle + " content!",
-                    metadata: {
-                        titleLength: bookTitle.length
-                    }
-                });
+                /*  return addDocument({
+                 title: bookTitle,
+                 content: bookTitle + " content!",
+                 metadata: {
+                 titleLength: bookTitle.length
+                 }
+                 });*/
             });
             return Promise.all(promises);
         });
     });
 }
-exports.importdat = importdata;
+//exports.importdat = importdata;
 exports.getSuggestions = getSuggestions;
