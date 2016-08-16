@@ -80,9 +80,16 @@ xPDFpathStarter.prototype.next_wave = function () {
         console.error("xpdf process Error : delta < 0 ");
     }
 };
+xPDFpathStarter.prototype.gc = function () {
+    if (global.gc) {
+        global.gc();
+    } else {
+        console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
+    }
+};
 xPDFpathStarter.prototype.process_pages = function () {
     process.nextTick(function (callback) {
-        
+        this.gc();
         pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
             if (err) {
                 console.log("=== error form pdfToText ===");
