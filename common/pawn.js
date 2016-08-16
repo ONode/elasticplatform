@@ -91,7 +91,8 @@ const step_2 = function (year_code, json, res) {
                             isEnglish: isenglish,
                             el: elastic,
                             data_read_order: read_order,
-                            data_internal_key: key_internal
+                            data_internal_key: key_internal,
+                            process_file_order: n
                         };
                         /* dragon_q(datactivity);*/
                         array.push(getSerialPromise(datactivity));
@@ -120,6 +121,7 @@ function getSerialPromise(activity) {
             const getdoc = new V5(activity);
             const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
             console.log("> file location - ", activity.out);
+            console.log("> file location at file order: ", activity.process_file_order);
             stream.on('finish', function () {
                 getdoc.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
@@ -135,6 +137,8 @@ function getSerialPromise(activity) {
                 });
             });
             stream.on('error', function (err) {
+                console.log("> http request error", err);
+                console.log("> skip file order: ", activity.process_file_order);
                 return callback(err);
             });
         });
