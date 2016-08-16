@@ -28,15 +28,17 @@ function xPDFpathStarter(config) {
     }
     console.log("=== pdf to text ===");
     this.set_config(config);
+}
+xPDFpathStarter.prototype.start = function () {
     pdfUtil.info(this.filepath, function (err, info) {
         if (err) throw(err);
         console.log("=== log info ===");
         console.log(info);
         console.log("================");
-        this.startConfig(0, options_instance.interval_pages, info.pages);
-        this.process_pages(this.filepath);
+        this.startConfig(0, this.options.interval_pages, info.pages);
+        this.process_pages();
     }.bind(this));
-}
+};
 xPDFpathStarter.prototype.set_config = function (config) {
     this.options.external = config;
 };
@@ -57,14 +59,14 @@ xPDFpathStarter.prototype.next_wave = function () {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().from + this.getConfig().interval_pages;
         this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-      //  console.log("next wave1");
+        //  console.log("next wave1");
         this.process_pages();
     } else if (delta < this.getConfig().interval_pages) {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().total_pages;
         if (newFrom < newTo) {
             this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-          // console.log("next wave2");
+            // console.log("next wave2");
             this.process_pages();
         } else {
             if (this.getExternal().postProcess != null && typeof this.getExternal().postProcess === 'function') {
@@ -79,29 +81,33 @@ xPDFpathStarter.prototype.next_wave = function () {
     }
 };
 xPDFpathStarter.prototype.process_pages = function () {
-    pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
-        if (err) {
-            console.log("=== error form pdfToText ===");
-            console.log("out", err);
-            this.emit("error", err.message);
-            this.next_wave();
-            return;
-        }
-        const result = {
-            content: data,
-            title: "minutes page " + this.getConfig().from + "-" + this.getConfig().to,
-            metadata: []
-        };
-        result.data_internal_key = this.getExternal().data_internal_key;
-        result.data_read_order = this.getExternal().data_read_order;
-        result.data_source_url = this.getExternal().url;
+    process.nextTick(function (callback) {
+        
+        pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
+            if (err) {
+                console.log("=== error form pdfToText ===");
+                console.log("out", err);
+                this.emit("error", err.message);
+                this.next_wave();
+                return;
+            }
+            const result = {
+                content: data,
+                title: "minutes page " + this.getConfig().from + "-" + this.getConfig().to,
+                metadata: []
+            };
+            result.data_internal_key = this.getExternal().data_internal_key;
+            result.data_read_order = this.getExternal().data_read_order;
+            result.data_source_url = this.getExternal().url;
 
-        if (data.length > 0) {
-            console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
-            this.emit('scanpage', result);
-        } else {
-            this.next_wave();
-        }
+            if (data.length > 0) {
+                console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
+                this.emit('scanpage', result);
+            } else {
+                this.next_wave();
+            }
+        }.bind(this));
+
     }.bind(this));
 };
 util.inherits(xPDFpathStarter, events.EventEmitter);

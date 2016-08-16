@@ -125,20 +125,21 @@ function getSerialPromise(activity) {
                 console.log("> xpdf end", "===================");
             }
             console.log("> activity url - ", activity.url);
+            const pdfminer = new V5(activity);
             const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
             console.log("> file location - ", activity.out);
             console.log("> file location at file order: ", activity.process_file_order);
             stream.on('finish', function () {
-                const getdoc = new V5(activity);
-                getdoc.on("scanpage", function (doc) {
+                pdfminer.start();
+                pdfminer.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
                         // console.log("> xpdf preview", body);
-                        getdoc.next_wave();
+                        pdfminer.next_wave();
                     }, function (err) {
                         console.log("> xpdf error", err);
                     });
                 });
-                getdoc.on("complete", function (msg) {
+                pdfminer.on("complete", function (msg) {
                     console.log("> xpdf complete", msg);
                     return callback(null, activity);
                 });
