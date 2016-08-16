@@ -134,6 +134,8 @@ function getSerialPromise(activity) {
                 pdfminer.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
                         // console.log("> xpdf preview", body);
+                        doc = null;
+                        //pdfminer.gc();
                         pdfminer.next_wave();
                     }, function (err) {
                         console.log("> xpdf error", err);
