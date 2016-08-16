@@ -73,7 +73,7 @@ const step_2 = function (year_code, json, res) {
                 });
             }
         ], function (err, results) {
-            var n = 0, array = [];
+            var n = 0, array = [], filesindex = [];
             _.forEach(json.value, function (val) {
                 var key_internal = parseInt(val.internal_key);
                 _.forEach(field_index, function (h) {
@@ -84,23 +84,30 @@ const step_2 = function (year_code, json, res) {
                         read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
                     }
                     if (!_.isEmpty(base_file_val) && n < demo_files_lock) {
-                        const datactivity = {
-                            url: base_file_val,
-                            out: dest + "h_" + key_internal + "-" + n + ".pdf",
-                            fieldname: h,
-                            isEnglish: isenglish,
-                            el: elastic,
-                            data_read_order: read_order,
-                            data_internal_key: key_internal,
-                            process_file_order: n
-                        };
-                        /* dragon_q(datactivity);*/
-                        array.push(getSerialPromise(datactivity));
-                        n++;
+                        if (base_file_val.indexOf("#") > -1) {
+                            base_file_val = base_file_val.split("#")[0];
+                        }
+                        var isUnique = filesindex.indexOf(base_file_val) == -1;
+                        if (isUnique) {
+                            filesindex.push(base_file_val);
+                            const datactivity = {
+                                url: base_file_val,
+                                out: dest + "h_" + key_internal + "-" + n + ".pdf",
+                                fieldname: h,
+                                isEnglish: isenglish,
+                                el: elastic,
+                                data_read_order: read_order,
+                                data_internal_key: key_internal,
+                                process_file_order: n
+                            };
+                            /* dragon_q(datactivity);*/
+                            array.push(getSerialPromise(datactivity));
+                            n++;
+                        }
                     }
                 });
             });
-            console.log("prepared to process files - " + n);
+            console.log("prepared to process files - " + n, filesindex);
             //Promise.all(array);
             startSerial(array);
         });
