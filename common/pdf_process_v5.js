@@ -7,7 +7,7 @@ const pdfUtil = require('pdf-util'),
     events = require("events");
 
 const options_instance = {
-    interval_pages: 5,
+    interval_pages: 10,
     remove_space_asian_character: false,
     new_paragraph: false,
     remove_single_n_english: false,
