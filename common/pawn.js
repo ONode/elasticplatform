@@ -118,7 +118,7 @@ function getSerialPromise(activity) {
                 const getdoc = new V5(activity);
                 getdoc.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
-                        console.log("> xpdf preview", body);
+                       // console.log("> xpdf preview", body);
                         getdoc.next_wave();
                     }, function (err) {
                         console.log("> xpdf error", err);
