@@ -29,7 +29,6 @@ const field_index = [
 ];
 var V5 = require("./pdf_process_v5");
 var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
-
 const step_2 = function (year_code, json, res) {
     var count = json['odata.count'];
     console.log("=== files found ===");
@@ -119,18 +118,18 @@ function getSerialPromise(activity) {
         // console.log("> remove file ", activity.out);
         // fs.unlinkSync(activity.out);
         // console.log("> create the same file again ", activity.out);
-        fse.createFile(activity.out, function (err) {
+        fse.ensureFile(activity.out, function (err) {
             if (err) {
                 console.log("> xpdf file creation", "===================");
                 console.log(err);
                 console.log("> xpdf end", "===================");
             }
-            const getdoc = new V5(activity);
             console.log("> activity url - ", activity.url);
             const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
             console.log("> file location - ", activity.out);
             console.log("> file location at file order: ", activity.process_file_order);
             stream.on('finish', function () {
+                const getdoc = new V5(activity);
                 getdoc.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
                         // console.log("> xpdf preview", body);
