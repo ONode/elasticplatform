@@ -59,25 +59,28 @@ xPDFpathStarter.prototype.next_wave = function () {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().from + this.getConfig().interval_pages;
         this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-        //  console.log("next wave1");
         this.process_pages();
-    } else if (delta < this.getConfig().interval_pages) {
+        return;
+    } else if (delta <= this.getConfig().interval_pages) {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().total_pages;
         if (newFrom < newTo) {
             this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-            // console.log("next wave2");
             this.process_pages();
+            return;
         } else {
             if (this.getExternal().postProcess != null && typeof this.getExternal().postProcess === 'function') {
                 console.log("now start ESK processing now");
                 this.getExternal().postProcess("done");
             }
-            //   console.log("next wave 3");
             this.emit('complete', 'done');
+            return;
         }
     } else if (delta < 0) {
         console.error("xpdf process Error : delta < 0 ");
+    } else {
+        console.error("nothing to do.. next tick");
+        this.next_wave();
     }
 };
 xPDFpathStarter.prototype.gc = function () {
@@ -108,7 +111,7 @@ xPDFpathStarter.prototype.process_pages = function () {
         result.data_source_url = this.getExternal().url;
 
         if (data.length > 0) {
-            // console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
+            console.log("now processed pages: " + this.getConfig().from + " - " + this.getConfig().to);
             this.emit('scanpage', result);
         } else {
             this.next_wave();
