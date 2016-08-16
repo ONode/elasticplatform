@@ -31,6 +31,7 @@
     "pdf-util": "~0.1.9",
     "request": "^2.74.0",
     "wordfreq": "^0.1.0-dev",
+    "chinese-s2t": "^0.0.6",
     "serve-favicon": "~2.3.0"
   },
   "logo": "https://cdn.rawgit.com/omc/heroku-kibana/master/kibana.svg",

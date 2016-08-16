@@ -158,3 +158,12 @@ module.exports = router;
  http://app.legco.gov.hk/BillsDB/odata/Vbills?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq 2013
 
  **/
+
+
+/**
+
+ var Chinese = require('chinese-s2t')
+ Chinese.s2t('简体转繁体');
+ Chinese.t2s('繁体转简体');
+ 
+ */
