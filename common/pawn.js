@@ -75,6 +75,7 @@ const step_2 = function (year_code, json, res) {
         ], function (err, results) {
             var n = 0, array = [];
             _.forEach(json.value, function (val) {
+                var key_internal = parseInt(val.internal_key);
                 _.forEach(field_index, function (h) {
                     var base_file_val = val[h];
                     var regex = /_+\d+_/;
@@ -85,12 +86,12 @@ const step_2 = function (year_code, json, res) {
                     if (!_.isEmpty(base_file_val) && n < demo_files_lock) {
                         const datactivity = {
                             url: base_file_val,
-                            out: dest + "hansard_" + n + ".pdf",
+                            out: dest + "h_" + key_internal + "-" + n + ".pdf",
                             fieldname: h,
                             isEnglish: isenglish,
                             el: elastic,
                             data_read_order: read_order,
-                            data_internal_key: parseInt(val.internal_key)
+                            data_internal_key: key_internal
                         };
                         /* dragon_q(datactivity);*/
                         array.push(getSerialPromise(datactivity));
@@ -107,9 +108,9 @@ const step_2 = function (year_code, json, res) {
 
 function getSerialPromise(activity) {
     return function (callback) {
-       // console.log("> remove file ", activity.out);
-       // fs.unlinkSync(activity.out);
-       // console.log("> create the same file again ", activity.out);
+        // console.log("> remove file ", activity.out);
+        // fs.unlinkSync(activity.out);
+        // console.log("> create the same file again ", activity.out);
         fse.createFile(activity.out, function (err) {
             if (err) {
                 console.log("> xpdf file creation", "===================");
