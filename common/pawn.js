@@ -92,7 +92,7 @@ const step_2 = function (year_code, json, res) {
                             filesindex.push(base_file_val);
                             const datactivity = {
                                 url: base_file_val,
-                                out: dest + "h_" + key_internal + "-" + n + ".pdf",
+                                out: dest + "h" + key_internal + "o" + n + "d.pdf",
                                 fieldname: h,
                                 isEnglish: isenglish,
                                 el: elastic,
