@@ -107,7 +107,9 @@ const step_2 = function (year_code, json, res) {
 
 function getSerialPromise(activity) {
     return function (callback) {
+        console.log("> remove file ", activity.out);
         fs.unlinkSync(activity.out);
+        console.log("> create the same file again ", activity.out);
         fse.createFile(activity.out, function (err) {
             if (err) {
                 console.log("> xpdf file creation", "===================");
