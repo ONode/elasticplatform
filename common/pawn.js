@@ -113,12 +113,13 @@ function getSerialPromise(activity) {
                 console.log(err);
                 console.log("> xpdf end", "===================");
             }
+            const getdoc = new V5(activity);
             const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
+            console.log("> file location - ", activity.out);
             stream.on('finish', function () {
-                const getdoc = new V5(activity);
                 getdoc.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
-                       // console.log("> xpdf preview", body);
+                        // console.log("> xpdf preview", body);
                         getdoc.next_wave();
                     }, function (err) {
                         console.log("> xpdf error", err);
@@ -161,7 +162,7 @@ var searchByYear = function (req, res) {
             }
             if (response.statusCode === 200) {
                 step_2(req.params.year, body, res);
-            }else{
+            } else {
                 res.render('index', {title: 'The gov center maybe down.'});
                 return;
             }

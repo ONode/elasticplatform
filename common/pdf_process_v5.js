@@ -57,14 +57,14 @@ xPDFpathStarter.prototype.next_wave = function () {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().from + this.getConfig().interval_pages;
         this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-        console.log("next wave1");
+      //  console.log("next wave1");
         this.process_pages();
     } else if (delta < this.getConfig().interval_pages) {
         var newFrom = this.getConfig().to + 1;
         var newTo = this.getConfig().total_pages;
         if (newFrom < newTo) {
             this.startConfig(newFrom, newTo, this.getConfig().total_pages);
-           console.log("next wave2");
+          // console.log("next wave2");
             this.process_pages();
         } else {
             if (this.getExternal().postProcess != null && typeof this.getExternal().postProcess === 'function') {
