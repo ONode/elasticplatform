@@ -106,7 +106,7 @@ const step_2 = function (year_code, json, res) {
                     }
                 });
             });
-            console.log("prepared to process files - " + n, filesindex);
+            console.log("prepared to process files - " + n);
             //Promise.all(array);
             startSerial(array);
         });
@@ -133,7 +133,7 @@ function getSerialPromise(activity) {
                 pdfminer.start();
                 pdfminer.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
-                        // console.log("> xpdf preview", body);
+                        console.log("> xpdf preview elashticsearch success");
                         doc = null;
                         //pdfminer.gc();
                         pdfminer.next_wave();

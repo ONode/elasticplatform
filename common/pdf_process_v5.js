@@ -7,7 +7,7 @@ const pdfUtil = require('pdf-util'),
     events = require("events");
 
 const options_instance = {
-    interval_pages: 10,
+    interval_pages: 15,
     remove_space_asian_character: false,
     new_paragraph: false,
     remove_single_n_english: false,
@@ -88,33 +88,33 @@ xPDFpathStarter.prototype.gc = function () {
     }
 };
 xPDFpathStarter.prototype.process_pages = function () {
-    process.nextTick(function (callback) {
-        pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
-            if (err) {
-                console.log("=== error form pdfToText ===");
-                console.log("out", err);
-                this.emit("error", err.message);
-                this.next_wave();
-                return;
-            }
-            const result = {
-                content: data,
-                title: "minutes page " + this.getConfig().from + "-" + this.getConfig().to,
-                metadata: []
-            };
-            result.data_internal_key = this.getExternal().data_internal_key;
-            result.data_read_order = this.getExternal().data_read_order;
-            result.data_source_url = this.getExternal().url;
+    // process.nextTick(function (callback) {
+    console.log("> start pdf processing");
+    pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
+        if (err) {
+            console.log("=== error form pdfToText ===");
+            console.log("out", err);
+            this.emit("error", err.message);
+            this.next_wave();
+            return;
+        }
+        const result = {
+            content: data,
+            title: "minutes page " + this.getConfig().from + "-" + this.getConfig().to,
+            metadata: []
+        };
+        result.data_internal_key = this.getExternal().data_internal_key;
+        result.data_read_order = this.getExternal().data_read_order;
+        result.data_source_url = this.getExternal().url;
 
-            if (data.length > 0) {
-                console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
-                this.emit('scanpage', result);
-            } else {
-                this.next_wave();
-            }
-        }.bind(this));
-
+        if (data.length > 0) {
+            // console.log("now processed pages from " + this.getConfig().from + " to " + this.getConfig().to);
+            this.emit('scanpage', result);
+        } else {
+            this.next_wave();
+        }
     }.bind(this));
+    // }.bind(this));
 };
 util.inherits(xPDFpathStarter, events.EventEmitter);
 module.exports = xPDFpathStarter;
