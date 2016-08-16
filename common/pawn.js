@@ -119,6 +119,7 @@ function getSerialPromise(activity) {
                 console.log("> xpdf end", "===================");
             }
             const getdoc = new V5(activity);
+            console.log("> activity url - ", activity.url);
             const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
             console.log("> file location - ", activity.out);
             console.log("> file location at file order: ", activity.process_file_order);
