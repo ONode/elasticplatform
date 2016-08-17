@@ -133,7 +133,7 @@ function getSerialPromise(activity) {
                 pdfminer.start();
                 pdfminer.on("scanpage", function (doc) {
                     activity.el.addDoc(doc).then(function (body) {
-                        console.log("> xpdf preview elashticsearch success");
+                       //  console.log("> xpdf preview elashticsearch success");
                         doc = null;
                         //pdfminer.gc();
                         pdfminer.next_wave();

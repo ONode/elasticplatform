@@ -92,7 +92,7 @@ xPDFpathStarter.prototype.gc = function () {
 };
 xPDFpathStarter.prototype.process_pages = function () {
     // process.nextTick(function (callback) {
-    console.log("> start pdf processing");
+    // console.log("> start pdf processing");
     pdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
         if (err) {
             console.log("=== error form pdfToText ===");

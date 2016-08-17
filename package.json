@@ -3,10 +3,11 @@
   "version": "0.1.5",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./bin/pm2www",
     "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
     "heroku-postbuild": "echo This runs afterwards.",
-    "test": "node ./common/testxpdf"
+    "test": "node ./common/testxpdf",
+    "preinstall": "npm i -g pm2"
   },
   "devDependencies": {
     "mocha": "~1.21.4",
@@ -61,6 +62,21 @@
     "SEARCHFARM_SCAN_FILES_LIMIT": {
       "description": "Limitation from the indexing file count",
       "value": "50",
+      "required": true
+    },
+    "PM2_MACHINE_NAME": {
+      "description": "the machine name from keymetrics",
+      "value": "",
+      "required": true
+    },
+    "PM2_PRIVATE_KEY": {
+      "description": "the private key from keymetrics",
+      "value": "",
+      "required": true
+    },
+    "PM2_PUBLIC_KEY": {
+      "description": "the public key from keymetrics",
+      "value": "",
       "required": true
     }
   }
