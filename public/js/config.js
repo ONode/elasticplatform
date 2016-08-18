@@ -19,7 +19,7 @@
  */
 
 var CALACA_CONFIGS = {
-	url: "",
+	url: "https://cypress-6596621.us-east-1.bonsai.io",
 	index_name: "",
 	type: "",
 	size: 10,
