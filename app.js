@@ -52,3 +52,8 @@ app.use(function (err, req, res, next) {
 });
 //const elastic = require('./common/elasticsearch');
 module.exports = app;
+/**
+ http://dareid.github.io/chakram/
+ learning note
+ restful testing
+ **/
