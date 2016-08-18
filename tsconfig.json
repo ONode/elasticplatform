@@ -1,0 +1,17 @@
+{
+  "indices": {
+    "highlight": {
+      "fields": {
+        "content": {}
+      }
+    },
+    "query": {
+      "content": "household"
+    },
+    "no_match_query": {
+      "term": {
+        "tag": "kow"
+      }
+    }
+  }
+}

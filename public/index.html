@@ -29,8 +29,8 @@
   <section class='results'>
     <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
     <article class='result' ng-repeat='result in results track by $id(result)'>
-      <h2>{{result.name}}</h2>
-      <p>{{result.description}}</p>
+      <h2>{{result.title}}</h2>
+      <p>{{result.content}}</p>
     </article>
   </section>
   <section class='pagination-controls'>
