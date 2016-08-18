@@ -9,23 +9,18 @@
  */
 
 /* Service to Elasticsearch */
-Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, elasticsearch, $location){
+Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, elasticsearch, $location) {
+        //Set default url if not configured
+        CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
 
-    //Set default url if not configured
-    CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0)  ? CALACA_CONFIGS.url : $location.protocol() + '://' +$location.host() + ":9200";
-
-    var client = elasticsearch({ host: CALACA_CONFIGS.url });
-
-    var search = function(query, mode, offset){
-
-        var deferred = $q.defer();
-
-        if (query.length == 0) {
-            deferred.resolve({ timeTook: 0, hitsCount: 0, hits: [] });
-            return deferred.promise;
-        }
-
-        client.search({
+        var client = elasticsearch({host: CALACA_CONFIGS.url});
+        var search = function (query, mode, offset) {
+            var deferred = $q.defer();
+            if (query.length == 0) {
+                deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
+                return deferred.promise;
+            }
+            client.search({
                 "index": CALACA_CONFIGS.index_name,
                 "type": CALACA_CONFIGS.type,
                 "body": {
@@ -37,27 +32,27 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, el
                         }
                     }
                 }
-        }).then(function(result) {
-
+            }).then(function (result) {
                 var i = 0, hitsIn, hitsOut = [], source;
                 hitsIn = (result.hits || {}).hits || [];
-                for(;i < hitsIn.length; i++){
-                    source = hitsIn[i]._source;
+                for (; i < hitsIn.length; i++) {
+                    console.log(hitsIn[i]);
+                    source = hitsIn[i]._source.content;
                     source._id = hitsIn[i]._id;
                     source._index = hitsIn[i]._index;
                     source._type = hitsIn[i]._type;
                     source._score = hitsIn[i]._score;
                     hitsOut.push(source);
                 }
-                deferred.resolve({ timeTook: result.took, hitsCount: result.hits.total, hits: hitsOut });
-        }, deferred.reject);
+                deferred.resolve({timeTook: result.took, hitsCount: result.hits.total, hits: hitsOut});
+            }, deferred.reject);
 
-        return deferred.promise;
-    };
+            return deferred.promise;
+        };
 
-    return {
-        "search": search
-    };
+        return {
+            "search": search
+        };
 
     }]
 );

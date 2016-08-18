@@ -134,13 +134,13 @@ function importdata() {
                 'The Animal Farm',
                 'The Circle'
             ].map(function (bookTitle) {
-                /*  return addDocument({
-                 title: bookTitle,
-                 content: bookTitle + " content!",
-                 metadata: {
-                 titleLength: bookTitle.length
-                 }
-                 });*/
+                return addDocument({
+                    title: bookTitle,
+                    content: bookTitle + " content!",
+                    metadata: {
+                        titleLength: bookTitle.length
+                    }
+                });
             });
             return Promise.all(promises);
         });
