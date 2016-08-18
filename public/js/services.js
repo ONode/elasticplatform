@@ -7,7 +7,10 @@
  * v1.2.0
  * MIT License
  */
-
+String.prototype.trunc = String.prototype.trunc ||
+    function (n) {
+        return (this.length > n) ? this.substr(0, n - 1) + '&hellip;' : this;
+    };
 /* Service to Elasticsearch */
 Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, elasticsearch, $location) {
         //Set default url if not configured
@@ -36,8 +39,9 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, e
                 var i = 0, hitsIn, hitsOut = [], source;
                 hitsIn = (result.hits || {}).hits || [];
                 for (; i < hitsIn.length; i++) {
+                    hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(30);
                     console.log(hitsIn[i]);
-                    source = hitsIn[i]._source.content;
+                    source = hitsIn[i]._source;
                     source._id = hitsIn[i]._id;
                     source._index = hitsIn[i]._index;
                     source._type = hitsIn[i]._type;
