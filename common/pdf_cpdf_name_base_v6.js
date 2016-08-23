@@ -8,6 +8,7 @@ const
   xpdfUtil = require("pdf-util"),
   cpdfUtil = require("cpdf-n"),
   _ = require("lodash"),
+  wordfreq = require("wordfreq"),
   events = require("events"),
   spmap = require("./ppmap.json");
 
@@ -256,7 +257,6 @@ cxpdfnMining.prototype.process_pages = function () {
   // console.log('> set trail display', this.index_trail[this.iterate]);
   // console.log('> set options', this.options);
   //return;
-
   xpdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
     if (err) {
       console.log("=== error form pdfToText ===");
@@ -281,11 +281,13 @@ cxpdfnMining.prototype.process_pages = function () {
         b2 = pre_capture_context.indexOf(b2_token);
       }
 
-      const captured = pre_capture_context.substring(b1, b2),
-        result = {
+      const captured = pre_capture_context.substring(b1, b2);
+      wordfreq({}).process(captured, function (list) {
+
+        const result = {
           content: captured,
-          title: "",
-          metadata: [],
+          title: "h-" + this.getCurrentScanningItem().page,
+          metadata: list,
           tag: cur_item_tag,
           page: this.getCurrentScanningItem().page,
           bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
@@ -295,15 +297,17 @@ cxpdfnMining.prototype.process_pages = function () {
           }
         };
 
-      console.log("> precapture order: ", b1, b2, captured);
-      //console.log("> precapture order: ", b1, b2, pre_capture_context);
-      console.log("> tag name: ", cur_item_tag, next_item_tag);
-      console.log("> tag name actual: ", b1_token, b2_token);
-      result.data_internal_key = this.getExternal().data_internal_key;
-      result.data_read_order = this.getExternal().data_read_order;
-      result.data_source_url = this.getExternal().url;
+        console.log("> precapture order: ", b1, b2, captured);
+        //console.log("> precapture order: ", b1, b2, pre_capture_context);
+        console.log("> tag name: ", cur_item_tag, next_item_tag);
+        console.log("> tag name actual: ", b1_token, b2_token);
+        result.data_internal_key = this.getExternal().data_internal_key;
+        result.data_read_order = this.getExternal().data_read_order;
+        result.data_source_url = this.getExternal().url;
+        //this.emit('scanpage', result);
 
-      this.emit('scanpage', result);
+      }.bind(this));
+
       /* if (data.length > 0) {
        console.log("now processed pages: " + this.getConfig().from + " - " + this.getConfig().to);
        this.emit('scanpage', result);
