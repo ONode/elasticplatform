@@ -3,11 +3,14 @@
   "version": "0.1.5",
   "private": true,
   "scripts": {
-    "start": "node ./bin/pm2www",
+    "start": "node ./bin/www",
     "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
     "heroku-postbuild": "echo This runs afterwards.",
     "test": "node ./common/testxpdf",
     "preinstall": "npm i -g pm2"
+  },
+  "engines": {
+    "node": "4.5.0"
   },
   "devDependencies": {
     "mocha": "~1.21.4",
@@ -29,12 +32,13 @@
     "pdftotextjs": "^0.3.1",
     "pdf-extract": "^1.0.9",
     "pdf-text-extract": "~1.4.1",
-    "pdf-util": "~0.1.9",
+    "pdf-util": "~0.2.0",
+    "cpdf-n": "~0.1.5",
     "request": "^2.74.0",
     "wordfreq": "^0.1.0-dev",
     "chinese-s2t": "^0.0.6",
     "serve-favicon": "~2.3.0",
-    "pmx" : "latest"
+    "pmx": "latest"
   },
   "logo": "https://cdn.rawgit.com/omc/heroku-kibana/master/kibana.svg",
   "addons": [
@@ -52,6 +56,9 @@
     },
     {
       "url": "https://github.com/ONode/heroku-buildpack-xpdf"
+    },
+    {
+      "url": "https://github.com/railslab/heroku-buildpack-cpdf"
     }
   ],
   "env": {

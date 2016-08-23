@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const elastic = require('../common/elasticsearch');
 const pawn = require('../common/pawn');
-const xpdf = require('../common/testxpdf');
+const testcase = require('../common/testxpdf');
 /** GET suggestions */
 router.get('/suggest/:input', function (req, res, next) {
     elastic.getSuggestions(req.params.input).then(function (result) {
@@ -19,7 +19,7 @@ router.get('/crawl/:year', function (req, res, next) {
     pawn.searchByYear(req, res);
 });
 router.get('/test/', function (req, res, next) {
-    xpdf.pdf_demo_text({
+    testcase.testcaseapi({
             remove_space_asian_character: true,
             new_paragraph: true,
             from: 0,
@@ -28,7 +28,7 @@ router.get('/test/', function (req, res, next) {
         res);
 });
 router.get('/test_v1/', function (req, res, next) {
-    xpdf.pdf_demo_text({
+    testcase.testcasexpdf({
         remove_space_asian_character: false,
         new_paragraph: false,
         from: 0,
@@ -36,7 +36,7 @@ router.get('/test_v1/', function (req, res, next) {
     }, res);
 });
 router.get('/test_v2/', function (req, res, next) {
-    xpdf.pdf_demo_text({
+    testcase.testcasexpdf({
         remove_space_asian_character: true,
         new_paragraph: false,
         from: 0,

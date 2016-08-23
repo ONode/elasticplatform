@@ -1,10 +1,98 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
-    "sourceMap": true
+  "SP_LC_CM": {
+    "full": "全委會主席：",
+    "suggestion": "es5"
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "SP_MB_CCC": {
+    "full": "陳志全議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_CWY": {
+    "full": "陳偉業議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_LKH": {
+    "full": "梁國雄議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_LWK": {
+    "full": "盧偉國議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_GF": {
+    "full": "范國威議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_CLW": {
+    "full": "蔣麗芸議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_CKP": {
+    "full": "陳健波議員：",
+    "suggestion": "es5"
+  },
+  "SP_PO_SFST": {
+    "full": "財經事務及庫務局局長：",
+    "suggestion": "es5"
+  },
+  "SP_LC_PSD": {
+    "full": "主席：",
+    "suggestion": "es5"
+  },
+  "SP_LD_DPSD": {
+    "full": "代理主席：",
+    "suggestion": "es5"
+  },
+  "SP_LC_CLK": {
+    "full": "秘書：",
+    "suggestion": "es5"
+  },
+  "SP_MB_IKH": {
+    "full": "葉國謙議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_LMF": {
+    "full": "梁美芬議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_LWH": {
+    "full": "劉慧卿議員：",
+    "suggestion": "es5"
+  },
+  "SP_PO_SCMA": {
+    "full": "政制及內地事務局局長：",
+    "suggestion": "es5"
+  },
+  "SP_MB_CM": {
+    "full": "毛孟靜議員(譯文)：",
+    "suggestion": "毛孟靜議員"
+  },
+  "SP_MB_CH": {
+    "full": "何秀蘭議員：",
+    "suggestion": "es5"
+  },
+  "SP_LC_DCM": {
+    "full": "代理全委會主席：",
+    "suggestion": "es5"
+  },
+  "SP_MB_AL": {
+    "full": "梁君彥議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_KC": {
+    "full": "陳家洛議員：",
+    "suggestion": "es5"
+  },
+  "SP_MB_SH": {
+    "full": "何俊賢議員：",
+    "suggestion": "es5"
+  },
+  "SP_PO_STH": {
+    "full": "運輸及房屋局局長：",
+    "suggestion": "es5"
+  },
+  "SP_MB_SL": {
+    "full": "李慧琼議員：",
+    "suggestion": "es5"
+  }
 }

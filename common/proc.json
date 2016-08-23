@@ -1,10 +1,50 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
-    "sourceMap": true
+  "b2d02": {
+    "full": "代理主席:",
+    "suggestion": "es5"
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "b2d02a": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b2d01": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b2d01a": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b3r": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b3r02": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b3r02a": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b3r03": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b3r03a": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b2d": {
+    "full": "代理主席:",
+    "suggestion": "es5"
+  },
+  "b2d03": {
+    "full": "恢復法案二讀辯論",
+    "suggestion": "es5"
+  },
+  "b2d03a": {
+    "full": "恢復法案二讀辯論",
+    "suggestion": "es5"
+  }
 }
