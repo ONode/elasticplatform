@@ -8,32 +8,35 @@ const
   xpdfUtil = require("pdf-util"),
   cpdfUtil = require("cpdf-n"),
   _ = require("lodash"),
-  wordfreq = require("wordfreq"),
   events = require("events"),
   spmap = require("./ppmap.json");
-
+//"node-scws": "~0.0.1",
+//scws = require("scws"),
 const options_instance = {
   interval_pages: 15,
   remove_space_asian_character: false,
   new_paragraph: false,
   remove_single_n_english: false,
+  only_preindex: false,
   from: 0,
   to: 10
 };
 
 const regtool = {
   bookmark: /(SP_[A-Z][A-Z]_[A-Z]+_)\w+/g,
+  bookmark_old_style: /(SP_[A-Z][A-Z]_[A-Z]+_)\w+/g,
   page: /\b\d{1,}/g,
   tag_name: /SP_[A-Z][A-Z]_\w+_/g,
   bookmark_meeting_process: /b\d\w+/g,
-  post_process_extraction: ''
+  post_process_extraction: '',
+  tag_extract_name_person: /[\u4e00-\u9fa5]+[^\uff1a]/g
 };
 
 const cxpdfnMining = function (config) {
   events.call(this);
   this.options = options_instance;
   this.filepath = config.out;
-  if (config.isEnglish) {
+  if (_.isBoolean(config.isEnglish) && config.isEnglish) {
     this.options.remove_space_asian_character = false;
     this.options.new_paragraph = true;
     this.options.remove_single_n_english = true;
@@ -42,8 +45,12 @@ const cxpdfnMining = function (config) {
     this.options.new_paragraph = true;
     this.options.remove_single_n_english = false;
   }
+  if (_.isBoolean(config.only_preindex) && config.only_preindex) {
+    this.options.only_preindex = true;
+  }
   this.index_trail = [];
   this.iterate = 0;
+  this.pdf_type = -1;
   //console.log("=== pdf to text ===");
   // console.log(this);
   this.settings(config);
@@ -75,33 +82,74 @@ function ArrNoDupe(a) {
     r.push(k);
   return r;
 }
+
+function xUtilIndexHelper(name_arr, pointerIndexFullSet, exclude_existing_json) {
+  var unqi = ArrNoDupe(name_arr);
+  var showlist = [];
+  _.forEach(unqi, function (tag_name) {
+    if (exclude_existing_json && !_.has(spmap, tag_name)) {
+      _.forEach(pointerIndexFullSet, function (obit) {
+        if (tag_name == obit.tag) {
+          showlist.push({
+            "tag": tag_name,
+            "page": obit.page
+          });
+          return false;
+        }
+      });
+    }
+  });
+  console.log('> =====================================.');
+  console.log('> ======= pre-index miner page=======.');
+  console.log('> ===================================.');
+  console.log('> final name tags', showlist);
+  console.log('> ===========================.');
+}
+
+
 cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
   console.log('> is array', _.isArray(raw_cpdf_bookmarks));
   console.log('> count', raw_cpdf_bookmarks.length);
+  // console.log('> preview', raw_cpdf_bookmarks);
   var
+    t1 = raw_cpdf_bookmarks[0], t2 = raw_cpdf_bookmarks[1],
     list = raw_cpdf_bookmarks[0].split("\n1"),
     previous_index_page = -1,
     n = 0,
     name_arr = [];
 
+  if (_.isEmpty(t1) && _.isEmpty(t2)) {
+    console.error("there are no bookmarks from this PDF");
+    return;
+  }
+  //console.log('>>> is list', list);
   _.forEach(list, function (item_name) {
 
     const r2 = item_name.match(regtool.page);
     const r1 = item_name.match(regtool.bookmark);
+    const r5 = item_name.match(regtool.bookmark_old_style);
     const r3 = item_name.match(regtool.bookmark_meeting_process);
 
     try {
 
-      if (r1 == null && r3 == null || r2 == null) {
-        // console.log('>>> is list n', n);
-        return;
+      if (r2 != null && (r1 != null || r3 != null)) {
+        // console.log('>>> detect the new type pdf', n);
+        this.pdf_type = 2;
+      } else if (r5 != null && r2 == null) {
+        // console.log('>>> detect the old type pdf', n);
+        this.pdf_type = 1;
+      } else {
+        // console.log('>>> too old cannot be index', n);
+        this.pdf_type = 0;
+        throw new Error("pdf format is too old");
+
       }
 
       const pageindex = parseInt(r2[0]);
+      // console.log('>> page number', pageindex);
+
       var bookmark = '', real_tag = '';
-
-      //console.log('>>> is list', item_name);
-
+      //  console.log('>>> is list', item_name);
       if (r3 != null) {
         bookmark = r3[0];
         real_tag = bookmark;
@@ -149,27 +197,39 @@ cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
       n++;
       //  console.error("no errore");
     } catch (e) {
-      //  console.error(e);
+      //console.error(e);
       previous_index_page = -1;
     }
-    name_arr = ArrNoDupe(name_arr);
-    // console.log('> final name tags', name_arr);
   }.bind(this));
+  if (this.options.only_preindex) {
+    xUtilIndexHelper(name_arr, this.index_trail, true);
+    console.log('>> ====== > pdf detection', this.pdf_type);
+  }
 };
-
 cxpdfnMining.prototype.start = function () {
   cpdfUtil.listBookmarks(this.filepath).then(function (arrayList) {
     this.bookmarks_analyzer(arrayList);
-  }.bind(this)).then(function () {
+  }.bind(this), function (error) {
+    console.log('pdf error', error);
+  }).then(function () {
     console.log('> start the first page', this.index_trail[0].page);
     // console.log('> list objects', this.index_trail);
     xpdfUtil.info(this.filepath, function (err, info) {
       if (err) throw(err);
-      console.log("=== log info ===");
-      console.log(info);
-      console.log("================");
-      this.startScanConfigAt(this.iterate);
-      this.process_pages();
+
+
+      if (this.options.only_preindex) {
+        this.emit('complete', 'done');
+      } else {
+
+        console.log("=== log info ===");
+        console.log(info);
+        console.log("================");
+
+        this.startScanConfigAt(this.iterate);
+        this.process_pages();
+      }
+
     }.bind(this));
   }.bind(this));
 };
@@ -189,6 +249,7 @@ cxpdfnMining.prototype.startScanConfigAt = function (inter) {
 cxpdfnMining.prototype.getCurrentScanningItem = function () {
   return this.index_trail[this.iterate];
 };
+
 cxpdfnMining.prototype.getNextScanningIndex = function () {
   return this.index_trail[this.iterate + 1];
 };
@@ -282,45 +343,65 @@ cxpdfnMining.prototype.process_pages = function () {
       }
 
       const captured = pre_capture_context.substring(b1, b2);
-      wordfreq({}).process(captured, function (list) {
-
-        const result = {
-          content: captured,
-          title: "h-" + this.getCurrentScanningItem().page,
-          metadata: list,
-          tag: cur_item_tag,
-          page: this.getCurrentScanningItem().page,
-          bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
-          scanrange: {
-            start: this.getCurrentScanningItem().scanrange.start,
-            end: this.getCurrentScanningItem().scanrange.end
-          }
-        };
-
-        console.log("> precapture order: ", b1, b2, captured);
-        //console.log("> precapture order: ", b1, b2, pre_capture_context);
-        console.log("> tag name: ", cur_item_tag, next_item_tag);
-        console.log("> tag name actual: ", b1_token, b2_token);
-        result.data_internal_key = this.getExternal().data_internal_key;
-        result.data_read_order = this.getExternal().data_read_order;
-        result.data_source_url = this.getExternal().url;
-        //this.emit('scanpage', result);
-
-      }.bind(this));
-
-      /* if (data.length > 0) {
-       console.log("now processed pages: " + this.getConfig().from + " - " + this.getConfig().to);
-       this.emit('scanpage', result);
-       } else {
-       this.next_wave();
-       }
+      console.log("> precapture order: ", b1, b2, captured);
+      const chinese_name = b1_token.match(regtool.tag_extract_name_person);
+      const name_tag = chinese_name[0] == null ? cur_item_tag : chinese_name[0];
+      /*
+       wordfreq.process(captured).getList(function (list) {
+       console.log("> list opt- ", list);
+       //console.log('process: ', 'adasda');
+       }).empty(function () {
+       console.log("> empty list ");
+       });
+       console.log("> end and no discovery");
        */
+
+      // console.log('process: ', 'cascasc');
+
+
+      /*var mScws = new scws.init({
+       ignorePunct: false,
+       multi: "short",
+       dicts: "./dicts/dict.utf8.xdb",
+       rule: "./rules/rules.utf8.ini"
+       });*/
+      //var chopchop = mScws.segment(captured);
+      //mScws.destroy();
+
+      const result = {
+        content: captured,
+        title: "h-" + this.getCurrentScanningItem().page,
+        metadata: [name_tag],
+        tag: name_tag,
+        page: this.getCurrentScanningItem().page,
+        bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
+        scanrange: {
+          start: this.getCurrentScanningItem().scanrange.start,
+          end: this.getCurrentScanningItem().scanrange.end
+        }
+      };
+
+      //console.log("> precapture order: ", b1, b2, pre_capture_context);
+      //console.log("> tag name: ", cur_item_tag, next_item_tag);
+      // console.log("> tag name actual: ", b1_token, b2_token);
+      //console.log("> tag name word list: ", b1_token, chopchop);
+      result.data_internal_key = this.getExternal().data_internal_key;
+      result.data_read_order = this.getExternal().data_read_order;
+      result.data_source_url = this.getExternal().url;
+
+
+      this.emit('scanpage', result);
+
+
+      //console.log("> list opt- ", list);
     } else {
       console.error(". tag cant map", "no dictionary map can be found by,", cur_item_tag);
+      this.next_wave();
+
     }
 
-
   }.bind(this));
+
 };
 
 

@@ -31,7 +31,7 @@ const fields_chi_only = [
   'second_reading_date_5_hansard_url_chi',
   'third_reading_date_hansard_url_chi'
 ];
-var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 1;
+var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 100;
 const step_2 = function (year_code, json, res) {
   var count = json['odata.count'];
   console.log("=== files found ===");
