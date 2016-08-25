@@ -191,4 +191,7 @@ var searchByYear = function (req, res) {
     res.render('index', {title: 'Legco Center no year request is found'});
   }
 };
+var searchGoogle = function (req, res) {
+
+};
 module.exports.searchByYear = searchByYear;
