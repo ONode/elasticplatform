@@ -29,7 +29,7 @@
   <section class='results'>
     <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
     <article class='result' ng-repeat='result in results track by $id(result)'>
-      <h2>{{result.title}}</h2>
+      <h2>{{result.tag}} - {{result.title}}</h2>
       <p>{{result.content}}</p>
     </article>
   </section>
