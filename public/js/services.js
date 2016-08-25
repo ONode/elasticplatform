@@ -54,7 +54,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, e
                 var i = 0, hitsIn, hitsOut = [], source;
                 hitsIn = (result.hits || {}).hits || [];
                 for (; i < hitsIn.length; i++) {
-                    hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(200);
+                    hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(500);
                     console.log(hitsIn[i]);
                     source = hitsIn[i]._source;
                     source._id = hitsIn[i]._id;
