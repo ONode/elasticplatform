@@ -67,6 +67,7 @@ elClient.prototype.initMapping = function () {
         content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
         source: {type: "string", index: "not_analyzed", "format": "Url"},
         doc_index: {type: "number", index: "not_analyzed"},
+        createdate: {type: "date", index: "not_analyzed"},
         read: {type: "number", index: "not_analyzed"},
         suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true},
         scanrange: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: false},
@@ -91,6 +92,7 @@ elClient.prototype.addDoc = function (document) {
       source: document.data_source_url,
       doc_index: document.data_internal_key,
       read: document.data_read_order,
+      createdate: document.thread_date,
       suggest: {
         input: document.title.split(" "),
         output: document.title,
