@@ -32,7 +32,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, e
     CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
 
     var client = elasticsearch({host: CALACA_CONFIGS.url});
-    var year = ALACA_CONFIGS.index_name;
+    var year = CALACA_CONFIGS.index_name;
     var search = function (query, mode, offset) {
       var deferred = $q.defer();
       if (query.length == 0) {

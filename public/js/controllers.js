@@ -24,7 +24,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     var maxResultsSize = CALACA_CONFIGS.size;
     var searchTimeout;
 
-    $scope.namesSP = ["Emil", "Tobias", "Linus"];
+    $scope._index_year = ["2013", "2014", "2015", "2016"];
 
     $scope.delayedSearch = function (mode) {
       clearTimeout(searchTimeout);
@@ -93,7 +93,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.myDate.getMonth() + 2,
       $scope.myDate.getDate());
 
-    $scope.onlyWeekendsPredicate = function(date) {
+    $scope.onlyWeekendsPredicate = function (date) {
       var day = date.getDay();
       return day === 0 || day === 6;
     };
