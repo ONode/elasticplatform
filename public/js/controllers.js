@@ -16,7 +16,6 @@
 Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', function (results, $scope, $location) {
     //Init empty array
     $scope.results = [];
-
     //Init offset
     $scope.offset = 0;
 
@@ -24,7 +23,6 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     var maxResultsSize = CALACA_CONFIGS.size;
     var searchTimeout;
 
-    $scope._index_year = ["2013", "2014", "2015", "2016"];
 
     $scope.delayedSearch = function (mode) {
       clearTimeout(searchTimeout);
@@ -38,7 +36,6 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.results = [];
       $scope.offset = m == 0 ? 0 : $scope.offset;//Clear offset if new query
       $scope.loading = m == 0 ? false : true;//Reset loading flag if new query
-
       if (m == -1 && paginationTriggered) {
         if ($scope.offset - maxResultsSize >= 0) $scope.offset -= maxResultsSize;
       }
@@ -49,29 +46,30 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
       $scope.loadResults(m);
     };
+    $scope._index_year = ["2013", "2014", "2015", "2016"];
+    $scope._selectionNames = null;
+    $scope.loadSelectionName = function () {
+      return results.persons().then(function (data) {
+        $scope._selectionNames = data;
+      });
+    };
 
     //Load search results into array
     $scope.loadResults = function (m) {
       results.search($scope.query, m, $scope.offset).then(function (a) {
-
         //Load results
         var i = 0;
         for (; i < a.hits.length; i++) {
           $scope.results.push(a.hits[i]);
         }
-
         //Set time took
         $scope.timeTook = a.timeTook;
-
         //Set total number of hits that matched query
         $scope.hits = a.hitsCount;
-
         //Pluralization
         $scope.resultsLabel = ($scope.hits != 1) ? "results" : "result";
-
         //Check if pagination is triggered
         paginationTriggered = $scope.hits > maxResultsSize ? true : false;
-
         //Set loading flag if pagination has been triggered
         if (paginationTriggered) {
           $scope.loading = true;
@@ -84,10 +82,12 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     };
 
     $scope.myDate = new Date();
+
     $scope.minDate = new Date(
       $scope.myDate.getFullYear(),
       $scope.myDate.getMonth() - 2,
       $scope.myDate.getDate());
+
     $scope.maxDate = new Date(
       $scope.myDate.getFullYear(),
       $scope.myDate.getMonth() + 2,
@@ -97,7 +97,6 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       var day = date.getDay();
       return day === 0 || day === 6;
     };
-
 
   }]
 );

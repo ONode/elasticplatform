@@ -19,26 +19,26 @@
     <div class='search-box-container'>
         <input type='text' class='search-box' placeholder='Search' autofocus ng-model='query'
                ng-change='delayedSearch(0)'>
+
         <div layout="row">
             <md-input-container style="margin-right: 10px;">
                 <label>Reporting Year</label>
-                <md-select ng-model="size">
+                <md-select ng-model="year">
                     <md-option ng-repeat="x in _index_year" value="{{x}}">{{x}}</md-option>
                 </md-select>
             </md-input-container>
             <md-input-container style="margin-right: 10px;">
                 <label>Date selection</label>
-                <md-datepicker ng-model="myDate" md-placeholder="Enter date" md-open-on-focus></md-datepicker>
+                <md-datepicker ng-model="myDate" md-placeholder="Enter date" md-open-on-focus
+                               ng-value="final_date"></md-datepicker>
+            </md-input-container>
+            <md-input-container style="margin-right: 10px;">
+                <label>Person name</label>
+                <md-select ng-model="honourable" md-on-open="loadSelectionName()">
+                    <md-option ng-repeat="d in _selectionNames" ng-value="d.full">{{d.full}}</md-option>
+                </md-select>
             </md-input-container>
         </div>
-        <!-- <md-card>
-             <md-card-content>
-                 <div layout="row" layout-align="space-between center">
-                     <span>Year Selection</span>
-                     <md-datepicker ng-model="myDate" md-placeholder="Enter date" md-open-on-focus></md-datepicker>
-                 </div>
-             </md-card-content>
-         </md-card>-->
         <!-- <input type='text' class='search-box' placeholder='Search' autofocus ng-model='query'>-->
     </div>
 </header>

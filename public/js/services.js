@@ -27,7 +27,7 @@ function truncateOnWord(str, limit) {
 }
 
 /* Service to Elasticsearch */
-Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, elasticsearch, $location) {
+Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', function ($q, elasticsearch, $location, $http) {
     //Set default url if not configured
     CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
 
@@ -70,8 +70,18 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function ($q, e
       return deferred.promise;
     };
 
+
+    var json_on_it = function () {
+      var deferred = $q.defer();
+      $http.get('js/persons.json').success(function (response) {
+        deferred.resolve(response);
+      });
+      return deferred.promise;
+    };
+
     return {
-      "search": search
+      "search": search,
+      "persons": json_on_it
     };
 
   }]
