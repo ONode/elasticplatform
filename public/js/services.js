@@ -32,31 +32,64 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
     CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
 
     var client = elasticsearch({host: CALACA_CONFIGS.url});
-    var year = CALACA_CONFIGS.index_name;
-    var search = function (query, mode, offset) {
-      var deferred = $q.defer();
-      if (query.length == 0) {
-        deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
-        return deferred.promise;
-      }
-      client.search({
-        "index": year,
-        "type": CALACA_CONFIGS.type,
-        "body": {
-          "size": CALACA_CONFIGS.size,
-          "from": offset,
-          "query": {
-            "query_string": {
-              "query": query
+    var index_prefix = CALACA_CONFIGS.index_name;
+    var getYr = function (input) {
+      var n = (input.year == null || input.year == "") ? "*" : input.year;
+      //  console.log(index_prefix + n);
+      return index_prefix + n;
+    };
+
+    var filterobect = function (addPerson) {
+      return {
+        filtered: {
+          filter: {
+            term: {
+              suggestion: {
+                payload: addPerson
+              }
             }
           }
         }
-      }).then(function (result) {
+      }
+    };
+    /*
+     bool: {
+     filter: {
+     term: {
+     "suggestion.payload": ""
+     }
+     }
+     }
+     */
+    var search = function (queryobject, mode, offset) {
+      var deferred = $q.defer();
+      var basic_search_obj = {
+        index: getYr(queryobject),
+        type: CALACA_CONFIGS.type,
+        body: {
+          size: CALACA_CONFIGS.size,
+          query: {
+            query_string: {
+              fields: ["content"],
+              query: ""
+            }
+          }
+        }
+      };
+      if (queryobject.query.length == 0) {
+        deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
+        return deferred.promise;
+      }
+      basic_search_obj.body.query.query_string.query = queryobject.query;
+      if (queryobject.honourable != null && queryobject.honourable != "") {
+        basic_search_obj.filtered = filterobect(queryobject.honourable).filtered;
+      }
+      client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];
         for (; i < hitsIn.length; i++) {
           hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(500);
-          console.log(hitsIn[i]);
+          // console.log(hitsIn[i]);
           source = hitsIn[i]._source;
           source._id = hitsIn[i]._id;
           source._index = hitsIn[i]._index;
@@ -80,7 +113,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
     };
 
     return {
-      "search": search,
+      "ELsearch": search,
       "persons": json_on_it
     };
 

@@ -22,10 +22,16 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     var paginationTriggered;
     var maxResultsSize = CALACA_CONFIGS.size;
     var searchTimeout;
-
+    $scope.search_query = {
+      query: null,
+      honourable: null,
+      year: null,
+      selecteddate: null
+    };
 
     $scope.delayedSearch = function (mode) {
       clearTimeout(searchTimeout);
+      console.log($scope.search_query);
       searchTimeout = setTimeout(function () {
         $scope.search(mode)
       }, CALACA_CONFIGS.search_delay);
@@ -46,7 +52,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
       $scope.loadResults(m);
     };
-    $scope._index_year = ["2013", "2014", "2015", "2016"];
+    $scope._index_year = ["", "2013", "2014", "2015", "2016"];
     $scope._selectionNames = null;
     $scope.loadSelectionName = function () {
       return results.persons().then(function (data) {
@@ -56,7 +62,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
 
     //Load search results into array
     $scope.loadResults = function (m) {
-      results.search($scope.query, m, $scope.offset).then(function (a) {
+      results.ELsearch($scope.search_query, m, $scope.offset).then(function (a) {
         //Load results
         var i = 0;
         for (; i < a.hits.length; i++) {
@@ -81,17 +87,20 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       return paginationTriggered ? true : false;
     };
 
-    $scope.myDate = new Date();
 
-    $scope.minDate = new Date(
-      $scope.myDate.getFullYear(),
-      $scope.myDate.getMonth() - 2,
-      $scope.myDate.getDate());
+    $scope.press_calen = function () {
+      $scope.search_query.selecteddate = new Date();
+      $scope.minDate = new Date(
+        $scope.search_query.selecteddate.getFullYear(),
+        $scope.search_query.selecteddate.getMonth() - 2,
+        $scope.search_query.selecteddate.getDate());
 
-    $scope.maxDate = new Date(
-      $scope.myDate.getFullYear(),
-      $scope.myDate.getMonth() + 2,
-      $scope.myDate.getDate());
+      $scope.maxDate = new Date(
+        $scope.search_query.selecteddate.getFullYear(),
+        $scope.search_query.selecteddate.getMonth() + 2,
+        $scope.search_query.selecteddate.getDate());
+    };
+
 
     $scope.onlyWeekendsPredicate = function (date) {
       var day = date.getDay();
