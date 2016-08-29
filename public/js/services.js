@@ -44,9 +44,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         filtered: {
           filter: {
             term: {
-              suggestion: {
-                payload: addPerson
-              }
+              speaker: addPerson
             }
           }
         }

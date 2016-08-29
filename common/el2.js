@@ -62,15 +62,15 @@ elClient.prototype.initMapping = function () {
     type: "page",
     body: {
       properties: {
-        path: {type: "string", index: "not_analyzed"},
-        title: {type: "string", index: "analyzed", analyzer: "english"},
+        title: {type: "string", index: "analyzed", analyzer: "trans_standard"},
         content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
-        source: {type: "string", index: "not_analyzed", "format": "Url"},
-        doc_index: {type: "number", index: "not_analyzed"},
+        speaker: {type: "string", index: "analyzed", analyzer: "trans_standard"},
         createdate: {type: "date", index: "not_analyzed"},
-        read: {type: "number", index: "not_analyzed"},
-        suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true},
-        scanrange: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: false},
+        metapages: {type: "string", index: "not_analyzed"},
+        metapath: {type: "string", index: "not_analyzed"},
+        metasrc: {type: "string", index: "not_analyzed", "format": "Url"},
+        metaikey: {type: "number", index: "not_analyzed"},
+        suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
       }
     },
     ignore: [404]
@@ -82,24 +82,27 @@ elClient.prototype.addDoc = function (document) {
   //timeInMs.toUTCString()
   //id: timeInMs,
   //console.log(document);
-  return this.esclient.index({
+  var pre_send = {
     index: this.getIndexName(),
     type: "page",
     body: {
-      path: "legco/hansard/" + document.data_read_order,
-      title: document.title,
+      title: document.data_bill_title,
       content: document.content,
-      source: document.data_source_url,
-      doc_index: document.data_internal_key,
-      read: document.data_read_order,
+      speaker: document.data_speaker,
       createdate: document.thread_date,
+      metapages: "p" + document.scanrange.start + " - " + document.scanrange.end,
+      metasrc: document.data_source_url,
+      metaikey: document.data_internal_key,
+      metapath: "legco/hansard/" + document.data_read_order,
       suggest: {
-        input: document.title.split(" "),
-        output: document.title,
-        payload: document.metadata || {}
+        input: document.data_bill_title.split(" "),
+        output: document.data_bill_title,
+        payload: document.metadata || {},
+        weight: 20
       }
     }
-  });
+  };
+  return this.esclient.index(pre_send);
 };
 elClient.prototype.getSuggestions = function (input) {
   return this.esclient.suggest({

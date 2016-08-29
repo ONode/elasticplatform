@@ -327,6 +327,15 @@ cxpdfnMining.prototype.getConfig = function () {
 cxpdfnMining.prototype.getExternal = function () {
   return this.options.external;
 };
+
+cxpdfnMining.prototype.finalizeResultObject = function (r) {
+  r.data_internal_key = this.getExternal().data_internal_key;
+  r.data_read_order = this.getExternal().data_read_order;
+  r.data_source_url = this.getExternal().url;
+  r.data_bill_title = this.getExternal().data_bill_title;
+  return r;
+};
+
 cxpdfnMining.prototype.gc = function () {
   if (global.gc) {
     global.gc();
@@ -436,23 +445,16 @@ cxpdfnMining.prototype.process_nowadays = function (pre_capture_context) {
 
       const result = {
         content: captured,
-        title: name_tag + " p" + this.getCurrentScanningItem().page,
-        metadata: [name_tag],
+        metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
         page: this.getCurrentScanningItem().page,
         bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
         scanrange: {
           start: this.getCurrentScanningItem().scanrange.start,
           end: this.getCurrentScanningItem().scanrange.end
-        }
+        },
+        data_speaker: name_tag
       };
-      //console.log("> precapture order: ", b1, b2, pre_capture_context);
-      //console.log("> tag name: ", cur_item_tag, next_item_tag);
-      //console.log("> tag name actual: ", b1_token, b2_token);
-      //console.log("> tag name word list: ", b1_token, chopchop);
-      result.data_internal_key = this.getExternal().data_internal_key;
-      result.data_read_order = this.getExternal().data_read_order;
-      result.data_source_url = this.getExternal().url;
-      this.emit('scanpage', result);
+      this.emit('scanpage', this.finalizeResultObject(result));
     } else {
       console.error(". tag cant map", "no dictionary map can be found by,", cur_item_tag);
       this.next_wave();
@@ -514,24 +516,17 @@ cxpdfnMining.prototype.process_smart_mapping = function (pre_capture_context) {
         const name_tag = nameTag(mapList_1[p]);
         const result = {
           content: captured,
-          title: name_tag + " p" + this.options.from,
-          metadata: [name_tag],
-          page: this.options.from,
+          metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
           scanrange: {
             start: this.options.from,
             end: this.options.to
           },
-          thread_date: this.document_date
+          thread_date: this.document_date,
+          data_speaker: name_tag
         };
         // console.log("> precapture order: ", k1, k2, pre_capture_context);
-
-        result.data_internal_key = this.getExternal().data_internal_key;
-        result.data_read_order = this.getExternal().data_read_order;
-        result.data_source_url = this.getExternal().url;
-        this.emit('scanpage', result);
-
         console.log("> tag name: ", name_tag, ": ", captured);
-
+        this.emit('scanpage', this.finalizeResultObject(result));
         p++;
       } else if (p == mapList_1.length - 1) {
         var k1 = mapList_1[p].index + mapList_1[p].token.length;
@@ -584,25 +579,22 @@ cxpdfnMining.prototype.process_smart_mapping = function (pre_capture_context) {
     this.next_wave();
   }
 };
+
 cxpdfnMining.prototype.continue_resolve_buffer_object = function (map_list_object, raw_data) {
-  const name = nameTag(map_list_object);
+  const name_tag = nameTag(map_list_object);
   if (!_.isEmpty(this.scanBufferTempData)) {
     const result = {
       content: this.scanpagesbuffer.last_incomplete_sentence + raw_data.substring(0, map_list_object.index),
-      title: name + " p" + this.scanpagesbuffer.from_page,
-      metadata: [name],
-      page: this.scanpagesbuffer.from_page,
+      metadata: [name_tag],
       scanrange: {
         start: this.scanpagesbuffer.from_page,
         end: this.options.to
       },
-      thread_date: this.document_date
+      thread_date: this.document_date,
+      data_speaker: name_tag
     };
-    result.data_internal_key = this.getExternal().data_internal_key;
-    result.data_read_order = this.getExternal().data_read_order;
-    result.data_source_url = this.getExternal().url;
     console.log("> tag name: ", result.metadata, ": ", result.content);
-    this.emit('scanpage', result);
+    this.emit('scanpage', this.finalizeResultObject(result));
   }
 };
 cxpdfnMining.prototype.process_pages = function () {

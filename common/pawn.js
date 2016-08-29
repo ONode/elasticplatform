@@ -31,6 +31,12 @@ const fields_chi_only = [
   'second_reading_date_5_hansard_url_chi',
   'third_reading_date_hansard_url_chi'
 ];
+const fields_chi_meta = [
+  'bill_title_chi'
+];
+const fields_eng_meta = [
+  'bill_title_eng'
+];
 var demo_files_lock = parseInt(process.env.SEARCHFARM_SCAN_FILES_LIMIT) || 100;
 const step_2 = function (year_code, json, res) {
   var count = json['odata.count'];
@@ -78,6 +84,7 @@ const step_2 = function (year_code, json, res) {
       var n = 0, array = [], filesindex = [];
       _.forEach(json.value, function (val) {
         var key_internal = parseInt(val.internal_key);
+        var chinese_bill_title = val.bill_title_chi;
         _.forEach(fields_chi_only, function (h) {
           var base_file_val = val[h];
           var regex = /_+\d+_/;
@@ -100,6 +107,7 @@ const step_2 = function (year_code, json, res) {
                 el: elastic,
                 data_read_order: read_order,
                 data_internal_key: key_internal,
+                data_bill_title: chinese_bill_title,
                 process_file_order: n
               };
               /* dragon_q(datactivity);*/
