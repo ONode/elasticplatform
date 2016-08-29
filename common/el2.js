@@ -102,6 +102,13 @@ elClient.prototype.addDoc = function (document) {
       }
     }
   };
+  var name = document.data_speaker;
+  var check_valid_subfix = name.substring(name.length - 2, name.length);
+  var check_valid_surname = name.substring(0, 1);
+  if (check_valid_subfix == "議員") {
+    pre_send.body.suggest.input = check_valid_surname + check_valid_subfix;
+    pre_send.body.suggest.output = name;
+  }
   return this.esclient.index(pre_send);
 };
 elClient.prototype.getSuggestions = function (input) {
