@@ -39,26 +39,41 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       return index_prefix + n;
     };
 
-    var filterobect = function (addPerson) {
+    var queryDetail = function (text) {
       return {
-        filtered: {
+        query: text,
+        analyzer: "smartcn",
+        fields: ["content", "title"],
+        default_operator: "and"
+      };
+    };
+    var queryPerson = function (speaker_name) {
+      return {
+        query: speaker_name,
+        analyzer: "smartcn",
+        fields: ["speaker"],
+        default_operator: "and"
+      };
+    };
+    var detailQuery = function (line, person) {
+      return {
+        constant_score: {
           filter: {
-            term: {
-              speaker: addPerson
+            bool: {
+              must: [
+                {simple_query_string: queryDetail(line)},
+                {simple_query_string: queryPerson(person)}
+              ]
             }
           }
         }
       }
     };
-    /*
-     bool: {
-     filter: {
-     term: {
-     "suggestion.payload": ""
-     }
-     }
-     }
-     */
+    var queryDetailPerson = function (person) {
+      return {
+        simple_query_string: queryPerson(person)
+      }
+    };
     var search = function (queryobject, mode, offset) {
       var deferred = $q.defer();
       var basic_search_obj = {
@@ -66,22 +81,35 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         type: CALACA_CONFIGS.type,
         body: {
           size: CALACA_CONFIGS.size,
-          query: {
-            query_string: {
-              fields: ["content"],
-              query: ""
-            }
-          }
+          query: {}
         }
       };
-      if (queryobject.query.length == 0) {
+      var line = "";
+      if (queryobject.query == null) {
+        line = "";
+      } else {
+        line = queryobject.query;
+      }
+      if (line.length > 0) {
+        var word_list = line.split(" ");
+      }
+      if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
+        basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
+      }
+      if (line.length > 0 && queryobject.honourable == null) {
+        basic_search_obj.body.query.simple_query_string = queryDetail(line);
+      }
+      if (line.length == 0 && queryobject.honourable != null) {
+        basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
+      }
+
+      if (line.length == 0 && basic_search_obj.body.query.term == {}) {
         deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
         return deferred.promise;
       }
-      basic_search_obj.body.query.query_string.query = queryobject.query;
-      if (queryobject.honourable != null && queryobject.honourable != "") {
-        basic_search_obj.filtered = filterobect(queryobject.honourable).filtered;
-      }
+
+      console.log(basic_search_obj);
+      console.log(JSON.stringify(basic_search_obj.body));
       client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];

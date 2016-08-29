@@ -59,8 +59,9 @@
         <article class='result' ng-repeat='result in results track by $id(result)'>
             <h2>{{result.speaker}}</h2>
             <p>{{result.content}}</p>
-            <p>{{result.title}}</p>
-            <span>{{result.metapages}}, {{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a></span>
+            <br/>
+            <p>{{result.title}}, {{result.metapages}}, id{{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a>
+            </p>
         </article>
     </section>
     <section class='pagination-controls'>

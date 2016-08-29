@@ -288,7 +288,7 @@ cxpdfnMining.prototype.startScanConfigAtOldStyle = function (pagenum) {
 };
 cxpdfnMining.prototype.next_wave = function () {
   if (this.pdf_type == 2) {
-    console.log('pdf type is starting at two');
+    // console.log('pdf type is starting at two');
     if (this.startScanConfigAtNode(this.iterate + 1)) {
       this.process_pages();
     } else {
@@ -417,8 +417,7 @@ cxpdfnMining.prototype.process_nowadays = function (pre_capture_context) {
       const name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
 
       //   console.log("> capture extract: " + name_tag, "page:" + this.options.from, b1, cap_end, captured.length);
-      //  console.log("> capture content: ", captured);
-
+      console.log("> capture most common: ", name_tag, captured);
       /*
        wordfreq.process(captured).getList(function (list) {
        console.log("> list opt- ", list);
@@ -465,6 +464,11 @@ cxpdfnMining.prototype.process_nowadays = function (pre_capture_context) {
     //this.next_wave();
   }
 };
+/**
+ * this is the key part of the wild auto mapping system indicator
+ * @param data
+ * @returns {Array}
+ */
 cxpdfnMining.prototype.get_map_list = function (data) {
   var exclude = "列席秘書：";
   var map_list = [];
@@ -525,7 +529,7 @@ cxpdfnMining.prototype.process_smart_mapping = function (pre_capture_context) {
           data_speaker: name_tag
         };
         // console.log("> precapture order: ", k1, k2, pre_capture_context);
-        console.log("> tag name: ", name_tag, ": ", captured);
+        console.log("> smart mapping: ", name_tag, ": ", captured);
         this.emit('scanpage', this.finalizeResultObject(result));
         p++;
       } else if (p == mapList_1.length - 1) {
@@ -593,7 +597,7 @@ cxpdfnMining.prototype.continue_resolve_buffer_object = function (map_list_objec
       thread_date: this.document_date,
       data_speaker: name_tag
     };
-    console.log("> tag name: ", result.metadata, ": ", result.content);
+    console.log("> buffer output: ", name_tag, ": ", result.content);
     this.emit('scanpage', this.finalizeResultObject(result));
   }
 };

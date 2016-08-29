@@ -59,14 +59,15 @@ elClient.prototype.indexExists = function () {
   });
 };
 elClient.prototype.initMapping = function () {
+  //smartcn_tokenizer
   return this.esclient.indices.putMapping({
     index: this.getIndexName(),
     type: "page",
     body: {
       properties: {
-        title: {type: "string", index: "analyzed", analyzer: "trans_standard"},
-        content: {type: "string", index: "analyzed", analyzer: "trans_standard"},
-        speaker: {type: "string", index: "analyzed", analyzer: "trans_standard"},
+        title: {type: "string", index: "analyzed", analyzer: "smartcn"},
+        content: {type: "string", index: "analyzed", analyzer: "smartcn"},
+        speaker: {type: "string", index: "analyzed", analyzer: "smartcn"},
         createdate: {type: "date", index: "not_analyzed"},
         metapages: {type: "string", index: "not_analyzed"},
         metapath: {type: "string", index: "not_analyzed"},
@@ -95,6 +96,7 @@ elClient.prototype.addDoc = function (document) {
       metasrc: document.data_source_url,
       metaikey: document.data_internal_key,
       metapath: "legco/hansard/" + document.data_read_order,
+      title: document.data_bill_title,
       suggest: {
         input: [],
         output: document.data_bill_title,
@@ -124,6 +126,12 @@ elClient.prototype.addDoc = function (document) {
     var prename = check_valid_surname + check_valid_subfix;
     pre_send.body.suggest.input.push(prename);
     pre_send.body.suggest.output = pre_send.body.suggest.output + " - " + name;
+  } else if (check_valid_subfix == "局長") {
+    var prename = check_valid_surname + check_valid_subfix;
+    pre_send.body.suggest.input.push(prename);
+    pre_send.body.suggest.output = pre_send.body.suggest.output + " - " + name;
+  } else {
+
   }
   // title: document.data_bill_title
   // console.log("result index===>", pre_send.body.suggest.input);
