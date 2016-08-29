@@ -15,11 +15,10 @@
 
 <!-- Title and search box -->
 <header class='jumbotron_v2'>
-    <h1 class='title'>Legco</h1>
+    <h2 class='title'>Legco</h2>
     <div class='search-box-container'>
-        <input type='text' class='search-box' placeholder='Search' autofocus ng-model='search_query.query'
-               ng-change='delayedSearch(0)'>
-        <div layout="row" style="margin-top: 10px;">
+
+        <div layout="row">
             <md-input-container style="margin-right: 10px;">
                 <label>Person name</label>
                 <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
@@ -36,8 +35,15 @@
                 <label>Date selection</label>
                 <md-datepicker ng-model="search_query.selecteddate" md-placeholder="Enter Date"
                                md-on-open="press_calen()"></md-datepicker>
+
             </md-input-container>
+
         </div>
+        <input type='text' class='search-box' placeholder='Search' autofocus ng-model='search_query.query'/>
+        <md-input-container layout="column" layout-align="start">
+            <md-button class="md-raised" ng-click="delayedSearch(0)">Legco Search</md-button>
+        </md-input-container>
+
     </div>
 </header>
 
@@ -51,13 +57,16 @@
     <section class='results'>
         <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
         <article class='result' ng-repeat='result in results track by $id(result)'>
-            <h2>{{result.suggest.payload[0]}}</h2>
+            <h2>{{result.speaker}}</h2>
             <p>{{result.content}}</p>
+            <p>{{result.title}}</p>
+            <span>{{result.metapages}}, {{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a></span>
         </article>
     </section>
     <section class='pagination-controls'>
-        <button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous</button>
-        <button ng-click='search(1)' ng-show='paginationEnabled()' class='pager'>Next</button>
+        <md-button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous
+        </md-button>
+        <md-button ng-click='search(1)' ng-show='paginationEnabled()' class='pager'>Next</md-button>
     </section>
 </main>
 <!-- Load resources -->
