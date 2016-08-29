@@ -38,6 +38,7 @@
     "chinese-s2t": "^0.0.6",
     "serve-favicon": "~2.3.0",
     "dateformat": "~1.0.12",
+    "natural": "~0.4.0",
     "pmx": "latest"
   },
   "logo": "https://cdn.rawgit.com/omc/heroku-kibana/master/kibana.svg",

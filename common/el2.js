@@ -3,6 +3,8 @@
  */
 const elasticsearch = require('elasticsearch'),
   util = require("util"),
+  _ = require("lodash"),
+  NGramsZH = require("natural").NGramsZH,
   events = require("events");
 const indexName = process.env.SEARCHFARM_INDEXPREFIX || "legco-";
 //const wordfreqProgram = require('wordfreq');
@@ -86,7 +88,6 @@ elClient.prototype.addDoc = function (document) {
     index: this.getIndexName(),
     type: "page",
     body: {
-      title: document.data_bill_title,
       content: document.content,
       speaker: document.data_speaker,
       createdate: document.thread_date,
@@ -95,20 +96,38 @@ elClient.prototype.addDoc = function (document) {
       metaikey: document.data_internal_key,
       metapath: "legco/hansard/" + document.data_read_order,
       suggest: {
-        input: document.data_bill_title.split(" "),
+        input: [],
         output: document.data_bill_title,
-        payload: document.metadata || {},
-        weight: 20
+        payload: {
+          "metakey": document.data_internal_key
+        }
       }
     }
   };
   var name = document.data_speaker;
   var check_valid_subfix = name.substring(name.length - 2, name.length);
   var check_valid_surname = name.substring(0, 1);
+
+  var c = NGramsZH.bigrams(document.data_bill_title);
+
+  pre_send.body.suggest.input = [];
+  var dict = ["年", "草案", "(修訂)"];
+  var pain = new String(document.data_bill_title);
+  _.forEach(dict, function (definedword) {
+    if (document.data_bill_title.indexOf(definedword) > -1) {
+      pre_send.body.suggest.input.push(definedword);
+      pain = pain.replace(definedword, "");
+    }
+  });
+  pre_send.body.suggest.input.push(pain);
   if (check_valid_subfix == "議員") {
-    pre_send.body.suggest.input = check_valid_surname + check_valid_subfix;
-    pre_send.body.suggest.output = name;
+    var prename = check_valid_surname + check_valid_subfix;
+    pre_send.body.suggest.input.push(prename);
+    pre_send.body.suggest.output = pre_send.body.suggest.output + " - " + name;
   }
+  // title: document.data_bill_title
+  // console.log("result index===>", pre_send.body.suggest.input);
+  // console.log("result index===>", pre_send);
   return this.esclient.index(pre_send);
 };
 elClient.prototype.getSuggestions = function (input) {
