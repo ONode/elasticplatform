@@ -111,7 +111,7 @@ elClient.prototype.addDoc = function (document) {
   var c = NGramsZH.bigrams(document.data_bill_title);
 
   pre_send.body.suggest.input = [];
-  var dict = ["年", "草案", "(修訂)"];
+  var dict = ["年", "草案", "(修訂)", "2012", "2013", "2014", "2015", "2016"];
   var pain = new String(document.data_bill_title);
   _.forEach(dict, function (definedword) {
     if (document.data_bill_title.indexOf(definedword) > -1) {
