@@ -30,7 +30,6 @@ function truncateOnWord(str, limit) {
 Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', function ($q, elasticsearch, $location, $http) {
     //Set default url if not configured
     CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
-
     var client = elasticsearch({host: CALACA_CONFIGS.url});
     var index_prefix = CALACA_CONFIGS.index_name;
     var getYr = function (input) {
@@ -38,7 +37,6 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       //  console.log(index_prefix + n);
       return index_prefix + n;
     };
-
     var queryDetail = function (text) {
       return {
         query: text,
@@ -102,19 +100,17 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       if (line.length == 0 && queryobject.honourable != null) {
         basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
       }
-
       if (line.length == 0 && basic_search_obj.body.query.term == {}) {
         deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
         return deferred.promise;
       }
-
       console.log(basic_search_obj);
       console.log(JSON.stringify(basic_search_obj.body));
       client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];
         for (; i < hitsIn.length; i++) {
-          hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(500);
+          hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
           // console.log(hitsIn[i]);
           source = hitsIn[i]._source;
           source._id = hitsIn[i]._id;
@@ -125,11 +121,8 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         }
         deferred.resolve({timeTook: result.took, hitsCount: result.hits.total, hits: hitsOut});
       }, deferred.reject);
-
       return deferred.promise;
     };
-
-
     var json_on_it = function () {
       var deferred = $q.defer();
       $http.get('js/persons.json').success(function (response) {
@@ -137,11 +130,9 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       });
       return deferred.promise;
     };
-
     return {
       "ELsearch": search,
       "persons": json_on_it
     };
-
   }]
 );
