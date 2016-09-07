@@ -22,6 +22,34 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     var paginationTriggered;
     var maxResultsSize = CALACA_CONFIGS.size;
     var searchTimeout;
+    $scope.autocompletescope = {
+      simulateQuery: false,
+      isDisabled: false,
+      // list of `state` value/display objects
+      states: $scope.loadSelectionName,
+      querySearch: function (query) {
+        var results = query ? self.states.filter(createFilterFor(query)) : self.states,
+          deferred;
+        if (self.simulateQuery) {
+          deferred = $q.defer();
+          $timeout(function () {
+            deferred.resolve(results);
+          }, Math.random() * 1000, false);
+          return deferred.promise;
+        } else {
+          return results;
+        }
+      },
+      selectedItemChange: function (text) {
+        //$log.info('Text changed to ' + text);
+      },
+      searchTextChange: function (text) {
+        //$log.info('Text changed to ' + text);
+      },
+      newState: function (name) {
+        alert("Sorry! You'll need to create a Constitution for " + name + " first!");
+      }
+    };
     $scope.search_query = {
       query: null,
       honourable: null,
