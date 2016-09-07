@@ -20,24 +20,23 @@
 
         <div layout="row">
             <md-input-container style="margin-right: 10px;">
-                <label>Person name</label>
+                <label>人名</label>
                 <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
                     <md-option ng-repeat="d in _selectionNames" ng-value="d.full">{{d.full}}</md-option>
                 </md-select>
             </md-input-container>
             <md-input-container style="margin-right: 10px;">
-                <label>Reporting Year</label>
+                <label>年度</label>
                 <md-select ng-model="search_query.year">
                     <md-option ng-repeat="x in _index_year" value="{{x}}">{{x}}</md-option>
                 </md-select>
             </md-input-container>
-            <md-input-container style="margin-right: 10px;">
+          <!--  <md-input-container style="margin-right: 10px;">
                 <label>Date selection</label>
                 <md-datepicker ng-model="search_query.selecteddate" md-placeholder="Enter Date"
                                md-on-open="press_calen()"></md-datepicker>
 
-            </md-input-container>
-
+            </md-input-container>-->
         </div>
         <input type='text' class='search-box' placeholder='Search' autofocus ng-model='search_query.query'/>
         <md-input-container layout="column" layout-align="start">
