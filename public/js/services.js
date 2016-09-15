@@ -38,17 +38,24 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       return index_prefix + n;
     };
     var queryDetail = function (text) {
+      // analyzer: "smartcn",
       return {
-        query: text,
-        analyzer: "smartcn",
-        fields: ["content", "title"],
-        default_operator: "and"
+        query: {match: {content: text}},
+        fields: ["content"],
+        default_operator: "and",
+        highlight: {
+          pre_tags: ["<b>"],
+          post_tags: ["</b>"],
+          fields: {
+            content: {}
+          }
+        }
       };
     };
     var queryPerson = function (speaker_name) {
       return {
         query: speaker_name,
-        analyzer: "smartcn",
+
         fields: ["speaker"],
         default_operator: "and"
       };
@@ -87,9 +94,6 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         line = "";
       } else {
         line = queryobject.query;
-      }
-      if (line.length > 0) {
-        var word_list = line.split(" ");
       }
       if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
         basic_search_obj.body.query = detailQuery(line, queryobject.honourable);

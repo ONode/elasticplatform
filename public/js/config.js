@@ -17,9 +17,9 @@
  * size - Number of results to display at a time when pagination is enabled.
  * search_delay - Delay between actual search request in ms. Reduces number of queries to cluster by not making a request on each keystroke. 
  */
-
+//	url: "https://cypress-6596621.us-east-1.bonsai.io",
 var CALACA_CONFIGS = {
-	url: "https://cypress-6596621.us-east-1.bonsai.io",
+	url: "http://localhost:9200",
 	index_name: "legco-",
 	type: "page",
 	size: 10,
