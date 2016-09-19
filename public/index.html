@@ -17,7 +17,7 @@
 <header class='jumbotron_v2'>
     <h2 class='title'>Legco</h2>
     <div class='search-box-container'>
-
+        <div layout="row"><p>例如我會先打人名，假設「梁國雄」，然後加議題例如「退休保障」，如果有需要會再加其他KEYWORDS一齊SEARCH，例如「梁國雄 退休保障 投票 遣散費」</p></div>
         <div layout="row">
             <md-input-container style="margin-right: 10px;">
                 <label>人名</label>
@@ -56,9 +56,7 @@
                     <a ng-click="autocompletescope.newState(autocompletescope.searchText)">Create a new one!</a>
                 </md-not-found>
             </md-autocomplete>-->
-
         </div>
-
         <input type='text' class='search-box' placeholder='Search' autofocus ng-model='search_query.query'/>
         <md-input-container layout="column" layout-align="start">
             <md-button class="md-raised" ng-click="delayedSearch(0)">Legco Search</md-button>
@@ -71,8 +69,7 @@
 <main class='results-container' ng-cloak>
     <section class='results-info'>
         <p id='response-details'>{{(hits | number) || 0}} {{resultsLabel || 'results'}} ({{(timeTook || 0)}}ms)</p>
-        <p ng-show='paginationEnabled()' id='pagination-details'>Showing {{paginationLowerBound}} -
-            {{paginationUpperBound}}</p>
+        <p ng-show='paginationEnabled()' id='pagination-details'>Showing {{paginationLowerBound}} - {{paginationUpperBound}}</p>
     </section>
     <section class='results'>
         <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
@@ -80,13 +77,11 @@
             <h2>{{result.speaker}}</h2>
             <p>{{result.content}}</p>
             <br/>
-            <p>{{result.title}}, {{result.metapages}}, id{{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a>
-            </p>
+            <p>{{result.title}}, {{result.metapages}}, id{{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a></p>
         </article>
     </section>
     <section class='pagination-controls'>
-        <md-button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous
-        </md-button>
+        <md-button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous</md-button>
         <md-button ng-click='search(1)' ng-show='paginationEnabled()' class='pager'>Next</md-button>
     </section>
 </main>
