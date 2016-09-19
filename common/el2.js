@@ -6,12 +6,62 @@ const elasticsearch = require('elasticsearch'),
   _ = require("lodash"),
   NGramsZH = require("natural").NGramsZH,
   events = require("events");
+
 const indexName = process.env.SEARCHFARM_INDEXPREFIX || "legco-";
+var bonsai_supported_type = {
+  type: "string",
+  index: "analyzed",
+  analyzer: "smartcn"
+};
+var full_analyzed = {
+  type: "text",
+  analyzer: "ik_max_word",
+  search_analyzer: "ik_max_word",
+  include_in_all: "true",
+  boost: 8
+};
+
+var _properties = {
+  content: full_analyzed,
+  title: full_analyzed,
+  speaker: {type: "string", index: "analyzed", analyzer: "smartcn"},
+  createdate: {type: "date", index: "not_analyzed"},
+  metapages: {type: "string", index: "not_analyzed"},
+  metapath: {type: "string", index: "not_analyzed"},
+  metasrc: {type: "string", index: "not_analyzed", format: "Url"},
+  metaikey: {type: "number", index: "not_analyzed"},
+  suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
+};
+var mapping_v3 = {
+  page: {
+    _all: {
+      analyzer: "ik_max_word",
+      search_analyzer: "ik_max_word",
+      term_vector: "no",
+      store: false
+    },
+    properties: _properties
+  }
+};
+var mapping_bonsai_v2 = {
+  properties: {
+    title: bonsai_supported_type,
+    content: bonsai_supported_type,
+    speaker: bonsai_supported_type,
+    createdate: {type: "date", index: "not_analyzed"},
+    metapages: {type: "string", index: "not_analyzed"},
+    metapath: {type: "string", index: "not_analyzed"},
+    metasrc: {type: "string", index: "not_analyzed", format: "Url"},
+    metaikey: {type: "number", index: "not_analyzed"},
+    suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
+  }
+};
 //const wordfreqProgram = require('wordfreq');
 function elClient(config) {
   events.call(this);
   this.options = config;
-  this.options.connection_url = process.env.BONSAI_URL || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io';
+  this.options.connection_url = 'localhost:9200';
+    //process.env.BONSAI_URL || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io';
   if (this.isReady()) {
     const elasticClient = new elasticsearch.Client({
       host: this.options.connection_url,
@@ -59,26 +109,14 @@ elClient.prototype.indexExists = function () {
   });
 };
 elClient.prototype.initMapping = function () {
-  //smartcn_tokenizer
   return this.esclient.indices.putMapping({
     index: this.getIndexName(),
     type: "page",
-    body: {
-      properties: {
-        title: {type: "string", index: "analyzed", analyzer: "smartcn"},
-        content: {type: "string", index: "analyzed", analyzer: "smartcn"},
-        speaker: {type: "string", index: "analyzed", analyzer: "smartcn"},
-        createdate: {type: "date", index: "not_analyzed"},
-        metapages: {type: "string", index: "not_analyzed"},
-        metapath: {type: "string", index: "not_analyzed"},
-        metasrc: {type: "string", index: "not_analyzed", "format": "Url"},
-        metaikey: {type: "number", index: "not_analyzed"},
-        suggest: {type: "completion", analyzer: "simple", search_analyzer: "simple", payloads: true}
-      }
-    },
+    body: mapping_v3,
     ignore: [404]
   });
 };
+
 elClient.prototype.addDoc = function (document) {
   //  var timeInMs = new Date();
   var timeInMs = Date.now();
