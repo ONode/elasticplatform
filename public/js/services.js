@@ -25,7 +25,13 @@ function truncateOnWord(str, limit) {
     return count <= limit;
   }).join('');
 }
-
+function toStringBlock(list){
+   var str = "";
+   for(var i=0;i<list.length;i++){
+     str += list[i];
+   }
+   return str;
+}
 /* Service to Elasticsearch */
 Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', function ($q, elasticsearch, $location, $http) {
     //Set default url if not configured
@@ -38,17 +44,28 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       return index_prefix + n;
     };
     var queryDetail = function (text) {
+      // analyzer: "smartcn",
+      /* return {
+       query: {match: {content: text}},
+       fields: ["content"],
+       default_operator: "and",
+       highlight: {
+       pre_tags: ["<b>"],
+       post_tags: ["</b>"],
+       fields: {
+       content: {}
+       }
+       }
+       };*/
       return {
         query: text,
-        analyzer: "smartcn",
-        fields: ["content", "title"],
+        fields: ["content"],
         default_operator: "and"
       };
     };
     var queryPerson = function (speaker_name) {
       return {
         query: speaker_name,
-        analyzer: "smartcn",
         fields: ["speaker"],
         default_operator: "and"
       };
@@ -79,7 +96,17 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         type: CALACA_CONFIGS.type,
         body: {
           size: CALACA_CONFIGS.size,
-          query: {}
+          query: {},
+          highlight: {
+            pre_tags: ["<b>"],
+            post_tags: ["</b>"],
+            fields: {
+              content: {
+                type: "plain"
+              }
+            },
+            order: "score"
+          }
         }
       };
       var line = "";
@@ -87,9 +114,6 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         line = "";
       } else {
         line = queryobject.query;
-      }
-      if (line.length > 0) {
-        var word_list = line.split(" ");
       }
       if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
         basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
@@ -105,13 +129,18 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         return deferred.promise;
       }
       console.log(basic_search_obj);
-      console.log(JSON.stringify(basic_search_obj.body));
+      // console.log(JSON.stringify(basic_search_obj.body));
       client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];
+        console.log(result);
         for (; i < hitsIn.length; i++) {
-          hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
-          // console.log(hitsIn[i]);
+	  //console.log(hitsIn[i].highlight.content);
+	  //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
+          hitsIn[i]._source.content = toStringBlock(hitsIn[i]._source.content);
+          //hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
+          //hitsIn[i]._source.content=hitsIn[i].hightlight.content;
+          //console.log(hitsIn[i]);
           source = hitsIn[i]._source;
           source._id = hitsIn[i]._id;
           source._index = hitsIn[i]._index;
