@@ -21,7 +21,7 @@
 //	url: "http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9201",
 //	url: "http://localhost:9200",
 var CALACA_CONFIGS = {
-	url: "http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9203",
+	url: "http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9200",
 	index_name: "legco-",
 	type: "page",
 	size: 10,
