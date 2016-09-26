@@ -10,7 +10,7 @@ var es2 = require("./el2");
 var Promise = require("promise");
 const logTag = "> crawler";
 var V5 = require("./pdf_index_pages_v5");
-var V6 = require("./pdf_cpdf_name_base_v6");
+var _V6_ = require("./pdf_cpdf_name_base_v6");
 const fields_eng_only = [
   'first_reading_date_hansard_url_eng',
   'first_reading_date_2_hansard_url_eng',
@@ -99,7 +99,7 @@ const step_2 = function (year_code, json, res) {
             var isUnique = filesindex.indexOf(base_file_val) == -1;
             if (isUnique) {
               filesindex.push(base_file_val);
-              const datactivity = {
+              const _scope_ = {
                 url: base_file_val,
                 out: dest + "h" + key_internal + "o" + n + "d.pdf",
                 fieldname: h,
@@ -110,69 +110,65 @@ const step_2 = function (year_code, json, res) {
                 data_bill_title: chinese_bill_title,
                 process_file_order: n
               };
-              /* dragon_q(datactivity);*/
-              array.push(getSerialPromise(datactivity));
+              array.push(_scope_);
               n++;
             }
           }
         });
       });
-      console.log("prepared to process files - " + n);
+      console.log("> === prepared to process files stored with number of [" + n + "]");
       //Promise.all(array);
-      startSerial(array);
+      exeArrayFunc(array);
     });
   }
 };
 
-function getSerialPromise(activity) {
-  return function (callback) {
-    // console.log("> remove file ", activity.out);
-    // fs.unlinkSync(activity.out);
-    // console.log("> create the same file again ", activity.out);
+function exeArrayFunc(array_fun) {
+  async.eachSeries(array_fun, function (activity, callback) {
+    console.log(activity.data_bill_title, activity.url);
+
     fse.ensureFile(activity.out, function (err) {
-      if (err) {
-        console.log("> xpdf file creation", "===================");
-        console.log(err);
-        console.log("> xpdf end", "===================");
-      }
-      console.log("> activity url - ", activity.url);
-      // const pdfminer = new V5(activity);
-      const pdfminer = new V6(activity);
-      const stream = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
-      console.log("> file location - ", activity.out);
-      console.log("> file location at file order: ", activity.process_file_order);
-      stream.on('finish', function () {
-        pdfminer.start();
-        pdfminer.on("scanpage", function (doc) {
+
+      const stream_data = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
+      stream_data.on("finish", function () {
+        if (err) {
+          console.log("> xpdf file creation", "===================");
+          console.log(err);
+          console.log("> xpdf end", "===================");
+        }
+
+        _V6_.newInstance();
+        _V6_.initNewConfig(activity);
+        _V6_.on("complete", function (msg) {
+          console.log("> ==================== <");
+          console.log("> callback is call here upon _V6_ is complete", msg);
+          console.log("> ==================== <");
+          return callback(null, "done");
+        });
+        _V6_.on("scanpage", function (doc) {
           activity.el.addDoc(doc).then(function (body) {
             doc = null;
-            pdfminer.next_wave();
           }, function (err) {
             console.log("> xpdf error", err);
           });
         });
-        pdfminer.on("complete", function (msg) {
-          console.log("> xpdf complete", msg);
-          return callback(null, activity);
-        });
+        _V6_.start();
+        //_V6_.startDemo();
       });
-      stream.on('error', function (err) {
+
+      stream_data.on("error", function (err) {
         console.log("> http request error", err);
         console.log("> skip file order: ", activity.process_file_order);
-        return callback(err);
+        return callback(err, null);
       });
+
     });
-  }
-}
-function startSerial(array_fun) {
-  async.series(array_fun, function (err, result) {
-    if (err) {
-      console.error('failure to make conversion', err);
-    } else {
-      console.log("=====================================");
-      console.log("=== scan completed: " + array_fun.length + " for files ========");
-      console.log("=====================================");
-    }
+
+
+  }, function done() {
+    console.log("=====================================");
+    console.log("=== scan completed: " + array_fun.length + " for files ========");
+    console.log("=====================================");
   });
 }
 var searchByYear = function (req, res) {

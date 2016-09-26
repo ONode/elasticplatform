@@ -80,7 +80,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
       $scope.loadResults(m);
     };
-    $scope._index_year = ["", "2013", "2014", "2015", "2016"];
+    $scope._index_year = ["", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"];
     $scope._selectionNames = null;
     $scope.loadSelectionName = function () {
       return results.persons().then(function (data) {

@@ -1,6 +1,6 @@
 {
   "name": "pdfmining",
-  "version": "0.1.5",
+  "version": "0.2.6",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
@@ -10,7 +10,7 @@
     "preinstall": "npm i -g pm2"
   },
   "engines": {
-    "node": "4.5.0"
+    "node": "5.11.0"
   },
   "devDependencies": {
     "mocha": "~1.21.4",
@@ -39,6 +39,7 @@
     "serve-favicon": "~2.3.0",
     "dateformat": "~1.0.12",
     "natural": "~0.4.0",
+    "python-shell": "~0.4.0",
     "pmx": "latest"
   },
   "logo": "https://cdn.rawgit.com/omc/heroku-kibana/master/kibana.svg",

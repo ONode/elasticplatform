@@ -60,8 +60,8 @@ var mapping_bonsai_v2 = {
 function elClient(config) {
   events.call(this);
   this.options = config;
-  this.options.connection_url = process.env.AWS_EC2_MASTER_NODE;
-//'http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9200';
+  //  this.options.connection_url = process.env.AWS_EC2_MASTER_NODE;
+  this.options.connection_url = 'http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9200';
 //= 'localhost:9200'; || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io' || ;
   if (this.isReady()) {
     const elasticClient = new elasticsearch.Client({

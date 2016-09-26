@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const elastic = require('../common/elasticsearch');
-const pawn = require('../common/pawn');
+const docScan = require('../common/documentlevel');
 const testcase = require('../common/testxpdf');
 /** GET suggestions */
 router.get('/suggest/:input', function (req, res, next) {
@@ -16,7 +16,7 @@ router.post('/', function (req, res, next) {
   });
 });
 router.get('/crawl/:year', function (req, res, next) {
-  pawn.searchByYear(req, res);
+  docScan.searchByYear(req, res);
 });
 
 router.get('/crawl/full/:year', function (req, res, next) {
@@ -42,6 +42,11 @@ router.get('/test_v1/', function (req, res, next) {
     from: 0,
     to: 15
   }, res);
+});
+
+router.get('/test_v3/', function (req, res, next) {
+
+
 });
 router.get('/test_v2/', function (req, res, next) {
   testcase.testcasexpdf({
