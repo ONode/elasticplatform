@@ -71,7 +71,9 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.offset = m == 0 ? 0 : $scope.offset;//Clear offset if new query
       $scope.loading = m == 0 ? false : true;//Reset loading flag if new query
       if (m == -1 && paginationTriggered) {
-        if ($scope.offset - maxResultsSize >= 0) $scope.offset -= maxResultsSize;
+        if ($scope.offset - maxResultsSize >= 0) {
+          $scope.offset -= maxResultsSize;
+        }
       }
       if (m == 1 && paginationTriggered) {
         $scope.offset += maxResultsSize;
@@ -105,8 +107,8 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     };
 
     //Load search results into array
-    $scope.loadResults = function (m) {
-      results.ELsearch($scope.search_query, m, $scope.offset).then(function (a) {
+    $scope.loadResults = function (big_search_query_objec) {
+      results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset).then(function (a) {
         //Load results
         var i = 0;
         for (; i < a.hits.length; i++) {
@@ -117,9 +119,9 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         //Set total number of hits that matched query
         $scope.hits = a.hitsCount;
         //Pluralization
-        $scope.resultsLabel = ($scope.hits != 1) ? "results" : "result";
+        $scope.resultsLabel = ($scope.hits > 1) ? "results" : "result";
         //Check if pagination is triggered
-        paginationTriggered = $scope.hits > maxResultsSize ? true : false;
+        paginationTriggered = $scope.hits > parseInt($scope.offset + maxResultsSize) ? true : false;
         //Set loading flag if pagination has been triggered
         if (paginationTriggered) {
           $scope.loading = true;
