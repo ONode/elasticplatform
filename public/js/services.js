@@ -97,6 +97,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         body: {
           size: CALACA_CONFIGS.size,
           query: {},
+          from: offset,
           highlight: {
             pre_tags: ["<b>"],
             post_tags: ["</b>"],
