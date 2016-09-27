@@ -43,10 +43,10 @@ function nameTag(object_tag) {
   const name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
   return name_tag;
 };
-var marker_x = function (text_info) {
+var marker_x = function (text) {
   var last_mark_index_k2 = -1;
   _.forEach(crackTool.punctual_marks, function (mark) {
-    var v2 = text_info.lastIndexOf(mark);
+    var v2 = text.lastIndexOf(mark);
     if (v2 > -1) {
       if (v2 > last_mark_index_k2) {
         last_mark_index_k2 = v2;
@@ -54,6 +54,79 @@ var marker_x = function (text_info) {
     }
   });
   return last_mark_index_k2;
+};
+var mark_multi = function (text) {
+  var marks = [];
+  _.forEach(crackTool.punctual_marks, function (mark) {
+    marks.push(marker_indices(mark, text));
+  });
+  marks = _.flattenDeep(marks);
+  return marks;
+};
+var sentence_marker_type2 = function (text, possible_index) {
+  var end_document = text.length;
+  // console.log("pageMode > 0.2.1", text);
+  var possible_end = _.isNil(possible_index) ? -1 : possible_index.index;
+  // console.log("pageMode > 0.2.1", text);
+  var possible_end_mark = marker_x(text);
+  var stop_marks = mark_multi(text);
+  // console.log("pageMode > 0.2.2");
+  var all_possible_collen = marker_indices(crackTool.name_mark[2], text);
+  console.log("pageMode > 0.2.6");
+  var possible_answer = [];
+  var page_did_not_cover_the_last_thread = false;
+  if (end_document > possible_end_mark) {
+    page_did_not_cover_the_last_thread = true;
+  }
+
+  console.log("======marker test===========");
+  console.log("possible_end_mark:", possible_end_mark);
+  console.log("all_possible_collen:", all_possible_collen);
+  console.log("possible:", possible_answer);
+  console.log("possible end:", possible_end);
+  console.log("stop marks:", stop_marks);
+  console.log("page did not cover the last thread:", page_did_not_cover_the_last_thread);
+
+
+  if (possible_end == -1 && possible_end_mark > -1) {
+    return possible_end_mark;
+  }
+
+  if (all_possible_collen.length > 0 && stop_marks.length > 0 && possible_end > -1) {
+    //var first_collen = Math.min(all_possible_collen);
+    var full = [];
+    _.forEach(all_possible_collen, function (colLoc) {
+      _.forEach(stop_marks, function (stopLoc) {
+        var delta = colLoc - stopLoc;
+        if (delta > 0 && delta < 50 && stopLoc < possible_end) {
+          full.push({
+            stop: stopLoc,
+            del: delta,
+            col: colLoc
+          });
+        }
+      });
+    });
+    var formindex = 0;
+    if (possible_end > -1) {
+      _.findIndex(full, function (o) {
+
+      }, formindex);
+    }
+    console.log("position stops:", full);
+    return possible_end;
+  } else {
+    return possible_end;
+  }
+
+  console.log("======marker test===========");
+};
+var shorten = function (context) {
+  if (context.length > 20) {
+    return context.substring(0, 5) + crackTool.punctual_marks[4] + context.substring(context.length - 5, context.length);
+  } else {
+    return context;
+  }
 };
 Array.prototype.unique = function () {
   var o = {}, i, l = this.length, r = [];
@@ -104,6 +177,79 @@ function xUtilIndexHelper(name_arr, pointerIndexFullSet, exclude_existing_json) 
   console.log('> final name tags', showlist);
   console.log('> ===========================.');
 }
+/**
+ * english use
+ * @param searchStr
+ * @param str
+ * @param caseSensitive
+ * @returns {Array}
+ */
+function getIndicesOfEn(searchStr, str, caseSensitive) {
+  var searchStrLen = searchStr.length;
+  if (searchStrLen == 0) {
+    return [];
+  }
+  var startIndex = 0, index, indices = [];
+  if (!caseSensitive) {
+    str = str.toLowerCase();
+    searchStr = searchStr.toLowerCase();
+  }
+  while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+    indices.push(index);
+    startIndex = index + searchStrLen;
+  }
+  return indices;
+}
+/**
+ * asian characters
+ * @param mark as string
+ * @param content_data as string
+ * @returns {Array}
+ */
+var marker_indices = function (mark, content_data) {
+  var markLen = mark.length;
+  var str = new String(content_data);
+  if (markLen == 0 || str.length == 0) {
+    return [];
+  }
+  var startIndex = 0, index = -1, indices = [], loop = true;
+  while (loop) {
+    index = str.indexOf(mark, startIndex);
+    if (index > -1) {
+      startIndex = index + mark.length;
+      indices.push(index);
+    } else {
+      loop = false;
+    }
+  }
+  return indices;
+};
+var getEnhancedSentence = function (extract) {
+  var end_mark = marker_x(extract);
+  if (end_mark > -1) {
+    return extract.substring(0, end_mark + 1);
+  } else {
+    return extract;
+  }
+};
+var getIntervalInBetween = function (indices, position, context_data) {
+  var start = indices[position].index + indices[position].token.length;
+  var end = indices[position + 1].index;
+  var extracted = context_data.substring(start, end);
+  return getEnhancedSentence(extracted);
+};
+
+var getIntervalFromHead = function (indices, context_data) {
+  const end = indices[0].index;
+  var tr = context_data.substring(0, end);
+  return getEnhancedSentence(tr);
+};
+
+var getIntervalAtEnd = function (indices, position, context_data) {
+  var start = indices[position].index + indices[position].token.length;
+  var tr = context_data.substring(start, context_data.length);
+  return getEnhancedSentence(tr);
+};
 //must follow this order now
 var cxpdfnMining = function () {
   /*if (false === (this instanceof cxpdfnMining)) {
@@ -121,7 +267,6 @@ cxpdfnMining.prototype.newInstance = function () {
 };
 //do not change the order of this
 cxpdfnMining.prototype.initNewConfig = function (config) {
-
   this.options = options_instance;
   this.filepath = config.out;
   if (_.isBoolean(config.isEnglish) && config.isEnglish) {
@@ -136,15 +281,18 @@ cxpdfnMining.prototype.initNewConfig = function (config) {
   if (_.isBoolean(config.only_preindex) && config.only_preindex) {
     this.options.only_preindex = true;
   }
+  //modern trail items
   this.index_trail = [];
   this.iterate = 0;
+  this.document_context = "";
   this.pdf_type = -1;
   this.maxpages = 0;
   this.scanBufferTempData = {};
   this.document_date = "";
   this.scan_error_check = [];
+
+  //old style trail configuration
   this.flatten_dictionary = loadDictionary();
-  //console.log("flattened array", this.flatten_dictionary);
   //console.log("=== pdf to text ===");
   this.options.external = config;
 };
@@ -235,7 +383,6 @@ cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
             end: 0
           }
         };
-
         if (previous_index_page == -1) {
           index_base.scanrange.end = pageindex;
         } else if (previous_index_page == pageindex) {
@@ -297,55 +444,86 @@ cxpdfnMining.prototype.start = function () {
         var nowdate = parseInt(info.creationdate);
         this.document_date = dateFormat(nowdate, "isoDateTime");
         this.maxpages = parseInt(info.pages);
+        this.pdf_type = 0;
         if (this.pdf_type == 2) {
           this.updateScanPageConfigAtNodeObject(this.iterate);
-          this.process_pages();
+          this.process_pages_type2(1);
         } else if (this.pdf_type == 0) {
           this.updateScanPageConfigSinglePage(1);
-          this.process_pages();
+          this.process_pages_type1();
         }
       }
     }.bind(this));
   }.bind(this));
 };
-
-
-cxpdfnMining.prototype.updateScanPageConfigAtNodeObject = function (inter) {
-  //console.log("total nodes ", this.index_trail.length, inter);
-  if (inter == this.index_trail.length) {
-    return false;
+/**
+ * 0: end of the document
+ * 1: next scan in the same document
+ * 2: next scan at the new document page
+ * @param next
+ * @returns {number}
+ */
+cxpdfnMining.prototype.updateScanPageConfigAtNodeObject = function (next) {
+  //console.log("total nodes ", this.index_trail.length, next);
+  if (next == this.index_trail.length) {
+    //end of the document
+    return 0;
   }
-  if (_.isNull(this.index_trail[inter])) {
-    return false;
+  if (_.isNull(this.index_trail[next]) || _.isEmpty(this.index_trail[next]) || _.isNaN(this.index_trail[next])) {
+    //end of the document
+    return 0;
   }
-  this.iterate = inter;
-  this.options.from = this.index_trail[inter].scanrange.start;
-  this.options.to = this.index_trail[inter].scanrange.end;
-  this.options.external.from = this.index_trail[inter].scanrange.start;
-  this.options.external.to = this.index_trail[inter].scanrange.end;
-  return true;
-  // this.options.total_pages = maxpages;
+
+  var next_page_start = this.index_trail[next].scanrange.start;
+  var next_page_end = this.index_trail[next].scanrange.end;
+  var cur_page_start = this.index_trail[this.iterate].scanrange.start;
+
+  this.options.from = next_page_start;
+  this.options.external.from = next_page_start;
+
+  var delta_next_page_start = Math.abs(next_page_start - cur_page_start);
+  var delta_next_page_end = Math.abs(next_page_end - cur_page_start);
+  var total_delta = Math.max(delta_next_page_start, delta_next_page_end);
+
+  this.options.to = next_page_start + total_delta;
+  this.options.external.to = next_page_start + total_delta;
+
+  this.index_trail[next].scanrange.start = this.options.from;
+  this.index_trail[next].scanrange.end = this.options.to;
+  this.iterate = next;
+  console.log("start scan type2 doc. max pages:" + this.maxpages + ", p" + this.options.from + " to p" + this.options.to);
+  if (delta_next_page_start > 0 || delta_next_page_end > 0) {
+    return 2;
+  } else {
+    return 1;
+  }
 };
 cxpdfnMining.prototype.updateScanPageConfigSinglePage = function (pagenum) {
   this.options.from = pagenum;
   this.options.external.from = pagenum;
   this.options.to = pagenum;
   this.options.external.to = pagenum;
-  console.log("classic doc scan interval from p" + pagenum + " to p" + pagenum);
+  console.log("start scan classic doc. pages from p" + pagenum + " to p" + pagenum, "max pages:" + this.maxpages);
 };
+
 cxpdfnMining.prototype.next_wave = function () {
   if (this.pdf_type == 2) {
     // console.log('pdf type is starting at two');
-    if (this.updateScanPageConfigAtNodeObject(this.iterate + 1)) {
-      this.process_pages();
-    } else {
+    var resultN = this.updateScanPageConfigAtNodeObject(this.iterate + 1);
+    if (resultN == 0) {
       this.emit("complete", "doneTypeTwo");
+    } else if (resultN == 1) {
+      console.log("> next_wave: same page next wave ...");
+      this.proc_context_type2(resultN);
+    } else if (resultN == 2) {
+      console.log("> next_wave:different page next wave ...");
+      this.process_pages_type2(resultN);
     }
   } else if (this.pdf_type == 0) {
     console.log('next wave process now', this.options.to + "/" + this.maxpages);
     if (this.maxpages > (parseInt(this.options.to) + 1)) {
       this.updateScanPageConfigSinglePage(parseInt(this.options.to) + 1);
-      this.process_pages();
+      this.process_pages_type1();
     } else {
       this.resolve_buffer_complete(function () {
         this.emit("complete", "doneTypeZero");
@@ -359,10 +537,7 @@ cxpdfnMining.prototype.getCurrentScanningItem = function () {
 cxpdfnMining.prototype.getNextScanningIndex = function () {
   return this.index_trail[this.iterate + 1];
 };
-cxpdfnMining.prototype.hasNextNode = function () {
-  return this.iterate + 1 != this.index_trail.length;
-//  return !_.isNull(this.index_trail[this.iterate + 1]);
-};
+
 cxpdfnMining.prototype.getConfig = function () {
   return this.options;
 };
@@ -383,171 +558,90 @@ cxpdfnMining.prototype.gc = function () {
     console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
   }
 };
-cxpdfnMining.prototype.process_nowadays = function (pre_capture_context) {
-  try {
-    //  const flag_cur = _.has(this.getCurrentScanningItem(), "tag");
-    const cur_item_tag = this.getCurrentScanningItem().tag;
-    var cur_dim_possible = _.has(mInputPersonDictionary, cur_item_tag);
-    //console.log("first tag is found", cur_dim_possible);
-    if (cur_dim_possible && cur_item_tag != null) {
-      var b1_token = _.get(mInputPersonDictionary, [cur_item_tag, "full"]), b2_token;
-      var b1 = pre_capture_context.indexOf(b1_token) + b1_token.length, b2 = -1;
-      var rest_sentence = pre_capture_context.substring(b1, pre_capture_context.length);
-      if (this.hasNextNode()) {
-        //console.log("has next node");
-        const next_item_tag = this.getNextScanningIndex().tag;
-        var next_dim_possible = _.has(mInputPersonDictionary, next_item_tag);
-        b2_token = _.get(mInputPersonDictionary, [next_item_tag, "full"]);
-        b2 = rest_sentence.indexOf(b2_token);
-        if (b2 == -1 && next_dim_possible) {
-          _.forEach(mInputPersonDictionary, function (object) {
-            var h2 = rest_sentence.indexOf(object.full);
-            if (h2 > -1) {
-              b2 = h2;
-              console.log("found tag position: " + object.full, h2);
-              return false;
-            }
-          });
-          if (b2 == -1) {
-            b2 = pre_capture_context.length;
-            if (b2 == -1) {
-              console.log("> stop for token review: ", b1, b2, b1_token, b2_token);
-              return;
-            }
-          }
-        }
-      } else {
-        console.log("does not have next node");
-        _.forEach(mInputPersonDictionary, function (object) {
-          var h2 = rest_sentence.lastIndexOf(object.full);
-          if (h2 > -1) {
-            b2 = h2;
-            console.log("found tag position: " + object.full, h2);
-            return false;
-          }
-        });
-        if (b2 == -1) {
-          b2 = marker_x(rest_sentence);
-          if (b2 > -1) {
-            console.log("found mark position: " + mark, v2);
-            return false;
-          } else if (b2 == -1) {
-            b2 = pre_capture_context.length;
-            console.log("found nothing: ", b2);
-            if (b2 == -1) {
-              console.log("> stop for token review: ", b1, b2, b1_token);
-              return;
-            }
-          }
-        }
-      }
+cxpdfnMining.prototype.save_extract_type2 = function (captured, name_tag, pageMode) {
+  const result = {
+    content: captured,
+    metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
+    page: this.getCurrentScanningItem().page,
+    bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
+    scanrange: {
+      start: this.getCurrentScanningItem().scanrange.start,
+      end: this.getCurrentScanningItem().scanrange.end
+    },
+    data_speaker: name_tag
+  };
+  if (pageMode == 2) {
+    console.log("cross pages reference.");
+  }
+  var cross_page_self = this.getCurrentScanningItem().scanrange.start != this.getCurrentScanningItem().scanrange.end;
+  if (cross_page_self) {
+    console.log("check cross page reference");
+  }
+  console.log("> save buffer between threads ...", "p" + result.scanrange.start + " to p" + result.scanrange.end, enphizis(name_tag), shorten(captured));
+  this.emit('scanpage', this.finalizeResultObject(result));
+};
+cxpdfnMining.prototype.isBR = function (tag) {
+  return
+  tag == "b1r" ||
+  tag == "b1r01" ||
+  tag == "b1r02" ||
 
-      // console.log("> stop for token review: ", b1, b2, b1_token, b2_token);
-      const cap_end = b1 + b2;
-      const captured = pre_capture_context.substring(b1, cap_end);
-      const chinese_name = b1_token.match(crackTool.tag_extract_name_person);
-      const name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
-      //   console.log("> capture extract: " + name_tag, "page:" + this.options.from, b1, cap_end, captured.length);
-      console.log("> common: ", enphizis(name_tag), captured);
-      // console.log('process: ', 'cascasc');
-      // console.log("> content: ", pre_capture_context);
-      const result = {
-        content: captured,
-        metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
-        page: this.getCurrentScanningItem().page,
-        bookmark_tag: this.getCurrentScanningItem().bookmark_tag,
-        scanrange: {
-          start: this.getCurrentScanningItem().scanrange.start,
-          end: this.getCurrentScanningItem().scanrange.end
-        },
-        data_speaker: name_tag
-      };
-      this.emit('scanpage', this.finalizeResultObject(result));
-      this.next_wave();
+  tag == "b2r" ||
+  tag == "b2r01" ||
+  tag == "b2r02" ||
+
+  tag == "b3r" ||
+  tag == "b3r01" ||
+  tag == "b3r02";
+};
+
+cxpdfnMining.prototype.proc_context_type2 = function (pageMode) {
+  try {
+    console.log("pageMode > 0.1.0.0");
+    const cur_item_tag = this.getCurrentScanningItem().tag;
+    /* if (this.isBR(cur_item_tag)) {
+     console.log("cur_item_tag is BR");
+     this.next_wave();
+     return;
+     }*/
+    // console.log("proc_context_type2 complete: proc_context_type2");
+    console.log("pageMode > 0.1.0.1");
+    var b1_token = _.get(mInputPersonDictionary, [cur_item_tag, "full"]), b2_token, captured = "";
+    //var all_tags_positions = this.indexMetaList(this.document_context);
+    console.log("pageMode > 0.1.0.2");
+    var b1 = this.document_context.indexOf(b1_token) + b1_token.length, b2 = -1, b3 = -1;
+    console.log("pageMode > 0.1.0.3");
+    var chinese_name = b1_token.match(crackTool.tag_extract_name_person);
+    console.log("pageMode > 0.1.0.4");
+    var name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
+    console.log("pageMode > 0.1.0.5");
+    var rest_sentence = this.document_context.substring(b1, this.document_context.length);
+    //is the next node in the same page?
+    //there is not more node in the same page..
+    if (pageMode > 0) {
+      console.log("pageMode > 0.1");
+      const next_item_tag = this.getNextScanningIndex().tag;
+      console.log("pageMode > 0.2");
+      //b2_token = _.get(mInputPersonDictionary, [next_item_tag, "full"]);
+      b2 = sentence_marker_type2(rest_sentence, _.minBy(this.indexMetaList(rest_sentence), function (o) {
+        return o.index;
+      }));
+      console.log("pageMode > 0.3");
+      captured = this.document_context.substring(b1, b1 + b2);
+      console.log("pageMode > 0.4");
+      this.save_extract_type2(captured, name_tag, pageMode);
+      console.log("pageMode > 0.5");
     } else {
-      console.error(". tag cant map", "no dictionary map can be found by,", cur_item_tag);
-      this.next_wave();
+      console.log("this is the end node.");
+      this.save_extract_type2(this.document_context, name_tag, 0);
     }
+    this.next_wave();
   } catch (e) {
     console.error(e);
-    console.log("error", "see technical issue");
-    //this.next_wave();
+    console.log("error", "ocurred on proc_context_type2, please check and see technical issue");
+    //  this.next_wave();
   }
 };
-/**
- * english use
- * @param searchStr
- * @param str
- * @param caseSensitive
- * @returns {Array}
- */
-function getIndicesOfEn(searchStr, str, caseSensitive) {
-  var searchStrLen = searchStr.length;
-  if (searchStrLen == 0) {
-    return [];
-  }
-  var startIndex = 0, index, indices = [];
-  if (!caseSensitive) {
-    str = str.toLowerCase();
-    searchStr = searchStr.toLowerCase();
-  }
-  while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-    indices.push(index);
-    startIndex = index + searchStrLen;
-  }
-  return indices;
-}
-/**
- * asian characters
- * @param mark
- * @param content_data
- * @returns {Array}
- */
-function getIndicesOfCn(mark, content_data) {
-  var markLen = mark.length;
-  if (markLen == 0 || content_data.length == 0) {
-    return [];
-  }
-
-  var startIndex = 0, index = -1, indices = [], loop = true;
-  while (loop) {
-    index = content_data.indexOf(mark, startIndex);
-    if (index > -1) {
-      startIndex = index + mark.length;
-      indices.push(index);
-    } else {
-      loop = false;
-    }
-  }
-  return _.sortedUniq(indices);
-}
-var getEnhancedSentence = function (extract) {
-  var end_mark = marker_x(extract);
-  if (end_mark > -1) {
-    return extract.substring(0, end_mark + 1);
-  } else {
-    return extract;
-  }
-};
-var getIntervalInBetween = function (indices, position, context_data) {
-  var start = indices[position].index + indices[position].token.length;
-  var end = indices[position + 1].index;
-  var extracted = context_data.substring(start, end);
-  return getEnhancedSentence(extracted);
-};
-
-var getIntervalFromHead = function (indices, context_data) {
-  const end = indices[0].index;
-  var tr = context_data.substring(0, end);
-  return getEnhancedSentence(tr);
-};
-
-var getIntervalAtEnd = function (indices, position, context_data) {
-  var start = indices[position].index + indices[position].token.length;
-  var tr = context_data.substring(start, context_data.length);
-  return getEnhancedSentence(tr);
-};
-
 
 /**
  * this is the key part of the wild auto mapping system indicator
@@ -560,7 +654,7 @@ cxpdfnMining.prototype.indexMetaList = function (data) {
   var compare_slot_1 = [], compare_slot_2 = [], compare_slot_3 = [];
 
   _.forEach(this.flatten_dictionary, function (mark_name) {
-    var marks = _.sortedUniq(getIndicesOfCn(mark_name, data));
+    var marks = _.sortedUniq(marker_indices(mark_name, data));
     if (mark_name == "商務及經濟發展局局長：" && marks.length > 0) {
       compare_slot_1 = marks;
     }
@@ -596,7 +690,7 @@ cxpdfnMining.prototype.indexMetaList = function (data) {
     var delta = Math.abs(test_index_1 - test_index_2);
     if (delta < 10) {
       _.remove(main, function (n) {
-        console.log("remove item for 商務及經濟發展局局長");
+        console.log("remove item for 商務及經濟發展局局長", n);
         return compare_slot_2.indexOf(n.index) > -1;
       });
     }
@@ -708,7 +802,7 @@ cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture
  * the capture context without bookmarks
  * @param pre_capture_context
  */
-cxpdfnMining.prototype.process_smart_mapping = function (pre_capture_context) {
+cxpdfnMining.prototype.proc_context_type1 = function (pre_capture_context) {
   var mCyx = this.indexMetaList(pre_capture_context);
   this.resolve_buffer_context(mCyx, pre_capture_context);
   this.betweenHeadFooterThreads(mCyx, pre_capture_context);
@@ -722,42 +816,46 @@ cxpdfnMining.prototype.checkDuplicateError = function (data) {
     return true;
   }
 };
-cxpdfnMining.prototype.process_pages = function () {
-  // console.log('> set trail index ', this.iterate);
-  // console.log('> set trail display', this.index_trail[this.iterate]);
-  // console.log('> set options', this.options);
-  if (this.pdf_type == 2) {
-    xpdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
-      if (err) {
-        console.log("=== error form xpdf util ===");
-        console.log("out", err);
-        //this.emit("error", err.message);
-        this.next_wave();
-        return;
-      }
-      if (this.checkDuplicateError(data)) {
-        console.log("=== error duplicate scanned text ===");
-        //this.emit("error", "duplicate scanned text", this.options.from);
-        this.next_wave();
-        return;
-      }
-      const raw_dat = new String(data);
-      this.process_nowadays(raw_dat);
-    }.bind(this));
-  } else if (this.pdf_type == 0) {
-    pdfminer.pdfToText(this.filepath, this.options, function (err, data) {
-      if (err) {
-        console.log("=== error form pdfminer ===");
-        console.log("out", err);
-        //this.emit("error", err.message);
-        this.next_wave();
-        return;
-      }
-      const raw_dat = new String(data);
-      this.process_smart_mapping(raw_dat);
-    }.bind(this));
-  } else {
-    this.emit("complete", "next document.. no pdf format type can be found from this PDF");
+cxpdfnMining.prototype.errorNoPDFformat = function () {
+  this.emit("complete", "next document.. no pdf format type can be found from this PDF");
+};
+cxpdfnMining.prototype.process_pages_type2 = function (pageMode) {
+  if (this.pdf_type != 2) {
+    this.errorNoPDFformat();
+    return;
   }
+  xpdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
+    if (err) {
+      console.log("=== error form xpdf util ===");
+      console.log("out", err);
+      //this.emit("error", err.message);
+      this.next_wave();
+      return;
+    }
+    this.document_context = new String(data);
+    if (this.options.from != this.options.to) {
+      console.log("====================");
+      console.log("review cross page ref.", this.document_context);
+      console.log("====================");
+    }
+    this.proc_context_type2(pageMode);
+  }.bind(this));
+};
+cxpdfnMining.prototype.process_pages_type1 = function () {
+  if (this.pdf_type != 0) {
+    this.errorNoPDFformat();
+    return;
+  }
+  pdfminer.pdfToText(this.filepath, this.options, function (err, data) {
+    if (err) {
+      console.log("=== error form pdfminer ===");
+      console.log("out", err);
+      //this.emit("error", err.message);
+      this.next_wave();
+      return;
+    }
+    const raw_dat = new String(data);
+    this.proc_context_type1(raw_dat);
+  }.bind(this));
 };
 module.exports = new cxpdfnMining();

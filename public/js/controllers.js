@@ -80,11 +80,27 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
       $scope.loadResults(m);
     };
-    $scope._index_year = ["", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"];
-    $scope._selectionNames = null;
+
+    $scope._index_year = [""];
+    for (var nowyr = 2016; nowyr >= 2008; nowyr--) {
+      $scope._index_year.push(nowyr + "");
+    }
+    $scope._selectionNames = [];
     $scope.loadSelectionName = function () {
-      return results.persons().then(function (data) {
-        $scope._selectionNames = data;
+      return results.dictionary().then(function (data) {
+        var arrayDict = [];
+        var oblist = data["objectlist"];
+        var oblistp = data["arraylist"];
+        angular.forEach(oblist, function (value, key) {
+          arrayDict.push(value);
+        });
+        angular.forEach(oblistp, function (value, key) {
+          arrayDict.push({
+            full: value
+          });
+        });
+        //  console.log(arrayDict);
+        $scope._selectionNames = arrayDict;
       });
     };
 
@@ -115,20 +131,17 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       return paginationTriggered ? true : false;
     };
 
-
     $scope.press_calen = function () {
       $scope.search_query.selecteddate = new Date();
       $scope.minDate = new Date(
         $scope.search_query.selecteddate.getFullYear(),
         $scope.search_query.selecteddate.getMonth() - 2,
         $scope.search_query.selecteddate.getDate());
-
       $scope.maxDate = new Date(
         $scope.search_query.selecteddate.getFullYear(),
         $scope.search_query.selecteddate.getMonth() + 2,
         $scope.search_query.selecteddate.getDate());
     };
-
 
     $scope.onlyWeekendsPredicate = function (date) {
       var day = date.getDay();

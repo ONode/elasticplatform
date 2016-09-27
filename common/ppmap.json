@@ -3,6 +3,85 @@
     "full": "全委會主席：",
     "party": "es5"
   },
+  "SP_LC_DCM": {
+    "full": "代理全委會主席：",
+    "party": "es5"
+  },
+  "SP_PO_SCS": {
+    "full": "公務員事務局局長："
+  },
+  "SP_PO_SCED": {
+    "full": "商務及經濟發展局局長："
+  },
+  "SP_PO_SFH": {
+    "full": "食物及衞生局局長："
+  },
+  "SP_PO_SFST": {
+    "full": "財經事務及庫務局局長：",
+    "party": "es5"
+  },
+  "SP_LC_PSD": {
+    "full": "主席：",
+    "party": "es5"
+  },
+  "SP_LD_DPSD": {
+    "full": "代理主席：",
+    "party": "es5"
+  },
+  "SP_LC_CLK": {
+    "full": "秘書：",
+    "party": "es5"
+  },
+  "SP_PO_SCMA": {
+    "full": "政制及內地事務局局長：",
+    "party": "es5"
+  },
+  "SP_PO_STH": {
+    "full": "運輸及房屋局局長：",
+    "party": "es5"
+  },
+  "SP_PO_SLW": {
+    "full": "勞工及福利局局長："
+  },
+  "SP_PO_SS": {
+    "full": "保安局局長："
+  },
+  "SP_PO_SHA": {
+    "full": "民政事務局局長："
+  },
+  "SP_LC_DPSD": {
+    "full": "代理主席："
+  },
+  "SP_PO_SJ": {
+    "full": "律政司司長："
+  },
+  "SP_PO_ENV": {
+    "full": "環境局局長："
+  },
+  "SP_PO_CSA": {
+    "full": "政務司司長："
+  },
+  "SP_PO_FS": {
+    "full": "財政司司長："
+  },
+  "SP_PO_ITB": {
+    "full": "創新及科技局局長："
+  },
+  "SP_PO_USFAST": {
+    "full": "財經事務及庫務局副局長："
+  },
+  "SP_PO_USCMAF": {
+    "full": "政制及內地事務局副局長："
+  },
+  "SP_PO_USEDU": {
+    "full": "教育局副局長："
+  },
+  "SP_PO_SG": {
+    "full": "法律政策專員："
+  },
+  "SP_PO_USHA": {
+    "full": "民政事務局副局長："
+  },
   "SP_MB_CCC": {
     "full": "陳志全議員：",
     "party": "es5"
@@ -31,22 +110,6 @@
     "full": "陳健波議員：",
     "party": "es5"
   },
-  "SP_PO_SFST": {
-    "full": "財經事務及庫務局局長：",
-    "party": "es5"
-  },
-  "SP_LC_PSD": {
-    "full": "主席：",
-    "party": "es5"
-  },
-  "SP_LD_DPSD": {
-    "full": "代理主席：",
-    "party": "es5"
-  },
-  "SP_LC_CLK": {
-    "full": "秘書：",
-    "party": "es5"
-  },
   "SP_MB_IKH": {
     "full": "葉國謙議員：",
     "party": "es5"
@@ -59,20 +122,12 @@
     "full": "劉慧卿議員：",
     "party": "es5"
   },
-  "SP_PO_SCMA": {
-    "full": "政制及內地事務局局長：",
-    "party": "es5"
-  },
   "SP_MB_CM": {
     "full": "毛孟靜議員(譯文)：",
     "party": "毛孟靜議員"
   },
   "SP_MB_CH": {
     "full": "何秀蘭議員：",
-    "party": "es5"
-  },
-  "SP_LC_DCM": {
-    "full": "代理全委會主席：",
     "party": "es5"
   },
   "SP_MB_AL": {
@@ -86,13 +141,6 @@
   "SP_MB_SH": {
     "full": "何俊賢議員：",
     "party": "es5"
-  },
-  "SP_PO_STH": {
-    "full": "運輸及房屋局局長：",
-    "party": "es5"
-  },
-  "SP_PO_SLW": {
-    "full": "勞工及福利局局長："
   },
   "SP_MB_SL": {
     "full": "李慧琼議員：",
@@ -128,14 +176,8 @@
   "SP_MB_LCY": {
     "full": "李卓人議員："
   },
-  "SP_PO_SS": {
-    "full": "保安局局長："
-  },
   "SP_MB_CCA": {
     "full": "鍾樹根議員："
-  },
-  "SP_PO_SHA": {
-    "full": "民政事務局局長："
   },
   "SP_MB_LWF": {
     "full": "劉皇發議員："
@@ -158,9 +200,6 @@
   "SP_MB_PT": {
     "full": "謝偉俊議員："
   },
-  "SP_PO_SCS": {
-    "full": "公務員事務局局長議員："
-  },
   "SP_MB_LYC": {
     "full": "梁耀忠議員："
   },
@@ -181,12 +220,6 @@
   },
   "SP_MB_TC": {
     "full": "張宇人議員："
-  },
-  "SP_PO_SCED": {
-    "full": "商務及經濟發展局局長："
-  },
-  "SP_PO_SFH": {
-    "full": "食物及衞生局局長："
   },
   "SP_MB_TPC": {
     "full": "田北俊議員："
@@ -245,9 +278,6 @@
   "SP_MB_WTK": {
     "full": "黃定光議員："
   },
-  "SP_LC_DPSD": {
-    "full": "代理主席："
-  },
   "SP_MB_CKC": {
     "full": "張國柱議員："
   },
@@ -263,23 +293,11 @@
   "SP_MB_AH": {
     "full": "何俊仁議員："
   },
-  "SP_PO_SJ": {
-    "full": "律政司司長："
-  },
-  "SP_PO_ENV": {
-    "full": "環境局局長："
-  },
   "SP_MB_ML": {
     "full": "廖長江議員："
   },
   "SP_MB_LKL": {
     "full": "梁家騮議員："
-  },
-  "SP_PO_CSA": {
-    "full": "政務司司長："
-  },
-  "SP_PO_FS": {
-    "full": "財政司司長："
   },
   "SP_MB_LKF": {
     "full": "林健鋒議員："
@@ -292,24 +310,6 @@
   },
   "SP_MB_AY": {
     "full": "楊岳橋議員："
-  },
-  "SP_PO_ITB": {
-    "full": "創新及科技局局長："
-  },
-  "SP_PO_USFAST": {
-    "full": "財經事務及庫務局副局長："
-  },
-  "SP_PO_USCMAF": {
-    "full": "政制及內地事務局副局長："
-  },
-  "SP_PO_USEDU": {
-    "full": "教育局副局長："
-  },
-  "SP_PO_SG": {
-    "full": "法律政策專員："
-  },
-  "SP_PO_USHA": {
-    "full": "民政事務局副局長："
   },
   "SP_MB_JL": {
     "full": "李國麟議員："

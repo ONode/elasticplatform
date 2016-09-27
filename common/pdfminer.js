@@ -30,17 +30,33 @@ PDF.prototype.pdfToText = function (pdf_path, options, callback) {
     }
     var delta = parseInt(options.to) - parseInt(options.from);
     argsarr.push("-p");
-    argsarr.push(parseInt(options.from));
+
+
+    if (delta > 0) {
+      var pages = [];
+      pages.push(parseInt(options.from));
+      var to = parseInt(options.to);
+      var from = parseInt(options.from);
+      while (from < to) {
+        var n = from + 1;
+        pages.push(n);
+      }
+      argsarr.push(pages.join());
+    } else {
+      argsarr.push(options.from);
+    }
+
     if (delta < 0) {
       return callback("must follow the rule set from smaller than to", null);
-    }else{
-      delta = delta+1;
+    } else {
+      delta = delta + 1;
     }
+
     argsarr.push("-m");
     argsarr.push(delta);
     argsarr.push(pdf_path);
 
-   //  console.log("> Python Shell args", argsarr);
+    //  console.log("> Python Shell args", argsarr);
 
     var shell = new PythonShell('pdf2txt.py', {
       mode: 'text',
@@ -55,9 +71,9 @@ PDF.prototype.pdfToText = function (pdf_path, options, callback) {
     });
 
     shell.end(function (err) {
-      if (err){
+      if (err) {
         callback(err.message, null);
-      }else{
+      } else {
         //console.log(output);
         callback(null, output);
       }

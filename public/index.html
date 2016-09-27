@@ -21,7 +21,7 @@
             <md-input-container style="margin-right: 10px;">
                 <label>人名</label>
                  <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
-                     <md-option ng-repeat="d in _selectionNames" ng-value="d.full">{{d.full}}</md-option>
+                     <md-option ng-repeat="t in _selectionNames" ng-value="t.full">{{t.full}}</md-option>
                  </md-select>
             </md-input-container>
             <md-input-container style="margin-right: 10px;">

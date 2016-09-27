@@ -25,12 +25,12 @@ function truncateOnWord(str, limit) {
     return count <= limit;
   }).join('');
 }
-function toStringBlock(list){
-   var str = "";
-   for(var i=0;i<list.length;i++){
-     str += list[i];
-   }
-   return str;
+function toStringBlock(list) {
+  var str = "";
+  for (var i = 0; i < list.length; i++) {
+    str += list[i];
+  }
+  return str;
 }
 /* Service to Elasticsearch */
 Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', function ($q, elasticsearch, $location, $http) {
@@ -135,8 +135,8 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         hitsIn = (result.hits || {}).hits || [];
         console.log(result);
         for (; i < hitsIn.length; i++) {
-	  //console.log(hitsIn[i].highlight.content);
-	  //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
+          //console.log(hitsIn[i].highlight.content);
+          //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
           hitsIn[i]._source.content = toStringBlock(hitsIn[i]._source.content);
           //hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
           //hitsIn[i]._source.content=hitsIn[i].hightlight.content;
@@ -152,16 +152,17 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       }, deferred.reject);
       return deferred.promise;
     };
-    var json_on_it = function () {
-      var deferred = $q.defer();
-      $http.get('js/persons.json').success(function (response) {
-        deferred.resolve(response);
-      });
-      return deferred.promise;
-    };
+
     return {
       "ELsearch": search,
-      "persons": json_on_it
+      "dictionary": function () {
+        var deferred = $q.defer();
+        $http.get('./js/persons.json').success(function (response) {
+          //console.log(response);
+          deferred.resolve(response);
+        });
+        return deferred.promise;
+      }
     };
   }]
 );
