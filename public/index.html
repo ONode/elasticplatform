@@ -18,11 +18,30 @@
     <h2 class='title'>Legco</h2>
     <div class='search-box-container'>
         <div layout="row">
+            <md-autocomplete
+                    ng-disabled="false"
+                    md-selected-item="selectedItem"
+                    md-search-text="searchText"
+                    md-items="item in querySearch(searchText)"
+                    md-item-text="item.full"
+                    md-min-length="0"
+                    placeholder="人名"
+                    md-autofocus="">
+                <md-item-template>
+                    <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.full}}</span>
+                </md-item-template>
+                <md-not-found>
+                    No states matching "{{searchText}}" were found.
+                </md-not-found>
+            </md-autocomplete>
+
+
             <md-input-container style="margin-right: 10px;">
-                <label>人名</label>
-                 <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
-                     <md-option ng-repeat="t in _selectionNames" ng-value="t.full">{{t.full}}</md-option>
-                 </md-select>
+                <!-- <label>人名</label>-->
+                <!--   <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
+                       <md-option ng-repeat="t in _selectionNames" ng-value="t.full">{{t.full}}</md-option>
+                   </md-select>-->
+
             </md-input-container>
             <md-input-container style="margin-right: 10px;">
                 <label>年度</label>
@@ -36,25 +55,25 @@
                                  md-on-open="press_calen()"></md-datepicker>
 
               </md-input-container>-->
-           <!-- <md-autocomplete
-                    ng-disabled="autocompletescope.isDisabled"
-                    md-no-cache="autocompletescope.noCache"
-                    md-selected-item="autocompletescope.selectedItem"
-                    md-search-text-change="autocompletescope.searchTextChange(autocompletescope.searchText)"
-                    md-search-text="autocompletescope.searchText"
-                    md-selected-item-change="autocompletescope.selectedItemChange(item)"
-                    md-items="item in autocompletescope.querySearch(autocompletescope.searchText)"
-                    md-item-text="item.display"
-                    md-min-length="0"
-                    placeholder="Who do you want to know about?">
-                <md-item-template>
-                    <span md-highlight-text="autocompletescope.searchText" md-highlight-flags="^i">{{item.full}}</span>
-                </md-item-template>
-                <md-not-found>
-                    No states matching "{{autocompletescope.searchText}}" were found.
-                    <a ng-click="autocompletescope.newState(autocompletescope.searchText)">Create a new one!</a>
-                </md-not-found>
-            </md-autocomplete>-->
+            <!-- <md-autocomplete
+                     ng-disabled="autocompletescope.isDisabled"
+                     md-no-cache="autocompletescope.noCache"
+                     md-selected-item="autocompletescope.selectedItem"
+                     md-search-text-change="autocompletescope.searchTextChange(autocompletescope.searchText)"
+                     md-search-text="autocompletescope.searchText"
+                     md-selected-item-change="autocompletescope.selectedItemChange(item)"
+                     md-items="item in autocompletescope.querySearch(autocompletescope.searchText)"
+                     md-item-text="item.display"
+                     md-min-length="0"
+                     placeholder="Who do you want to know about?">
+                 <md-item-template>
+                     <span md-highlight-text="autocompletescope.searchText" md-highlight-flags="^i">{{item.full}}</span>
+                 </md-item-template>
+                 <md-not-found>
+                     No states matching "{{autocompletescope.searchText}}" were found.
+                     <a ng-click="autocompletescope.newState(autocompletescope.searchText)">Create a new one!</a>
+                 </md-not-found>
+             </md-autocomplete>-->
         </div>
         <input type='text' class='search-box' placeholder='Search' autofocus ng-model='search_query.query'/>
         <md-input-container layout="column" layout-align="start">
@@ -68,7 +87,8 @@
 <main class='results-container' ng-cloak>
     <section class='results-info'>
         <p id='response-details'>{{(hits | number) || 0}} {{resultsLabel || 'results'}} ({{(timeTook || 0)}}ms)</p>
-        <p ng-show='paginationEnabled()' id='pagination-details'>Showing {{paginationLowerBound}} - {{paginationUpperBound}}</p>
+        <p ng-show='paginationEnabled()' id='pagination-details'>Showing {{paginationLowerBound}} -
+            {{paginationUpperBound}}</p>
     </section>
     <section class='results'>
         <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
@@ -76,12 +96,14 @@
             <h2>{{result.speaker}}</h2>
             <p>{{result.content}}</p>
             <br/>
-            <p>{{result.title}}, {{result.metapages}}, id{{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a></p>
+            <p>{{result.title}}, {{result.metapages}}, id{{result.metaikey}}, <a href="{{result.metasrc}}">{{result.metapath}}</a>
+            </p>
         </article>
     </section>
     <section class='pagination-controls'>
-        <md-button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous</md-button>
-        <md-button ng-click='search(1)' ng-show='paginationEnabled()' class='pager'>Next</md-button>
+        <md-button ng-click='search(-1)' ng-show='paginationEnabled() && offset !== 0' class='pager'>Previous
+        </md-button>
+        <md-button ng-click='search(1)' ng-show='paginationEnabled() && showNextButton' class='pager'>Next</md-button>
     </section>
 </main>
 <!-- Load resources -->

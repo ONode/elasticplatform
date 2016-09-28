@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const elastic = require('../common/elasticsearch');
+const elastic = require('../common/el2');
 const docScan = require('../common/documentlevel');
 const testcase = require('../common/testxpdf');
 /** GET suggestions */
 router.get('/suggest/:input', function (req, res, next) {
-  elastic.getSuggestions(req.params.input).then(function (result) {
-    res.json(result)
-  });
+  /*elastic.getSuggestions(req.params.input).then(function (result) {
+   res.json(result)
+   });*/
 });
 /** POST document to be indexed */
 router.post('/', function (req, res, next) {
-  elastic.addDocument(req.body).then(function (result) {
-    res.json(result);
-  });
+  /*  elastic.addDocument(req.body).then(function (result) {
+   res.json(result);
+   });*/
 });
 router.get('/crawl/:year', function (req, res, next) {
   docScan.searchByYear(req, res);
@@ -45,8 +45,23 @@ router.get('/test_v1/', function (req, res, next) {
 });
 
 router.get('/test_v3/', function (req, res, next) {
+  var instanceelb = new elastic.instance({
+    year: 2011
+  });
 
+  var _scope_ = {
+    url: "http://www.legco.gov.hk/yr09-10/chinese/counmtg/hansard/cm0224-translate-c.pdf",
+    out: "h54otestd.pdf",
+    fieldname: "h54otestd",
+    isEnglish: false,
+    el: instanceelb,
+    data_read_order: 2,
+    data_internal_key: 839232,
+    data_bill_title: "2010年撥款條例草案",
+    process_file_order: 1
+  };
 
+  docScan.test_single_activity(_scope_);
 });
 router.get('/test_v2/', function (req, res, next) {
   testcase.testcasexpdf({

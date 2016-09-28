@@ -66,7 +66,7 @@ PDF.prototype.pdfToText = function (pdf_path, options, callback) {
 
     shell.on('message', function (message) {
       // received a message sent from the Python script (a simple "print" statement)
-
+      // console.log(message);
       output += bufferProcess.buffer(message, options)
     });
 

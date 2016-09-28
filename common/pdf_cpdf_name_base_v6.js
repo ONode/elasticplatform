@@ -30,11 +30,53 @@ const crackTool = {
   tag_name: /SP_[A-Z][A-Z]_\w+_/g,
   tag_name_old: /SP_[A-Z][A-Z]_\w+/g,
   bookmark_meeting_process: /b\d\w+/g,
+  fix_bug_digit_char: /(\d+\.)/g,
+  fix_bug_date_sub: /(日\d{4})/g,
+  fix_bug_date_pre: /(\d{4}立法會)/g,
+  date_cn_extraction: /(立法會─\d{4}年\d{1,2}月\d{1,2}日)/g,
   post_process_extraction: '',
   tag_extract_name_person: /[\u4e00-\u9fa5]+[^\uff1a]/g,
-  punctual_marks: ["？", "。", "）", "》", "......"],
-  name_mark: ["《", "》", "："]
+  punctual_marks: ["！", "？", "。", "）", "》", "......"],
+  name_mark: ["《", "》", "：", "（", "）"]
 };
+String.prototype.replaceAll = function (search, replacement) {
+  var target = this;
+  return target.split(search).join(replacement);
+};
+String.prototype.replaceAllReg = function (search, replacement) {
+  var target = this;
+  return target.replace(new RegExp(search, 'g'), replacement);
+};
+var fixPassageContentBugPass = function (context) {
+  var
+    b1 = context.match(crackTool.fix_bug_digit_char),
+    b2 = context.match(crackTool.fix_bug_date_sub),
+    b3 = context.match(crackTool.fix_bug_date_pre),
+    b6 = context.match(crackTool.date_cn_extraction),
+    b4 = context.indexOf(")"),
+    b5 = context.indexOf("("),
+    out = context;
+  if (b2 != null && b2.length > 0) {
+    out = out.replace(crackTool.fix_bug_date_sub, "日");
+  }
+  if (b3 != null && b3.length > 0) {
+    out = out.replace(crackTool.fix_bug_date_pre, "立法會");
+  }
+  if (b1 != null && b1.length > 0) {
+    out = out.replace(crackTool.fix_bug_digit_char, "");
+  }
+  if (b4 > -1) {
+    out = out.replaceAll(")", crackTool.name_mark[4]);
+  }
+  if (b5 > -1) {
+    out = out.replaceAll("(", crackTool.name_mark[3]);
+  }
+  if (b6 != null && b6.length > 0) {
+    out = out.replace(crackTool.date_cn_extraction, "");
+  }
+  return out;
+};
+
 var enphizis = function (person_name) {
   return crackTool.name_mark[0] + person_name + crackTool.name_mark[1];
 };
@@ -122,8 +164,9 @@ var sentence_marker_type2 = function (text, possible_index) {
   console.log("======marker test===========");
 };
 var shorten = function (context) {
-  if (context.length > 20) {
-    return context.substring(0, 5) + crackTool.punctual_marks[4] + context.substring(context.length - 5, context.length);
+  var char_len = 6;
+  if (context.length > 30) {
+    return context.substring(0, char_len) + crackTool.punctual_marks[4] + context.substring(context.length - char_len, context.length);
   } else {
     return context;
   }
@@ -137,7 +180,7 @@ Array.prototype.unique = function () {
 var loadDictionary = function () {
   var arrayDict = [];
   _.forEach(mInputPersonDictionary, function (object) {
-    arrayDict.push(new String(object.full));
+    arrayDict.push(new String(object.full + crackTool.name_mark[2]));
   });
   _.forEach(mPersonnelDict_2008_2012, function (personnel) {
     arrayDict.push(new String(personnel + crackTool.name_mark[2]));
@@ -171,9 +214,9 @@ function xUtilIndexHelper(name_arr, pointerIndexFullSet, exclude_existing_json) 
       });
     }
   });
-  console.log('> =====================================.');
-  console.log('> ======= pre-index miner page=======.');
-  console.log('> ===================================.');
+  console.log('> ====================================.');
+  console.log('> ======= pre-index miner page======.');
+  console.log('> =================================.');
   console.log('> final name tags', showlist);
   console.log('> ===========================.');
 }
@@ -226,10 +269,18 @@ var marker_indices = function (mark, content_data) {
 };
 var getEnhancedSentence = function (extract) {
   var end_mark = marker_x(extract);
-  if (end_mark > -1) {
+  if (end_mark > -1 && end_mark < extract.length - 1) {
     return extract.substring(0, end_mark + 1);
   } else {
     return extract;
+  }
+};
+var getTopic = function (extract) {
+  var end_mark = marker_x(extract);
+  if (end_mark > -1 && end_mark < extract.length - 1) {
+    return extract.substring(end_mark, extract.length);
+  } else {
+    return "";
   }
 };
 var getIntervalInBetween = function (indices, position, context_data) {
@@ -295,6 +346,7 @@ cxpdfnMining.prototype.initNewConfig = function (config) {
   this.flatten_dictionary = loadDictionary();
   //console.log("=== pdf to text ===");
   this.options.external = config;
+  this.options.title = "";
 };
 
 function test_array(arrayList) {
@@ -315,7 +367,7 @@ function test_array(arrayList) {
 
 cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
   console.log('> is array', _.isArray(raw_cpdf_bookmarks));
-  console.log('> count', raw_cpdf_bookmarks.length);
+  console.log('> list count', raw_cpdf_bookmarks.length);
   // console.log('> preview', raw_cpdf_bookmarks);
   var
     t1 = raw_cpdf_bookmarks[0], t2 = raw_cpdf_bookmarks[1],
@@ -328,7 +380,7 @@ cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
     this.pdf_type = 0;
     console.log("there are no bookmarks from this PDF, continue with type zero analysis");
   } else {
-    console.log("bookmarks found");
+    console.log("bookmarks found. try to index out the bookmarks");
     //console.log('>>> is list', list);
     _.forEach(list, function (item_name) {
 
@@ -396,7 +448,7 @@ cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
           index_base.scanrange.end = pageindex;
           //  console.log(index_base);
         } else {
-          console.error("no such page error!!!!!!!!!!!!");
+          console.error("no such page error!!!");
         }
         previous_index_page = pageindex;
         if (n == 0) {
@@ -417,12 +469,45 @@ cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
       xUtilIndexHelper(name_arr, this.index_trail, true);
       console.log('>> ====== > pdf detection', this.pdf_type);
     }
-
   }
 };
 cxpdfnMining.prototype.startDemo = function () {
   this.emit("complete", "star then the next test");
   return;
+};
+cxpdfnMining.prototype.pdfinfo = function () {
+  xpdfUtil.info(this.filepath, function (err, info) {
+    if (err) {
+      console.log("error from getting the document info, and try again...", err);
+      return;
+    }
+    if (this.options.only_preindex) {
+      this.emit("complete", "this is the preindex only");
+      return;
+    }
+    if (info == null) {
+      this.pdfinfo();
+      return;
+    }
+    console.log("=== log info ===");
+    console.log(info);
+    console.log("================");
+    var nowdate = parseInt(info.creationdate);
+    this.document_date = dateFormat(nowdate, "isoDateTime");
+    this.maxpages = parseInt(info.pages);
+    this.pdf_type = 3;
+    this.iterate = 0;
+    if (this.pdf_type == 2) {
+      this.updateScanPageConfigAtNodeObject(this.iterate);
+      this.process_pages_type2(1);
+    } else if (this.pdf_type == 0) {
+      this.updateScanPageConfigSinglePage(1);
+      this.process_pages_type1();
+    } else if (this.pdf_type == 3) {
+      this.updateScanPageConfigSinglePage(1);
+      this.process_pages_type3();
+    }
+  }.bind(this));
 };
 cxpdfnMining.prototype.start = function () {
   cpdfUtil.listBookmarks(this.filepath).then(function (arrayList) {
@@ -430,30 +515,7 @@ cxpdfnMining.prototype.start = function () {
   }.bind(this), function (error) {
     console.log('pdf error', error);
   }).then(function () {
-    xpdfUtil.info(this.filepath, function (err, info) {
-      if (err) throw(err);
-      if (this.options.only_preindex) {
-        console.log("=== only_preindex ===");
-        this.emit("complete", "only_preindex_done");
-      } else {
-
-        console.log("=== log info ===");
-        console.log(info);
-        console.log("================");
-
-        var nowdate = parseInt(info.creationdate);
-        this.document_date = dateFormat(nowdate, "isoDateTime");
-        this.maxpages = parseInt(info.pages);
-        this.pdf_type = 0;
-        if (this.pdf_type == 2) {
-          this.updateScanPageConfigAtNodeObject(this.iterate);
-          this.process_pages_type2(1);
-        } else if (this.pdf_type == 0) {
-          this.updateScanPageConfigSinglePage(1);
-          this.process_pages_type1();
-        }
-      }
-    }.bind(this));
+    this.pdfinfo();
   }.bind(this));
 };
 /**
@@ -516,7 +578,7 @@ cxpdfnMining.prototype.next_wave = function () {
       console.log("> next_wave: same page next wave ...");
       this.proc_context_type2(resultN);
     } else if (resultN == 2) {
-      console.log("> next_wave:different page next wave ...");
+      console.log("> next_wave: different page next wave ...");
       this.process_pages_type2(resultN);
     }
   } else if (this.pdf_type == 0) {
@@ -525,8 +587,18 @@ cxpdfnMining.prototype.next_wave = function () {
       this.updateScanPageConfigSinglePage(parseInt(this.options.to) + 1);
       this.process_pages_type1();
     } else {
-      this.resolve_buffer_complete(function () {
+      this.resolve_last_buffer(function () {
         this.emit("complete", "doneTypeZero");
+      }.bind(this));
+    }
+  } else if (this.pdf_type == 3) {
+    console.log('next wave process now', this.options.to + "/" + this.maxpages);
+    if (this.maxpages > (parseInt(this.options.to) + 1)) {
+      this.updateScanPageConfigSinglePage(parseInt(this.options.to) + 1);
+      this.process_pages_type3();
+    } else {
+      this.resolve_last_buffer(function () {
+        this.emit("complete", "doneType3");
       }.bind(this));
     }
   }
@@ -580,57 +652,37 @@ cxpdfnMining.prototype.save_extract_type2 = function (captured, name_tag, pageMo
   console.log("> save buffer between threads ...", "p" + result.scanrange.start + " to p" + result.scanrange.end, enphizis(name_tag), shorten(captured));
   this.emit('scanpage', this.finalizeResultObject(result));
 };
-cxpdfnMining.prototype.isBR = function (tag) {
-  return
-  tag == "b1r" ||
-  tag == "b1r01" ||
-  tag == "b1r02" ||
-
-  tag == "b2r" ||
-  tag == "b2r01" ||
-  tag == "b2r02" ||
-
-  tag == "b3r" ||
-  tag == "b3r01" ||
-  tag == "b3r02";
-};
-
 cxpdfnMining.prototype.proc_context_type2 = function (pageMode) {
   try {
     console.log("pageMode > 0.1.0.0");
     const cur_item_tag = this.getCurrentScanningItem().tag;
-    /* if (this.isBR(cur_item_tag)) {
-     console.log("cur_item_tag is BR");
-     this.next_wave();
-     return;
-     }*/
     // console.log("proc_context_type2 complete: proc_context_type2");
-    console.log("pageMode > 0.1.0.1");
+    // console.log("pageMode > 0.1.0.1");
     var b1_token = _.get(mInputPersonDictionary, [cur_item_tag, "full"]), b2_token, captured = "";
     //var all_tags_positions = this.indexMetaList(this.document_context);
-    console.log("pageMode > 0.1.0.2");
+    // console.log("pageMode > 0.1.0.2");
     var b1 = this.document_context.indexOf(b1_token) + b1_token.length, b2 = -1, b3 = -1;
-    console.log("pageMode > 0.1.0.3");
+    //console.log("pageMode > 0.1.0.3");
     var chinese_name = b1_token.match(crackTool.tag_extract_name_person);
-    console.log("pageMode > 0.1.0.4");
+    // console.log("pageMode > 0.1.0.4");
     var name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
-    console.log("pageMode > 0.1.0.5");
+    //  console.log("pageMode > 0.1.0.5");
     var rest_sentence = this.document_context.substring(b1, this.document_context.length);
     //is the next node in the same page?
     //there is not more node in the same page..
     if (pageMode > 0) {
-      console.log("pageMode > 0.1");
+      //   console.log("pageMode > 0.1");
       const next_item_tag = this.getNextScanningIndex().tag;
-      console.log("pageMode > 0.2");
+      //  console.log("pageMode > 0.2");
       //b2_token = _.get(mInputPersonDictionary, [next_item_tag, "full"]);
       b2 = sentence_marker_type2(rest_sentence, _.minBy(this.indexMetaList(rest_sentence), function (o) {
         return o.index;
       }));
-      console.log("pageMode > 0.3");
+      //  console.log("pageMode > 0.3");
       captured = this.document_context.substring(b1, b1 + b2);
-      console.log("pageMode > 0.4");
+      //  console.log("pageMode > 0.4");
       this.save_extract_type2(captured, name_tag, pageMode);
-      console.log("pageMode > 0.5");
+      //  console.log("pageMode > 0.5");
     } else {
       console.log("this is the end node.");
       this.save_extract_type2(this.document_context, name_tag, 0);
@@ -638,11 +690,26 @@ cxpdfnMining.prototype.proc_context_type2 = function (pageMode) {
     this.next_wave();
   } catch (e) {
     console.error(e);
-    console.log("error", "ocurred on proc_context_type2, please check and see technical issue");
-    //  this.next_wave();
+    console.log("error", "occurred on proc_context_type2, please check and see technical issue");
+    //--- this.next_wave();
   }
 };
-
+var take_out_conflicts = function (main_array, longer_token_with_col, short_token_ar, longer_token_ar) {
+  /**
+   * confusion for 商務及經濟發展局局長 and 發展局局長
+   */
+  if (longer_token_ar.length > 0 && short_token_ar.length > 0) {
+    var b1 = longer_token_ar[0];
+    var b2 = short_token_ar[0];
+    var delta = b2 - b1;
+    if (delta > 0 && delta < longer_token_with_col.length - 1) {
+      _.remove(main_array, function (n) {
+        return short_token_ar.indexOf(n.index) > -1;
+      });
+      console.log(">>>>>>  Remove item for - " + longer_token_with_col, longer_token_ar);
+    }
+  }
+};
 /**
  * this is the key part of the wild auto mapping system indicator
  * @param data
@@ -651,21 +718,39 @@ cxpdfnMining.prototype.proc_context_type2 = function (pageMode) {
 cxpdfnMining.prototype.indexMetaList = function (data) {
   //var exclude = "列席秘書：";
   var main = [];
-  var compare_slot_1 = [], compare_slot_2 = [], compare_slot_3 = [];
+  var caseslot1 = [], caseslot2 = [], caseslot4 = [], caseslot5 = [], caseslot6 = [], caseslot7 = [];
 
   _.forEach(this.flatten_dictionary, function (mark_name) {
     var marks = _.sortedUniq(marker_indices(mark_name, data));
-    if (mark_name == "商務及經濟發展局局長：" && marks.length > 0) {
-      compare_slot_1 = marks;
-    }
-    if (mark_name == "發展局局長：" && marks.length > 0) {
-      compare_slot_2 = marks;
-    }
-    if (mark_name == "秘書：" && marks.length > 0) {
-      compare_slot_3 = marks;
-    }
-
+    // console.log("find names ", mark_name, marks);
     if (marks.length > 0) {
+      if (mark_name == "商務及經濟發展局局長：") {
+        caseslot1 = marks;
+      }
+      if (mark_name == "發展局局長：") {
+        caseslot2 = marks;
+      }
+      /*if (mark_name == "秘書：") {
+       compare_slot_3 = marks;
+       ex = true;
+       }*/
+      if (mark_name == "全委會主席：") {
+        caseslot4 = marks;
+
+      }
+      if (mark_name == "代理全委會主席：") {
+        caseslot5 = marks;
+
+      }
+      if (mark_name == "主席：") {
+        caseslot6 = marks;
+
+      }
+      if (mark_name == "代理主席：") {
+        caseslot7 = marks;
+
+      }
+
       _.forEach(marks, function (mark) {
         //  start_from = mark_1 + mark_name.length;
         main.push({
@@ -675,34 +760,25 @@ cxpdfnMining.prototype.indexMetaList = function (data) {
           person: true
         });
       }.bind(this));
+
     }
     //loop = true;
     //return false;
-
   }.bind(this));
 
-  /**
-   * confusion for 商務及經濟發展局局長 and 發展局局長
-   */
-  if (compare_slot_2.length > 0 && compare_slot_1.length > 0) {
-    var test_index_1 = compare_slot_2[0];
-    var test_index_2 = compare_slot_1[0];
-    var delta = Math.abs(test_index_1 - test_index_2);
-    if (delta < 10) {
-      _.remove(main, function (n) {
-        console.log("remove item for 商務及經濟發展局局長", n);
-        return compare_slot_2.indexOf(n.index) > -1;
-      });
-    }
-  }
+  take_out_conflicts(main, "商務及經濟發展局局長：", caseslot2, caseslot1);
+  take_out_conflicts(main, "代理全委會主席：", caseslot4, caseslot5);
+  take_out_conflicts(main, "代理主席：", caseslot6, caseslot7);
+  take_out_conflicts(main, "全委會主席：", caseslot6, caseslot4);
 
-  var listarray = _.sortBy(main, [function (o) {
+  var Lis = _.sortBy(main, [function (o) {
     return o.index;
-  }]).unique();
-  console.log("indicators", listarray);
-  return listarray;
+  }]);
+  //.unique();
+  console.log("Indicators:", data, Lis);
+  return Lis;
 };
-cxpdfnMining.prototype.resolve_buffer_complete = function (callback) {
+cxpdfnMining.prototype.resolve_last_buffer = function (callback) {
   if (!_.isEmpty(this.scanBufferTempData)) {
     const result = {
       content: this.scanBufferTempData.last_incomplete_sentence,
@@ -714,7 +790,7 @@ cxpdfnMining.prototype.resolve_buffer_complete = function (callback) {
       thread_date: this.document_date,
       data_speaker: this.scanBufferTempData.last_tag_name
     };
-    console.log("> save previous buffer last...", enphizis(this.scanBufferTempData.last_tag_name));
+    console.log("> save previous buffer last...", enphizis(this.scanBufferTempData.last_tag_name), shorten(result.content));
     this.emit('scanpage', this.finalizeResultObject(result));
     this.scanBufferTempData = {};
     console.log("complete all buffer fragments - last page");
@@ -736,7 +812,7 @@ cxpdfnMining.prototype.resolve_buffer_context = function (indices, context_data)
           thread_date: this.document_date,
           data_speaker: this.scanBufferTempData.last_tag_name
         };
-        console.log("> save previous buffer...", enphizis(this.scanBufferTempData.last_tag_name));
+        console.log("> save previous buffer...", enphizis(this.scanBufferTempData.last_tag_name), shorten(result.content));
         //close buffer
         this.emit('scanpage', this.finalizeResultObject(result));
         //remove buffer data
@@ -748,20 +824,45 @@ cxpdfnMining.prototype.resolve_buffer_context = function (indices, context_data)
 
   if (_.isEmpty(this.scanBufferTempData)) {
     if (indices.length > 0) {
-      var nametag = nameTag(indices[indices.length - 1]);
+      var LastNameTag = nameTag(indices[indices.length - 1]);
       //the last one buffer passage
-      console.log("empty buffer object start writing content ...", enphizis(nametag));
-      this.scanBufferTempData = {
-        last_tag_name: nametag,
-        last_incomplete_sentence: getIntervalAtEnd(indices, indices.length - 1, context_data),
-        from_page: this.options.from
-      };
+      var passage = getIntervalAtEnd(indices, indices.length - 1, context_data);
+      //this should be the last statement and no buffer over..
+      if (marker_x(context_data) == context_data.length - 1 && LastNameTag == "主席") {
+        console.log("end mark...", marker_x(context_data), context_data.length);
+        console.log("detected last passage is the end save this ...", enphizis(LastNameTag), shorten(passage));
+        this.save_buffer_between(passage, LastNameTag);
+      }
+
+
+      if (marker_x(context_data) < context_data.length) {
+        console.log("empty buffer object start writing content ...", enphizis(LastNameTag), shorten(passage));
+        this.scanBufferTempData = {
+          last_tag_name: LastNameTag,
+          last_incomplete_sentence: passage,
+          from_page: this.options.from
+        };
+      }
       //end save previous item
     }
   } else {
     console.log("not empty buffer object, add more content to the buffer ....");
     this.scanBufferTempData.last_incomplete_sentence += context_data;
   }
+};
+cxpdfnMining.prototype.save_buffer_between = function (captured, name_tag) {
+  const result = {
+    content: captured,
+    metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
+    scanrange: {
+      start: this.options.from,
+      end: this.options.to
+    },
+    thread_date: this.document_date,
+    data_speaker: name_tag
+  };
+  console.log("> save thread between... ", enphizis(name_tag), captured);
+  this.emit('scanpage', this.finalizeResultObject(result));
 };
 cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture_context) {
   var captured, loop = true, p = 0, previousIndex = -1, currentIndex = -1;
@@ -779,18 +880,7 @@ cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture
         }
         captured = getIntervalInBetween(indices, p, pre_capture_context);
         const name_tag = nameTag(indices[p]);
-        const result = {
-          content: captured,
-          metadata: [name_tag, this.getExternal().data_bill_title, this.getExternal().data_internal_key],
-          scanrange: {
-            start: this.options.from,
-            end: this.options.to
-          },
-          thread_date: this.document_date,
-          data_speaker: name_tag
-        };
-        console.log("> save thread between... ", enphizis(name_tag), captured);
-        this.emit('scanpage', this.finalizeResultObject(result));
+        this.save_buffer_between(captured, name_tag);
         p++;
       } else {
         loop = false;
@@ -803,11 +893,12 @@ cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture
  * @param pre_capture_context
  */
 cxpdfnMining.prototype.proc_context_type1 = function (pre_capture_context) {
-  var mCyx = this.indexMetaList(pre_capture_context);
-  this.resolve_buffer_context(mCyx, pre_capture_context);
-  this.betweenHeadFooterThreads(mCyx, pre_capture_context);
+  var objLis = this.indexMetaList(pre_capture_context);
+  this.resolve_buffer_context(objLis, pre_capture_context);
+  this.betweenHeadFooterThreads(objLis, pre_capture_context);
   this.next_wave();
 };
+
 cxpdfnMining.prototype.checkDuplicateError = function (data) {
   if (this.scan_error_check.indexOf(data) == -1) {
     this.scan_error_check.push(data);
@@ -827,6 +918,7 @@ cxpdfnMining.prototype.process_pages_type2 = function (pageMode) {
   xpdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
     if (err) {
       console.log("=== error form xpdf util ===");
+      console.log("scan page at p" + this.options.from + " to p" + this.options.to);
       console.log("out", err);
       //this.emit("error", err.message);
       this.next_wave();
@@ -841,6 +933,27 @@ cxpdfnMining.prototype.process_pages_type2 = function (pageMode) {
     this.proc_context_type2(pageMode);
   }.bind(this));
 };
+cxpdfnMining.prototype.process_pages_type3 = function () {
+  if (this.pdf_type != 3) {
+    this.errorNoPDFformat();
+    return;
+  }
+  xpdfUtil.pdfToText(this.filepath, this.options, function (err, data) {
+    if (err) {
+      console.log("=== error form pdfminer ===");
+      console.log("scan page at p" + this.options.from + " to p" + this.options.to);
+      console.log("out", err);
+      console.log("=== skip this for the next scan ===");
+      this.next_wave();
+      return;
+    }
+    const text = fixPassageContentBugPass(data);
+    // console.log("=== xpdfUtil.pdfToText ===");
+    // console.log(text);
+    // console.log("=== xpdfUtil.pdfToText ===");
+    this.proc_context_type1(text);
+  }.bind(this));
+};
 cxpdfnMining.prototype.process_pages_type1 = function () {
   if (this.pdf_type != 0) {
     this.errorNoPDFformat();
@@ -849,13 +962,16 @@ cxpdfnMining.prototype.process_pages_type1 = function () {
   pdfminer.pdfToText(this.filepath, this.options, function (err, data) {
     if (err) {
       console.log("=== error form pdfminer ===");
+      console.log("scan page at p" + this.options.from + " to p" + this.options.to);
       console.log("out", err);
+      console.log("=== skip this for the next scan ===");
+      console.log("=== error end ===");
       //this.emit("error", err.message);
       this.next_wave();
       return;
     }
-    const raw_dat = new String(data);
-    this.proc_context_type1(raw_dat);
+    const text = new String(data);
+    this.proc_context_type1(text);
   }.bind(this));
 };
 module.exports = new cxpdfnMining();

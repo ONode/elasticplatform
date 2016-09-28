@@ -88,7 +88,7 @@ const step_2 = function (year_code, json, res) {
         _.forEach(fields_chi_only, function (h) {
           var base_file_val = val[h];
           var regex = /_+\d+_/;
-          var isenglish = h.indexOf("_eng") !== -1, read_order = 1;
+          var is_eng = h.indexOf("_eng") !== -1, read_order = 1;
           if (regex.test(h)) {
             read_order = parseInt(h.replace(/[^0-9\.]/g, ''), 10);
           }
@@ -103,7 +103,7 @@ const step_2 = function (year_code, json, res) {
                 url: base_file_val,
                 out: dest + "h" + key_internal + "o" + n + "d.pdf",
                 fieldname: h,
-                isEnglish: isenglish,
+                isEnglish: is_eng,
                 el: elastic,
                 data_read_order: read_order,
                 data_internal_key: key_internal,
@@ -125,8 +125,10 @@ const step_2 = function (year_code, json, res) {
 
 function exeArrayFunc(array_fun) {
   async.eachSeries(array_fun, function (activity, callback) {
-    console.log(activity.data_bill_title, activity.url);
-
+    // console.log(activity.data_bill_title, activity.url);
+    console.log("> ======================= <");
+    console.log("activity scope", activity);
+    console.log("> ======================= <");
     fse.ensureFile(activity.out, function (err) {
 
       const stream_data = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
@@ -140,9 +142,9 @@ function exeArrayFunc(array_fun) {
         _V6_.newInstance();
         _V6_.initNewConfig(activity);
         _V6_.on("complete", function (msg) {
-          console.log("> ==================== <");
+          console.log("> =============================================== <");
           console.log("> callback is call here upon _V6_ is complete", msg);
-          console.log("> ==================== <");
+          console.log("> =============================================== <");
           return callback(null, "done");
         });
         _V6_.on("scanpage", function (doc) {
@@ -163,14 +165,17 @@ function exeArrayFunc(array_fun) {
       });
 
     });
-
-
   }, function done() {
     console.log("=====================================");
     console.log("=== scan completed: " + array_fun.length + " for files ========");
     console.log("=====================================");
   });
 }
+var test_activity = function (activity) {
+  var array = [];
+  array.push(activity);
+  exeArrayFunc(array);
+};
 var searchByYear = function (req, res) {
   const head = "?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq ";
   if (!isNaN(req.params.year)) {
@@ -198,4 +203,5 @@ var searchByYear = function (req, res) {
 var searchGoogle = function (req, res) {
 
 };
+module.exports.test_single_activity = test_activity;
 module.exports.searchByYear = searchByYear;

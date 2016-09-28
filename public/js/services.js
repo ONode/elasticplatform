@@ -134,7 +134,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];
-        console.log(result);
+        //  console.log(result);
         for (; i < hitsIn.length; i++) {
           //console.log(hitsIn[i].highlight.content);
           //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);

@@ -18,9 +18,16 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     $scope.results = [];
     //Init offset
     $scope.offset = 0;
+    $scope.showNextButton = false;
+    $scope.search_query = {
+      query: null,
+      honourable: null,
+      year: null,
+      selecteddate: null
+    };
 
     var paginationTriggered;
-    var maxResultsSize = CALACA_CONFIGS.size;
+    var itemsPerPage = CALACA_CONFIGS.size;
     var searchTimeout;
     $scope.autocompletescope = {
       simulateQuery: false,
@@ -50,12 +57,6 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         alert("Sorry! You'll need to create a Constitution for " + name + " first!");
       }
     };
-    $scope.search_query = {
-      query: null,
-      honourable: null,
-      year: null,
-      selecteddate: null
-    };
 
     $scope.delayedSearch = function (mode) {
       clearTimeout(searchTimeout);
@@ -71,15 +72,18 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope.offset = m == 0 ? 0 : $scope.offset;//Clear offset if new query
       $scope.loading = m == 0 ? false : true;//Reset loading flag if new query
       if (m == -1 && paginationTriggered) {
-        if ($scope.offset - maxResultsSize >= 0) {
-          $scope.offset -= maxResultsSize;
+        if ($scope.offset - itemsPerPage >= 0) {
+          $scope.offset -= itemsPerPage;
         }
       }
       if (m == 1 && paginationTriggered) {
-        $scope.offset += maxResultsSize;
+        $scope.offset += itemsPerPage;
       }
       $scope.paginationLowerBound = $scope.offset + 1;
-      $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
+      var b1 = $scope.offset + itemsPerPage;
+      var b2 = b1 > $scope.hits ? $scope.hits : b1;
+      var b3 = $scope.hits < itemsPerPage ? $scope.hits : itemsPerPage;
+      $scope.paginationUpperBound = ($scope.offset === 0) ? b3 : b2;
       $scope.loadResults(m);
     };
 
@@ -88,6 +92,9 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       $scope._index_year.push(nowyr + "");
     }
     $scope._selectionNames = [];
+    $scope.selectedItem = "";
+    $scope.searchText = "";
+
     $scope.loadSelectionName = function () {
       return results.dictionary().then(function (data) {
         var arrayDict = [];
@@ -106,8 +113,38 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       });
     };
 
+    /**
+     * Create filter function for a query string
+     */
+    function createFilterFor(query) {
+      // var lowercaseQuery = angular.lowercase(query);
+      return function filterFn(list) {
+        return (list.full.indexOf(query) === 0);
+      };
+    }
+
+    $scope.simulateQuery = false;
+    $scope.querySearch = function (query) {
+      var results = query ? $scope._selectionNames.filter(createFilterFor(query)) : $scope._selectionNames,
+        deferred;
+      if ($scope.simulateQuery) {
+        deferred = $q.defer();
+        $timeout(function () {
+          deferred.resolve(results);
+        }, Math.random() * 1000, false);
+        return deferred.promise;
+      } else {
+        return results;
+      }
+    };
+
+    $scope.loadSelectionName();
     //Load search results into array
     $scope.loadResults = function (big_search_query_objec) {
+      if ($scope.selectedItem != null) {
+        $scope.search_query.honourable = $scope.selectedItem.full;
+      }
+      console.log($scope.offset);
       results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset).then(function (a) {
         //Load results
         var i = 0;
@@ -119,10 +156,12 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         //Set total number of hits that matched query
         $scope.hits = a.hitsCount;
         //Pluralization
-        $scope.resultsLabel = ($scope.hits > 1) ? "results" : "result";
+        $scope.resultsLabel = $scope.hits > 1 ? "results" : "result";
         //Check if pagination is triggered
-        paginationTriggered = $scope.hits > parseInt($scope.offset + maxResultsSize) ? true : false;
+        $scope.showNextButton = $scope.hits > parseInt($scope.offset + itemsPerPage);
         //Set loading flag if pagination has been triggered
+        paginationTriggered = $scope.hits > itemsPerPage;
+        // console.log("pagination: " + paginationTriggered);
         if (paginationTriggered) {
           $scope.loading = true;
         }
