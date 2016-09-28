@@ -19,10 +19,12 @@
     <div class='search-box-container'>
         <div layout="row">
             <md-autocomplete
+                    md-search-text-change="autoc.searchTextChange(searchText)"
                     ng-disabled="false"
+                    md-autofocus="false"
                     md-selected-item="selectedItem"
                     md-search-text="searchText"
-                    md-items="item in querySearch(searchText)"
+                    md-items="item in autoc.querySearch(searchText)"
                     md-item-text="item.full"
                     md-min-length="0"
                     placeholder="人名"

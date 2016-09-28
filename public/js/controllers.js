@@ -29,15 +29,27 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     var paginationTriggered;
     var itemsPerPage = CALACA_CONFIGS.size;
     var searchTimeout;
-    $scope.autocompletescope = {
+
+    /**
+     * Create filter function for a query string
+     */
+    function createFilterFor(query) {
+      // var lowercaseQuery = angular.lowercase(query);
+      return function filterFn(list) {
+        return (list.full.indexOf(query) === 0);
+      };
+    }
+
+
+    $scope.autoc = {
       simulateQuery: false,
       isDisabled: false,
       // list of `state` value/display objects
       states: $scope.loadSelectionName,
       querySearch: function (query) {
-        var results = query ? self.states.filter(createFilterFor(query)) : self.states,
+        var results = query ? $scope._selectionNames.filter(createFilterFor(query)) : $scope._selectionNames,
           deferred;
-        if (self.simulateQuery) {
+        if ($scope.autoc.simulateQuery) {
           deferred = $q.defer();
           $timeout(function () {
             deferred.resolve(results);
@@ -51,7 +63,9 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         //$log.info('Text changed to ' + text);
       },
       searchTextChange: function (text) {
-        //$log.info('Text changed to ' + text);
+        if (text.length == 0) {
+          $scope.search_query.honourable = null;
+        }
       },
       newState: function (name) {
         alert("Sorry! You'll need to create a Constitution for " + name + " first!");
@@ -113,30 +127,6 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       });
     };
 
-    /**
-     * Create filter function for a query string
-     */
-    function createFilterFor(query) {
-      // var lowercaseQuery = angular.lowercase(query);
-      return function filterFn(list) {
-        return (list.full.indexOf(query) === 0);
-      };
-    }
-
-    $scope.simulateQuery = false;
-    $scope.querySearch = function (query) {
-      var results = query ? $scope._selectionNames.filter(createFilterFor(query)) : $scope._selectionNames,
-        deferred;
-      if ($scope.simulateQuery) {
-        deferred = $q.defer();
-        $timeout(function () {
-          deferred.resolve(results);
-        }, Math.random() * 1000, false);
-        return deferred.promise;
-      } else {
-        return results;
-      }
-    };
 
     $scope.loadSelectionName();
     //Load search results into array
