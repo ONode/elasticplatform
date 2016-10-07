@@ -9,10 +9,11 @@ const
   pdfminer = require("./pdfminer.js"),
   xpdfUtil = require("pdf-util"),
   cpdfUtil = require("cpdf-n"),
+  crackTool = require("./crackTool").crackTool,
   events = require("events"),
   dateFormat = require('dateformat'),
-  mPersonnelDict_2008_2012 = require('./personnel_2008_2012.json'),
-  mInputPersonDictionary = require("./ppmap.json");
+  mPersonnelDict_2008_2012 = require('./../data/personnel_2008_2012.json'),
+  mInputPersonDictionary = require("./../data/ppmap.json");
 
 const options_instance = {
   interval_pages: 15,
@@ -22,22 +23,6 @@ const options_instance = {
   only_preindex: false,
   from: 0,
   to: 10
-};
-const crackTool = {
-  bookmark: /(SP_[A-Z][A-Z]_[A-Z]+_)\w+/g,
-  bookmark_old_style: /(SP_[A-Z][A-Z]_[A-Z]+_)\w+/g,
-  page: /\b\d{1,}/g,
-  tag_name: /SP_[A-Z][A-Z]_\w+_/g,
-  tag_name_old: /SP_[A-Z][A-Z]_\w+/g,
-  bookmark_meeting_process: /b\d\w+/g,
-  fix_bug_digit_char: /(\d+\.)/g,
-  fix_bug_date_sub: /(日\d{4})/g,
-  fix_bug_date_pre: /(\d{4}立法會)/g,
-  date_cn_extraction: /(立法會─\d{4}年\d{1,2}月\d{1,2}日)/g,
-  post_process_extraction: '',
-  tag_extract_name_person: /[\u4e00-\u9fa5]+[^\uff1a]/g,
-  punctual_marks: ["！", "？", "。", "）", "》", "......"],
-  name_mark: ["《", "》", "：", "（", "）"]
 };
 String.prototype.replaceAll = function (search, replacement) {
   var target = this;
@@ -53,6 +38,7 @@ var fixPassageContentBugPass = function (context) {
     b2 = context.match(crackTool.fix_bug_date_sub),
     b3 = context.match(crackTool.fix_bug_date_pre),
     b6 = context.match(crackTool.date_cn_extraction),
+    b7 = context.match(crackTool.date_cn_extraction_v2),
     b4 = context.indexOf(")"),
     b5 = context.indexOf("("),
     out = context;
@@ -74,9 +60,11 @@ var fixPassageContentBugPass = function (context) {
   if (b6 != null && b6.length > 0) {
     out = out.replace(crackTool.date_cn_extraction, "");
   }
+  if (b7 != null && b7.length > 0) {
+    out = out.replace(crackTool.date_cn_extraction_v2, "");
+  }
   return out;
 };
-
 var enphizis = function (person_name) {
   return crackTool.name_mark[0] + person_name + crackTool.name_mark[1];
 };
@@ -617,10 +605,10 @@ cxpdfnMining.prototype.getExternal = function () {
   return this.options.external;
 };
 cxpdfnMining.prototype.finalizeResultObject = function (r) {
-  r.data_internal_key = this.getExternal().data_internal_key;
-  r.data_read_order = this.getExternal().data_read_order;
+  r.data_internal_key = this.getExternal().data_internal_key || "";
+  r.data_read_order = this.getExternal().data_read_order || "";
   r.data_source_url = this.getExternal().url;
-  r.data_bill_title = this.getExternal().data_bill_title;
+  r.data_bill_title = this.getExternal().data_bill_title || "";
   return r;
 };
 cxpdfnMining.prototype.gc = function () {

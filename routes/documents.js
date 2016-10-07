@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const elastic = require('../common/el2');
 const docScan = require('../common/documentlevel');
+const docScanFiles = require('../common/fileslevel');
+const webcrawler = require('../common/webcrawler');
 const testcase = require('../common/testxpdf');
 /** GET suggestions */
 router.get('/suggest/:input', function (req, res, next) {
@@ -26,14 +28,11 @@ router.get('/crawl/full/:year', function (req, res, next) {
 
   }
 });
-router.get('/test/', function (req, res, next) {
-  testcase.testcaseapi({
-      remove_space_asian_character: true,
-      new_paragraph: true,
-      from: 0,
-      to: 20
-    },
-    res);
+router.get('/test_scan/', function (req, res, next) {
+  docScanFiles.latestyear();
+});
+router.get('/test_webcrawler/', function (req, res, next) {
+  webcrawler.makescan();
 });
 router.get('/test_v1/', function (req, res, next) {
   testcase.testcasexpdf({

@@ -43,16 +43,18 @@ const step_2 = function (year_code, json, res) {
   console.log("=== files found ===");
   console.log(count);
   console.log("=============");
-
   const dest = path.dirname(module.main) + "/tmp/";
+
   res.json({
     pathstart: dest,
     processpdfs: count,
     message: "started making queues"
   });
+
   var elastic = new es2.instance({
     year: year_code
   });
+
   if (!elastic.isReady()) {
     console.error("elastic search engine is not setup properly.");
     console.log("> === operation aborted.");

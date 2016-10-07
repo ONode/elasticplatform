@@ -16,6 +16,9 @@
   "SP_PO_SD": {
     "full": "發展局局長"
   },
+  "SP_CHIEF_EXE": {
+    "full": "行政長官"
+  },
   "SP_PO_SFH": {
     "full": "食物及衞生局局長"
   },
@@ -123,8 +126,7 @@
     "party": "es5"
   },
   "SP_MB_CM": {
-    "full": "毛孟靜議員（譯文）",
-    "party": "毛孟靜議員"
+    "full": "毛孟靜議員"
   },
   "SP_MB_CH": {
     "full": "何秀蘭議員",
