@@ -14,7 +14,7 @@ const options_instance = {
   new_paragraph: false,
   remove_single_n_english: false,
   from: 0,
-  to: 10,
+  to: 10
 };
 
 var xPDFpathStarter = function (config) {

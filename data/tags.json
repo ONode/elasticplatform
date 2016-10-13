@@ -1,0 +1,316 @@
+{
+  "SP_LC_CM": {
+    "full": "全委會主席",
+    "party": "es5"
+  },
+  "SP_LC_DCM": {
+    "full": "代理全委會主席",
+    "party": "es5"
+  },
+  "SP_PO_SCS": {
+    "full": "公務員事務局局長"
+  },
+  "SP_PO_SCED": {
+    "full": "商務及經濟發展局局長"
+  },
+  "SP_PO_SD": {
+    "full": "發展局局長"
+  },
+  "SP_CHIEF_EXE": {
+    "full": "行政長官"
+  },
+  "SP_PO_SFH": {
+    "full": "食物及衞生局局長"
+  },
+  "SP_PO_SFST": {
+    "full": "財經事務及庫務局局長",
+    "party": "es5"
+  },
+  "SP_LC_PSD": {
+    "full": "主席",
+    "party": "es5"
+  },
+  "SP_LD_DPSD": {
+    "full": "代理主席",
+    "party": "es5"
+  },
+  "SP_LC_CLK": {
+    "full": "秘書",
+    "party": "es5"
+  },
+  "SP_PO_SCMA": {
+    "full": "政制及內地事務局局長",
+    "party": "es5"
+  },
+  "SP_PO_STH": {
+    "full": "運輸及房屋局局長",
+    "party": "es5"
+  },
+  "SP_PO_SLW": {
+    "full": "勞工及福利局局長"
+  },
+  "SP_PO_SS": {
+    "full": "保安局局長"
+  },
+  "SP_PO_SHA": {
+    "full": "民政事務局局長"
+  },
+  "SP_PO_SJ": {
+    "full": "律政司司長"
+  },
+  "SP_PO_ENV": {
+    "full": "環境局局長"
+  },
+  "SP_PO_CSA": {
+    "full": "政務司司長"
+  },
+  "SP_PO_FS": {
+    "full": "財政司司長"
+  },
+  "SP_PO_ITB": {
+    "full": "創新及科技局局長"
+  },
+  "SP_PO_USFAST": {
+    "full": "財經事務及庫務局副局長"
+  },
+  "SP_PO_USCMAF": {
+    "full": "政制及內地事務局副局長"
+  },
+  "SP_PO_USEDU": {
+    "full": "教育局副局長"
+  },
+  "SP_PO_SG": {
+    "full": "法律政策專員"
+  },
+  "SP_PO_USHA": {
+    "full": "民政事務局副局長"
+  },
+  "SP_MB_CCC": {
+    "full": "陳志全議員",
+    "party": "es5"
+  },
+  "SP_MB_CWY": {
+    "full": "陳偉業議員",
+    "party": "es5"
+  },
+  "SP_MB_LKH": {
+    "full": "梁國雄議員",
+    "party": "es5"
+  },
+  "SP_MB_LWK": {
+    "full": "盧偉國議員",
+    "party": "es5"
+  },
+  "SP_MB_GF": {
+    "full": "范國威議員",
+    "party": "es5"
+  },
+  "SP_MB_CLW": {
+    "full": "蔣麗芸議員",
+    "party": "es5"
+  },
+  "SP_MB_CKP": {
+    "full": "陳健波議員",
+    "party": "es5"
+  },
+  "SP_MB_IKH": {
+    "full": "葉國謙議員",
+    "party": "es5"
+  },
+  "SP_MB_LMF": {
+    "full": "梁美芬議員",
+    "party": "es5"
+  },
+  "SP_MB_LWH": {
+    "full": "劉慧卿議員",
+    "party": "es5"
+  },
+  "SP_MB_CM": {
+    "full": "毛孟靜議員"
+  },
+  "SP_MB_CH": {
+    "full": "何秀蘭議員",
+    "party": "es5"
+  },
+  "SP_MB_AL": {
+    "full": "梁君彥議員",
+    "party": "es5"
+  },
+  "SP_MB_KC": {
+    "full": "陳家洛議員",
+    "party": "es5"
+  },
+  "SP_MB_SH": {
+    "full": "何俊賢議員",
+    "party": "es5"
+  },
+  "SP_MB_SL": {
+    "full": "李慧琼議員",
+    "party": "es5"
+  },
+  "SP_MB_AS": {
+    "full": "石禮謙議員"
+  },
+  "SP_MB_LTF": {
+    "full": "林大輝議員"
+  },
+  "SP_MB_IKY": {
+    "full": "葉建源議員"
+  },
+  "SP_PO_SE": {
+    "full": "教育局局長"
+  },
+  "SP_MB_MFK": {
+    "full": "馬逢國議員"
+  },
+  "SP_MB_HW": {
+    "full": "黃碧雲議員"
+  },
+  "SP_MB_CYH": {
+    "full": "陳婉嫻議員"
+  },
+  "SP_MB_WKK": {
+    "full": "黃國健議員"
+  },
+  "SP_MB_LCY": {
+    "full": "李卓人議員"
+  },
+  "SP_MB_CCA": {
+    "full": "鍾樹根議員"
+  },
+  "SP_MB_LWF": {
+    "full": "劉皇發議員"
+  },
+  "SP_MB_FY": {
+    "full": "易志明議員"
+  },
+  "SP_MB_KL": {
+    "full": "梁繼昌議員"
+  },
+  "SP_MB_RI": {
+    "full": "葉劉淑儀議員"
+  },
+  "SP_MB_LKK": {
+    "full": "梁家傑議員"
+  },
+  "SP_MB_NLS": {
+    "full": "吳亮星議員"
+  },
+  "SP_MB_PT": {
+    "full": "謝偉俊議員"
+  },
+  "SP_MB_LYC": {
+    "full": "梁耀忠議員"
+  },
+  "SP_MB_PSP": {
+    "full": "潘兆平議員"
+  },
+  "SP_MB_WCW": {
+    "full": "胡志偉議員"
+  },
+  "SP_MB_KWK": {
+    "full": "郭偉强議員"
+  },
+  "SP_MB_CCH": {
+    "full": "張超雄議員"
+  },
+  "SP_MB_CHK": {
+    "full": "陳克勤議員"
+  },
+  "SP_MB_TC": {
+    "full": "張宇人議員"
+  },
+  "SP_MB_TPC": {
+    "full": "田北俊議員"
+  },
+  "SP_MB_CPM": {
+    "full": "莫乃光議員"
+  },
+  "SP_MB_EQ": {
+    "full": "葛珮帆議員"
+  },
+  "SP_MB_FKK": {
+    "full": "郭家麒議員"
+  },
+  "SP_MB_KKK": {
+    "full": "郭家麒議員"
+  },
+  "SP_MB_TKW": {
+    "full": "湯家驊議員"
+  },
+  "SP_MB_TKS": {
+    "full": "涂謹申議員"
+  },
+  "SP_MB_TYC": {
+    "full": "譚耀宗議員"
+  },
+  "SP_MB_WKH": {
+    "full": "王國興議員"
+  },
+  "SP_MB_TKP": {
+    "full": "鄧家彪議員"
+  },
+  "SP_MB_SCK": {
+    "full": "單仲偕議員"
+  },
+  "SP_MB_AM": {
+    "full": "麥美娟議員"
+  },
+  "SP_MB_WYM": {
+    "full": "黃毓民議員"
+  },
+  "SP_MB_CKPA": {
+    "full": "鍾國斌議員"
+  },
+  "SP_MB_CHP": {
+    "full": "陳恒鑌議員"
+  },
+  "SP_MB_TT": {
+    "full": "謝偉銓議員"
+  },
+  "SP_MB_VF": {
+    "full": "方剛議員"
+  },
+  "SP_MB_YSW": {
+    "full": "姚思榮議員"
+  },
+  "SP_MB_WTK": {
+    "full": "黃定光議員"
+  },
+  "SP_MB_CKC": {
+    "full": "張國柱議員"
+  },
+  "SP_MB_LCC": {
+    "full": "梁志祥議員"
+  },
+  "SP_MB_CKL": {
+    "full": "陳鑑林議員"
+  },
+  "SP_MB_MT": {
+    "full": "田北辰議員"
+  },
+  "SP_MB_AH": {
+    "full": "何俊仁議員"
+  },
+  "SP_MB_ML": {
+    "full": "廖長江議員"
+  },
+  "SP_MB_LKL": {
+    "full": "梁家騮議員"
+  },
+  "SP_MB_LKF": {
+    "full": "林健鋒議員"
+  },
+  "SP_MB_DK": {
+    "full": "郭榮鏗議員"
+  },
+  "SP_MB_CC": {
+    "full": "張華峰議員"
+  },
+  "SP_MB_AY": {
+    "full": "楊岳橋議員"
+  },
+  "SP_MB_JL": {
+    "full": "李國麟議員"
+  }
+}

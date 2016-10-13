@@ -104,6 +104,10 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
     $scope._index_year = [""];
     for (var nowyr = 2016; nowyr >= 2008; nowyr--) {
       $scope._index_year.push(nowyr + "");
+      var prev = nowyr - 1;
+      if (nowyr > 2012) {
+        $scope._index_year.push(nowyr + "-" + prev);
+      }
     }
     $scope._selectionNames = [];
     $scope.selectedItem = "";

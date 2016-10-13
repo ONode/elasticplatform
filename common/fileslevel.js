@@ -2,33 +2,33 @@
  * Created by hesk on 2016/10/4.
  */
 const target_domain = "http://app.legco.gov.hk/BillsDB/odata/Vbills";
-var http = require('http');
-var fs = require('fs');
-var fse = require('fs-extra');
-const path = require('path');
-const async = require('async');
+var http = require("http");
+var fs = require("fs");
+var fse = require("fs-extra");
+const path = require("path");
+const async = require("async");
 var request = require("request");
 var _ = require("lodash");
 var es2 = require("./el2");
 var crackTool = require("./crackTool").crackTool;
 var _V6_ = require("./pdf_cpdf_name_base_v6");
-var list_pdf = require("./../data/pdf201615.json");
+var list_pdf = require("./../data/total_data_final.json");
 var scan_item = 0;
-var year_level = function () {
+var year_level = function (start_int) {
+  scan_item = start_int;
+  if (scan_item > list_pdf.length - 1) {
+    console.log("> =======================");
+    console.log("no scan", scan_item);
+    console.log("> =======================");
+    return;
+  }
+  console.log("> =======================");
   console.log("make scan 101");
-  var item2scan = list_pdf[scan_item];
-  make_scan(item2scan);
+  console.log("> =======================");
+  make_scan(list_pdf[scan_item]);
+  console.log("> =======================");
   console.log("make scan 102");
-
-  /* while (scan_item < list_pdf.length - 1) {
-   var item2scan = list_pdf[scan_item];
-   console.log("make scan 101");
-   make_scan(item2scan);
-   console.log("make scan 102");
-   if (list_pdf.length == 1) {
-   return;
-   }
-   }*/
+  console.log("> =======================");
 };
 var make_scan = function (year_item) {
   const list = year_item.index;
@@ -93,7 +93,7 @@ function exeArrayFunc(array_fun) {
     console.log("> ======================= <");
     fse.ensureFile(activity.out, function (err) {
 
-      const stream_data = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: 'w'}));
+      const stream_data = request(activity.url).pipe(fs.createWriteStream(activity.out, {flags: "w"}));
       stream_data.on("finish", function () {
         if (err) {
           console.log("> xpdf file creation", "===================");

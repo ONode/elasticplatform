@@ -12,8 +12,8 @@ const
   crackTool = require("./crackTool").crackTool,
   events = require("events"),
   dateFormat = require('dateformat'),
-  mPersonnelDict_2008_2012 = require('./../data/personnel_2008_2012.json'),
-  mInputPersonDictionary = require("./../data/ppmap.json");
+  mPersonnelDict_2008_2012 = require('./../data/tags_2008_2012.json'),
+  mInputPersonDictionary = require("./../data/tags.json");
 
 const options_instance = {
   interval_pages: 15,
@@ -41,6 +41,7 @@ var fixPassageContentBugPass = function (context) {
     b7 = context.match(crackTool.date_cn_extraction_v2),
     b4 = context.indexOf(")"),
     b5 = context.indexOf("("),
+    b8 = context.indexOf("（譯文）："),
     out = context;
   if (b2 != null && b2.length > 0) {
     out = out.replace(crackTool.fix_bug_date_sub, "日");
@@ -62,6 +63,9 @@ var fixPassageContentBugPass = function (context) {
   }
   if (b7 != null && b7.length > 0) {
     out = out.replace(crackTool.date_cn_extraction_v2, "");
+  }
+  if (b8 > -1) {
+    out = out.replaceAll("（譯文）：", "：");
   }
   return out;
 };
@@ -117,7 +121,6 @@ var sentence_marker_type2 = function (text, possible_index) {
   console.log("stop marks:", stop_marks);
   console.log("page did not cover the last thread:", page_did_not_cover_the_last_thread);
 
-
   if (possible_end == -1 && possible_end_mark > -1) {
     return possible_end_mark;
   }
@@ -148,7 +151,6 @@ var sentence_marker_type2 = function (text, possible_index) {
   } else {
     return possible_end;
   }
-
   console.log("======marker test===========");
 };
 var shorten = function (context) {

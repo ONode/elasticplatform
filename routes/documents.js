@@ -20,16 +20,9 @@ router.post('/', function (req, res, next) {
 router.get('/crawl/:year', function (req, res, next) {
   docScan.searchByYear(req, res);
 });
-
-router.get('/crawl/full/:year', function (req, res, next) {
-  if (parseInt(req.params.year) < 2016 && parseInt(req.params.year) > 2012) {
-
-  } else {
-
-  }
-});
-router.get('/test_scan/', function (req, res, next) {
-  docScanFiles.latestyear();
+router.get('/crawl/v2/:start_from/', function (req, res, next) {
+  docScanFiles.latestyear(parseInt(req.params.start_from));
+  return res.send({ackownledge: true});
 });
 router.get('/test_webcrawler/', function (req, res, next) {
   webcrawler.makescan();
@@ -42,7 +35,6 @@ router.get('/test_v1/', function (req, res, next) {
     to: 15
   }, res);
 });
-
 router.get('/test_v3/', function (req, res, next) {
   var instanceelb = new elastic.instance({
     year: 2011

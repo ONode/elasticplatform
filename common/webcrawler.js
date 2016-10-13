@@ -2,15 +2,15 @@
  * Created by hesk on 2016/10/4.
  */
 const target_domain = "http://app.legco.gov.hk/BillsDB/odata/Vbills";
-var http = require('http');
-var fs = require('fs');
-var fse = require('fs-extra');
-const path = require('path');
-const async = require('async');
+var http = require("http");
+var fs = require("fs");
+var fse = require("fs-extra");
+const path = require("path");
+const async = require("async");
 var request = require("request");
 var _ = require("lodash");
 const logTag = "> crawler";
-var cheerio = require('cheerio');
+var cheerio = require("cheerio");
 var filelist = require("./../data/files2013_2014.json");
 var make_scan = function () {
   var printout = [];
@@ -45,9 +45,9 @@ var make_scan = function () {
          });
 
          */
-        var linkPDF = $('.container > a').first();
-        var url_pdf = linkPDF.attr('href');
-        // if (_.startsWith('http://www.legco.gov.hk')) {
+        var linkPDF = $(".container > a").first();
+        var url_pdf = linkPDF.attr("href");
+        // if (_.startsWith("http://www.legco.gov.hk")) {
         // data.src = urlpdf;
         //  console.log(data, ",");
         // }
