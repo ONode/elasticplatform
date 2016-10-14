@@ -9,12 +9,13 @@
  */
 
 /* Module */
-window.Calaca = angular.module('calaca', ['ngAnimate', 'elasticsearch', 'ngMaterial', 'ngMessages', 'ngAria']);
+window.Calaca = angular.module('calaca',
+  ['ngAnimate', 'ngSanitize', 'elasticsearch', 'ngMaterial', 'ngMessages', 'ngAria']);
 
 /*
 
  window.Filter = angular.module('filter', ['ngAnimate', 'ngMaterial'], ['$locationProvider', function ($locationProvider) {
-         $locationProvider.html5Mode(true);
+ $locationProvider.html5Mode(true);
  }]);
 
 

@@ -13,7 +13,8 @@
  * On change in search box, search() will be called, and results are bind to scope as results[]
  *
  */
-Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', function (results, $scope, $location) {
+Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce', '$q',
+  function (results, $scope, $location, _sce, _q) {
     //Init empty array
     $scope.results = [];
     //Init offset
@@ -39,8 +40,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         return (list.full.indexOf(query) === 0);
       };
     }
-
-
+    $scope.trustAsHtml = _sce.trustAsHtml;
     $scope.autoc = {
       simulateQuery: false,
       isDisabled: false,
@@ -50,7 +50,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         var results = query ? $scope._selectionNames.filter(createFilterFor(query)) : $scope._selectionNames,
           deferred;
         if ($scope.autoc.simulateQuery) {
-          deferred = $q.defer();
+          deferred = _q.defer();
           $timeout(function () {
             deferred.resolve(results);
           }, Math.random() * 1000, false);
@@ -140,6 +140,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
       }
       console.log($scope.offset);
       results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset).then(function (a) {
+        console.log(a);
         //Load results
         var i = 0;
         for (; i < a.hits.length; i++) {

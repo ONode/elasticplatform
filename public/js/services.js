@@ -99,12 +99,10 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
           query: {},
           from: offset,
           highlight: {
-            pre_tags: ["<b>"],
-            post_tags: ["</b>"],
+            pre_tags: ["<span class='highlight'>"],
+            post_tags: ["</span>"],
             fields: {
-              content: {
-                type: "plain"
-              }
+              content:  {force_source : true}
             },
             order: "score"
           }
@@ -138,7 +136,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         for (; i < hitsIn.length; i++) {
           //console.log(hitsIn[i].highlight.content);
           //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
-          hitsIn[i]._source.content = toStringBlock(hitsIn[i]._source.content);
+          hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
           //hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
           //hitsIn[i]._source.content=hitsIn[i].hightlight.content;
           //console.log(hitsIn[i]);
