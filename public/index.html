@@ -19,6 +19,7 @@
     <h2 class='title'>Legco</h2>
     <div class='search-box-container'>
         <div layout="row">
+
             <md-autocomplete
                     md-search-text-change="autoc.searchTextChange(searchText)"
                     ng-disabled="false"
@@ -38,20 +39,16 @@
                 </md-not-found>
             </md-autocomplete>
 
+            <md-switch style="margin-left: 30px;margin-right: 30px; width:100px" ng-model="autoc.search_highlight" aria-label="Highlight">Highlight</md-switch>
 
-            <md-input-container style="margin-right: 10px;">
-                <!-- <label>人名</label>-->
-                <!--   <md-select ng-model="search_query.honourable" md-on-open="loadSelectionName()">
-                       <md-option ng-repeat="t in _selectionNames" ng-value="t.full">{{t.full}}</md-option>
-                   </md-select>-->
-
-            </md-input-container>
-            <md-input-container style="margin-right: 10px;">
+            <md-input-container style="margin-right: 10px; width:100px">
                 <label>年度</label>
                 <md-select ng-model="search_query.year">
                     <md-option ng-repeat="x in _index_year" value="{{x}}">{{x}}</md-option>
                 </md-select>
             </md-input-container>
+
+
             <!--  <md-input-container style="margin-right: 10px;">
                   <label>Date selection</label>
                   <md-datepicker ng-model="search_query.selecteddate" md-placeholder="Enter Date"

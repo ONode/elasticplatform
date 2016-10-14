@@ -12,13 +12,16 @@ router.get('/suggest/:input', function (req, res, next) {
    });*/
 });
 /** POST document to be indexed */
-router.post('/', function (req, res, next) {
+router.post('/crawl/v1/:year', function (req, res, next) {
   /*  elastic.addDocument(req.body).then(function (result) {
    res.json(result);
    });*/
-});
-router.get('/crawl/:year', function (req, res, next) {
+
   docScan.searchByYear(req, res);
+});
+router.get('/crawl/v3/:yearfiscal', function (req, res, next) {
+  docScanFiles.fisicalyear(req.params.yearfiscal);
+  return res.send({ackownledge: true});
 });
 router.get('/crawl/v2/:start_from/', function (req, res, next) {
   docScanFiles.latestyear(parseInt(req.params.start_from));

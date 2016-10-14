@@ -40,8 +40,10 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
         return (list.full.indexOf(query) === 0);
       };
     }
+
     $scope.trustAsHtml = _sce.trustAsHtml;
     $scope.autoc = {
+      search_highlight: false,
       simulateQuery: false,
       isDisabled: false,
       // list of `state` value/display objects
@@ -139,8 +141,8 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
         $scope.search_query.honourable = $scope.selectedItem.full;
       }
       console.log($scope.offset);
-      results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset).then(function (a) {
-        console.log(a);
+      results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset, $scope.autoc.search_highlight).then(function (a) {
+        //console.log(a);
         //Load results
         var i = 0;
         for (; i < a.hits.length; i++) {

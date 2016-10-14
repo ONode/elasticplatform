@@ -89,8 +89,10 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         simple_query_string: queryPerson(person)
       }
     };
-    var search = function (queryobject, mode, offset) {
+    var ___search = function (queryobject, mode, offset, usehightlight) {
       var deferred = $q.defer();
+      //{type : "plain"}
+      //{force_source: true}
       var basic_search_obj = {
         index: getYr(queryobject),
         type: CALACA_CONFIGS.type,
@@ -102,7 +104,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
             pre_tags: ["<span class='highlight'>"],
             post_tags: ["</span>"],
             fields: {
-              content:  {force_source : true}
+              content: {type: "plain"}
             },
             order: "score"
           }
@@ -132,11 +134,12 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       client.search(basic_search_obj).then(function (result) {
         var i = 0, hitsIn, hitsOut = [], source;
         hitsIn = (result.hits || {}).hits || [];
-        //  console.log(result);
+        console.log(result);
         for (; i < hitsIn.length; i++) {
           //console.log(hitsIn[i].highlight.content);
           //hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
-          hitsIn[i]._source.content = toStringBlock(hitsIn[i].highlight.content);
+          var beforePre = usehightlight ? hitsIn[i].highlight.content : hitsIn[i]._source.content;
+          hitsIn[i]._source.content = toStringBlock(beforePre);
           //hitsIn[i]._source.content = hitsIn[i]._source.content.trunc(1000);
           //hitsIn[i]._source.content=hitsIn[i].hightlight.content;
           //console.log(hitsIn[i]);
@@ -153,7 +156,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
     };
 
     return {
-      "ELsearch": search,
+      "ELsearch": ___search,
       "dictionary": function () {
         var deferred = $q.defer();
         $http.get('./js/persons.json').success(function (response) {

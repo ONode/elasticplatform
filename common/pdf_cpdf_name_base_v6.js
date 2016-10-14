@@ -10,6 +10,8 @@ const
   xpdfUtil = require("pdf-util"),
   cpdfUtil = require("cpdf-n"),
   crackTool = require("./crackTool").crackTool,
+  fixPreTool = require("./crackTool").fixPassageContentBugPass,
+  resolveConflict = require("./crackTool").resolveConflict,
   events = require("events"),
   dateFormat = require('dateformat'),
   mPersonnelDict_2008_2012 = require('./../data/tags_2008_2012.json'),
@@ -31,43 +33,6 @@ String.prototype.replaceAll = function (search, replacement) {
 String.prototype.replaceAllReg = function (search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
-};
-var fixPassageContentBugPass = function (context) {
-  var
-    b1 = context.match(crackTool.fix_bug_digit_char),
-    b2 = context.match(crackTool.fix_bug_date_sub),
-    b3 = context.match(crackTool.fix_bug_date_pre),
-    b6 = context.match(crackTool.date_cn_extraction),
-    b7 = context.match(crackTool.date_cn_extraction_v2),
-    b4 = context.indexOf(")"),
-    b5 = context.indexOf("("),
-    b8 = context.indexOf("（譯文）："),
-    out = context;
-  if (b2 != null && b2.length > 0) {
-    out = out.replace(crackTool.fix_bug_date_sub, "日");
-  }
-  if (b3 != null && b3.length > 0) {
-    out = out.replace(crackTool.fix_bug_date_pre, "立法會");
-  }
-  if (b1 != null && b1.length > 0) {
-    out = out.replace(crackTool.fix_bug_digit_char, "");
-  }
-  if (b4 > -1) {
-    out = out.replaceAll(")", crackTool.name_mark[4]);
-  }
-  if (b5 > -1) {
-    out = out.replaceAll("(", crackTool.name_mark[3]);
-  }
-  if (b6 != null && b6.length > 0) {
-    out = out.replace(crackTool.date_cn_extraction, "");
-  }
-  if (b7 != null && b7.length > 0) {
-    out = out.replace(crackTool.date_cn_extraction_v2, "");
-  }
-  if (b8 > -1) {
-    out = out.replaceAll("（譯文）：", "：");
-  }
-  return out;
 };
 var enphizis = function (person_name) {
   return crackTool.name_mark[0] + person_name + crackTool.name_mark[1];
@@ -279,13 +244,11 @@ var getIntervalInBetween = function (indices, position, context_data) {
   var extracted = context_data.substring(start, end);
   return getEnhancedSentence(extracted);
 };
-
 var getIntervalFromHead = function (indices, context_data) {
   const end = indices[0].index;
   var tr = context_data.substring(0, end);
   return getEnhancedSentence(tr);
 };
-
 var getIntervalAtEnd = function (indices, position, context_data) {
   var start = indices[position].index + indices[position].token.length;
   var tr = context_data.substring(start, context_data.length);
@@ -339,21 +302,6 @@ cxpdfnMining.prototype.initNewConfig = function (config) {
   this.options.title = "";
 };
 
-function test_array(arrayList) {
-  var list = arrayList[0].split("\n1");
-  console.log('> display all.. ', list);
-  var test_item_index = 15;
-  var r1 = list[test_item_index].match(crackTool.bookmark);
-  var r2 = list[test_item_index].match(crackTool.page);
-  var r3 = list[test_item_index].match(crackTool.bookmark_meeting_process);
-  console.log('> display item ', list[test_item_index]);
-  console.log('> display matches.. ', r1);
-  if (!_.isEmpty(r1[0]) && !_.isEmpty(r2[0])) {
-    console.log('> display match bookmark tag', r1[0]);
-    console.log('> display match bookmark page', r2[0]);
-    var page = r2[0], bookmark = r1[0];
-  }
-}
 
 cxpdfnMining.prototype.bookmarks_analyzer = function (raw_cpdf_bookmarks) {
   console.log('> is array', _.isArray(raw_cpdf_bookmarks));
@@ -557,7 +505,6 @@ cxpdfnMining.prototype.updateScanPageConfigSinglePage = function (pagenum) {
   this.options.external.to = pagenum;
   console.log("start scan classic doc. pages from p" + pagenum + " to p" + pagenum, "max pages:" + this.maxpages);
 };
-
 cxpdfnMining.prototype.next_wave = function () {
   if (this.pdf_type == 2) {
     // console.log('pdf type is starting at two');
@@ -611,6 +558,7 @@ cxpdfnMining.prototype.finalizeResultObject = function (r) {
   r.data_read_order = this.getExternal().data_read_order || "";
   r.data_source_url = this.getExternal().url;
   r.data_bill_title = this.getExternal().data_bill_title || "";
+  console.log("check date", r.data_bill_title);
   return r;
 };
 cxpdfnMining.prototype.gc = function () {
@@ -684,22 +632,6 @@ cxpdfnMining.prototype.proc_context_type2 = function (pageMode) {
     //--- this.next_wave();
   }
 };
-var take_out_conflicts = function (main_array, longer_token_with_col, short_token_ar, longer_token_ar) {
-  /**
-   * confusion for 商務及經濟發展局局長 and 發展局局長
-   */
-  if (longer_token_ar.length > 0 && short_token_ar.length > 0) {
-    var b1 = longer_token_ar[0];
-    var b2 = short_token_ar[0];
-    var delta = b2 - b1;
-    if (delta > 0 && delta < longer_token_with_col.length - 1) {
-      _.remove(main_array, function (n) {
-        return short_token_ar.indexOf(n.index) > -1;
-      });
-      console.log(">>>>>>  Remove item for - " + longer_token_with_col, longer_token_ar);
-    }
-  }
-};
 /**
  * this is the key part of the wild auto mapping system indicator
  * @param data
@@ -756,10 +688,10 @@ cxpdfnMining.prototype.indexMetaList = function (data) {
     //return false;
   }.bind(this));
 
-  take_out_conflicts(main, "商務及經濟發展局局長：", caseslot2, caseslot1);
-  take_out_conflicts(main, "代理全委會主席：", caseslot4, caseslot5);
-  take_out_conflicts(main, "代理主席：", caseslot6, caseslot7);
-  take_out_conflicts(main, "全委會主席：", caseslot6, caseslot4);
+  resolveConflict(main, "商務及經濟發展局局長：", caseslot2, caseslot1);
+  resolveConflict(main, "代理全委會主席：", caseslot4, caseslot5);
+  resolveConflict(main, "代理主席：", caseslot6, caseslot7);
+  resolveConflict(main, "全委會主席：", caseslot6, caseslot4);
 
   var Lis = _.sortBy(main, [function (o) {
     return o.index;
@@ -937,7 +869,7 @@ cxpdfnMining.prototype.process_pages_type3 = function () {
       this.next_wave();
       return;
     }
-    const text = fixPassageContentBugPass(data);
+    const text = fixPreTool(data);
     // console.log("=== xpdfUtil.pdfToText ===");
     // console.log(text);
     // console.log("=== xpdfUtil.pdfToText ===");

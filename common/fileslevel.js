@@ -14,6 +14,17 @@ var crackTool = require("./crackTool").crackTool;
 var _V6_ = require("./pdf_cpdf_name_base_v6");
 var list_pdf = require("./../data/total_data_final.json");
 var scan_item = 0;
+var at_year_level = function (yearName) {
+  for (var i = 0; i < list_pdf.length; i++) {
+    if (list_pdf[i].year == yearName) {
+      console.log("> found the match =======================", yearName);
+      make_scan(list_pdf[i]);
+      break;
+    } else {
+      console.log("> not match =======================", yearName);
+    }
+  }
+};
 var year_level = function (start_int) {
   scan_item = start_int;
   if (scan_item > list_pdf.length - 1) {
@@ -139,3 +150,4 @@ function exeArrayFunc(array_fun) {
   });
 }
 module.exports.latestyear = year_level;
+module.exports.fisicalyear = at_year_level;
