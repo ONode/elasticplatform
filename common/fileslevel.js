@@ -14,18 +14,31 @@ var crackTool = require("./crackTool").crackTool;
 var _V6_ = require("./pdf_cpdf_name_base_v6");
 var list_pdf = require("./../data/total_data_final.json");
 var scan_item = 0;
-var at_year_level = function (yearName) {
+
+var onlyTestForOneYearDev = function (yearName) {
   for (var i = 0; i < list_pdf.length; i++) {
     if (list_pdf[i].year == yearName) {
       console.log("> found the match =======================", yearName);
-      make_scan(list_pdf[i]);
+      mock_scan(list_pdf[i], null);
       break;
     } else {
       console.log("> not match =======================", yearName);
     }
   }
 };
-var year_level = function (start_int) {
+
+var onlyOneFiscalYear = function (yearName) {
+  for (var i = 0; i < list_pdf.length; i++) {
+    if (list_pdf[i].year == yearName) {
+      console.log("> found the match =======================", yearName);
+      make_scan(list_pdf[i], null);
+      break;
+    } else {
+      console.log("> not match =======================", yearName);
+    }
+  }
+};
+var contYearsScan = function (start_int) {
   scan_item = start_int;
   if (scan_item > list_pdf.length - 1) {
     console.log("> =======================");
@@ -36,12 +49,38 @@ var year_level = function (start_int) {
   console.log("> =======================");
   console.log("make scan 101");
   console.log("> =======================");
-  make_scan(list_pdf[scan_item]);
+  make_scan(list_pdf[scan_item], function () {
+    scan_item++;
+    if (scan_item < list_pdf.length) {
+      var item2scan = list_pdf[scan_item];
+      make_scan(item2scan);
+    }
+  });
   console.log("> =======================");
   console.log("make scan 102");
   console.log("> =======================");
 };
-var make_scan = function (year_item) {
+var mock_scan = function (year_item, next_step) {
+  var n = 0, array = [],
+    list = year_item.index,
+    _year_ = year_item.year,
+    dest = path.dirname(module.main) + "/tmp/";
+
+  _.forEach(list, function (data) {
+    const _scope_ = {
+      url: data.src,
+      out: dest + "g0vhk_d" + n + ".pdf",
+      data_bill_title: getDate(data.time),
+      process_file_order: n
+    };
+    n++;
+    array.push(_scope_);
+  });
+  console.log("> === prepared to process files stored with number of [" + n + "]");
+  exeArrayFunc(array, _year_, next_step);
+};
+
+var make_scan = function (year_item, next_step) {
   const list = year_item.index;
   const _year_ = year_item.year;
   const dest = path.dirname(module.main) + "/tmp/";
@@ -75,7 +114,7 @@ var make_scan = function (year_item) {
       });
     }
   ], function (err, results) {
-    var n = 0, array = [], filesindex = [];
+    var n = 0, array = [];
     _.forEach(list, function (data) {
       const _scope_ = {
         url: data.src,
@@ -88,7 +127,7 @@ var make_scan = function (year_item) {
       array.push(_scope_);
     });
     console.log("> === prepared to process files stored with number of [" + n + "]");
-    exeArrayFunc(array);
+    exeArrayFunc(array, _year_, next_step);
   });
 };
 function getDate(line) {
@@ -96,7 +135,7 @@ function getDate(line) {
   console.log(b1);
   return b1[0] || "";
 }
-function exeArrayFunc(array_fun) {
+function exeArrayFunc(array_fun, which_year, next_callback) {
   async.eachSeries(array_fun, function (activity, callback) {
     // console.log(activity.data_bill_title, activity.url);
     console.log("> ======================= <");
@@ -121,14 +160,15 @@ function exeArrayFunc(array_fun) {
           return callback(null, "done");
         });
         _V6_.on("scanpage", function (doc) {
-          activity.el.addDoc(doc).then(function (body) {
-            doc = null;
-          }, function (err) {
-            console.log("> xpdf error", err);
-          });
+          if (_.isObject(activity.el)) {
+            activity.el.addDoc(doc).then(function (body) {
+              doc = null;
+            }, function (err) {
+              console.log("> xpdf error", err);
+            });
+          }
         });
         _V6_.start();
-        //_V6_.startDemo();
       });
 
       stream_data.on("error", function (err) {
@@ -139,15 +179,15 @@ function exeArrayFunc(array_fun) {
 
     });
   }, function done() {
-    console.log("==============================================================");
-    console.log("=== scan completed: " + array_fun.length + " for files ========");
-    console.log("==============================================================");
-    scan_item++;
-    if (scan_item < list_pdf.length) {
-      var item2scan = list_pdf[scan_item];
-      make_scan(item2scan);
+    console.log("=================================================================================");
+    console.log("=== scan completed: " + array_fun.length + " files on " + which_year + " ========");
+    console.log("=================================================================================");
+    if (_.isFunction(next_callback)) {
+      next_callback();
     }
   });
 }
-module.exports.latestyear = year_level;
-module.exports.fisicalyear = at_year_level;
+
+module.exports.DevScanMock = onlyTestForOneYearDev;
+module.exports.ProductionScanYearSpan = contYearsScan;
+module.exports.ProductionScanOneYear = onlyOneFiscalYear;

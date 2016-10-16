@@ -4,8 +4,8 @@
     <meta charset='utf-8'>
     <title>Legco | Search</title>
     <link rel='stylesheet' type='text/css' href='css/reset.css'/>
-    <link rel='stylesheet' type='text/css' href='css/calaca.css'/>
     <link rel='stylesheet' type='text/css' href='bower_components/angular-material/angular-material.min.css'/>
+    <link rel='stylesheet' type='text/css' href='css/calaca.min.js.css'/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='bower_components/angular/angular.min.js' type='text/javascript'></script>
     <!--[if IE]>
@@ -16,8 +16,22 @@
 
 <!-- Title and search box -->
 <header class='jumbotron_v2'>
-    <h2 class='title'>Legco</h2>
+    <h2 class='title'>LegcoSys</h2>
     <div class='search-box-container'>
+        <div layout="row">
+            <md-input-container style="margin-right: 10px; width:100px">
+                <label>年度</label>
+                <md-select ng-model="search_query.year">
+                    <md-option ng-repeat="x in _index_year" value="{{x}}">{{x}}</md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-switch style="margin-left: 30px;margin-right: 30px; width:100px" ng-model="autoc.search_highlight"
+                       aria-label="Highlight">Highlight
+            </md-switch>
+
+
+        </div>
         <div layout="row">
 
             <md-autocomplete
@@ -38,15 +52,6 @@
                     No states matching "{{searchText}}" were found.
                 </md-not-found>
             </md-autocomplete>
-
-            <md-switch style="margin-left: 30px;margin-right: 30px; width:100px" ng-model="autoc.search_highlight" aria-label="Highlight">Highlight</md-switch>
-
-            <md-input-container style="margin-right: 10px; width:100px">
-                <label>年度</label>
-                <md-select ng-model="search_query.year">
-                    <md-option ng-repeat="x in _index_year" value="{{x}}">{{x}}</md-option>
-                </md-select>
-            </md-input-container>
 
 
             <!--  <md-input-container style="margin-right: 10px;">

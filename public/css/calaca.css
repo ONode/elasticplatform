@@ -14,7 +14,8 @@ Crimson: #d62256
 Whitesmoke: #ecf0f1 */
 
 body {
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
     font-family: "Arial";
     background-color: #ecf0f1;
     height: 100% !important;
@@ -41,15 +42,13 @@ html {
     font-size: 40px;
     color: white;
     text-align: center;
-    padding-top: 70px;
+    padding-top: 50px;
 }
 
 .search-box-container {
     width: 90%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 60px;
-    border-radius: 5px;
 }
 
 .search-box {
@@ -215,6 +214,10 @@ html {
     border-radius: 4px;
     background-color: rgba(0, 0, 0, .5);
     box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+md-autocomplete {
+    margin-bottom: 10px;
 }
 
 span.highlight {

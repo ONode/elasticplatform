@@ -12,6 +12,11 @@ const
   crackTool = require("./crackTool").crackTool,
   fixPreTool = require("./crackTool").fixPassageContentBugPass,
   resolveConflict = require("./crackTool").resolveConflict,
+  enphizis = require("./crackTool").enphizis,
+  nameTag = require("./crackTool").nameTag,
+  shorten = require("./crackTool").shorten,
+  marker_x = require("./crackTool").marker_x,
+  check_errors = require("./crackTool").checkNotMins,
   events = require("events"),
   dateFormat = require('dateformat'),
   mPersonnelDict_2008_2012 = require('./../data/tags_2008_2012.json'),
@@ -33,26 +38,6 @@ String.prototype.replaceAll = function (search, replacement) {
 String.prototype.replaceAllReg = function (search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
-};
-var enphizis = function (person_name) {
-  return crackTool.name_mark[0] + person_name + crackTool.name_mark[1];
-};
-function nameTag(object_tag) {
-  const chinese_name = object_tag.token.match(crackTool.tag_extract_name_person);
-  const name_tag = chinese_name[0] == null ? "**NOT FOUND**" : chinese_name[0];
-  return name_tag;
-};
-var marker_x = function (text) {
-  var last_mark_index_k2 = -1;
-  _.forEach(crackTool.punctual_marks, function (mark) {
-    var v2 = text.lastIndexOf(mark);
-    if (v2 > -1) {
-      if (v2 > last_mark_index_k2) {
-        last_mark_index_k2 = v2;
-      }
-    }
-  });
-  return last_mark_index_k2;
 };
 var mark_multi = function (text) {
   var marks = [];
@@ -118,20 +103,13 @@ var sentence_marker_type2 = function (text, possible_index) {
   }
   console.log("======marker test===========");
 };
-var shorten = function (context) {
-  var char_len = 6;
-  if (context.length > 30) {
-    return context.substring(0, char_len) + crackTool.punctual_marks[4] + context.substring(context.length - char_len, context.length);
-  } else {
-    return context;
-  }
-};
 Array.prototype.unique = function () {
   var o = {}, i, l = this.length, r = [];
   for (i = 0; i < l; i += 1) o[this[i]] = this[i];
   for (i in o) r.push(o[i]);
   return r;
 };
+
 var loadDictionary = function () {
   var arrayDict = [];
   _.forEach(mInputPersonDictionary, function (object) {
@@ -251,8 +229,7 @@ var getIntervalFromHead = function (indices, context_data) {
 };
 var getIntervalAtEnd = function (indices, position, context_data) {
   var start = indices[position].index + indices[position].token.length;
-  var tr = context_data.substring(start, context_data.length);
-  return getEnhancedSentence(tr);
+  return context_data.substring(start, context_data.length);
 };
 //must follow this order now
 var cxpdfnMining = function () {
@@ -293,7 +270,7 @@ cxpdfnMining.prototype.initNewConfig = function (config) {
   this.maxpages = 0;
   this.scanBufferTempData = {};
   this.document_date = "";
-  this.scan_error_check = [];
+  this.scan_extras = [];
 
   //old style trail configuration
   this.flatten_dictionary = loadDictionary();
@@ -519,8 +496,8 @@ cxpdfnMining.prototype.next_wave = function () {
       this.process_pages_type2(resultN);
     }
   } else if (this.pdf_type == 0) {
-    console.log('next wave process now', this.options.to + "/" + this.maxpages);
-    if (this.maxpages > (parseInt(this.options.to) + 1)) {
+    console.log('next wave process now T:0', this.options.to + "/" + this.maxpages);
+    if (this.maxpages >= (parseInt(this.options.to) + 1)) {
       this.updateScanPageConfigSinglePage(parseInt(this.options.to) + 1);
       this.process_pages_type1();
     } else {
@@ -529,8 +506,8 @@ cxpdfnMining.prototype.next_wave = function () {
       }.bind(this));
     }
   } else if (this.pdf_type == 3) {
-    console.log('next wave process now', this.options.to + "/" + this.maxpages);
-    if (this.maxpages > (parseInt(this.options.to) + 1)) {
+    console.log('next wave process now T:3', this.options.to + "/" + this.maxpages);
+    if (this.maxpages >= (parseInt(this.options.to) + 1)) {
       this.updateScanPageConfigSinglePage(parseInt(this.options.to) + 1);
       this.process_pages_type3();
     } else {
@@ -715,9 +692,12 @@ cxpdfnMining.prototype.resolve_last_buffer = function (callback) {
     console.log("> save previous buffer last...", enphizis(this.scanBufferTempData.last_tag_name), shorten(result.content));
     this.emit('scanpage', this.finalizeResultObject(result));
     this.scanBufferTempData = {};
-    console.log("complete all buffer fragments - last page");
-    return callback();
+    console.log("complete all buffer fragments - last page.");
+  } else {
+    console.log("complete with the empty buffer.");
   }
+
+  return callback();
 };
 cxpdfnMining.prototype.resolve_buffer_context = function (indices, context_data) {
   if (!_.isEmpty(this.scanBufferTempData)) {
@@ -734,7 +714,7 @@ cxpdfnMining.prototype.resolve_buffer_context = function (indices, context_data)
           thread_date: this.document_date,
           data_speaker: this.scanBufferTempData.last_tag_name
         };
-        console.log("> save previous buffer...", enphizis(this.scanBufferTempData.last_tag_name), shorten(result.content));
+        console.log(">> cut and save previous buffer...", enphizis(this.scanBufferTempData.last_tag_name), shorten(result.content));
         //close buffer
         this.emit('scanpage', this.finalizeResultObject(result));
         //remove buffer data
@@ -751,26 +731,34 @@ cxpdfnMining.prototype.resolve_buffer_context = function (indices, context_data)
       var passage = getIntervalAtEnd(indices, indices.length - 1, context_data);
       //this should be the last statement and no buffer over..
       if (marker_x(context_data) == context_data.length - 1 && LastNameTag == "主席") {
-        console.log("end mark...", marker_x(context_data), context_data.length);
-        console.log("detected last passage is the end save this ...", enphizis(LastNameTag), shorten(passage));
+        //  console.log("end mark...", marker_x(context_data), context_data.length);
+        console.log(">> detected last passage is the end save this for 主席 only and the save thread between will take action now...");
         this.save_buffer_between(passage, LastNameTag);
+        this.scanBufferTempData = {};
       }
 
+      if (marker_x(context_data) < context_data.length - 2) {
+        console.log("> empty buffer object start writing content ...", enphizis(LastNameTag), shorten(passage));
+        this.start_buffer(LastNameTag, passage);
+      }
 
-      if (marker_x(context_data) < context_data.length) {
-        console.log("empty buffer object start writing content ...", enphizis(LastNameTag), shorten(passage));
-        this.scanBufferTempData = {
-          last_tag_name: LastNameTag,
-          last_incomplete_sentence: passage,
-          from_page: this.options.from
-        };
+      if (marker_x(context_data) == context_data.length - 1) {
+        console.log("> start this whole page as buffer ...", enphizis(LastNameTag), shorten(passage));
+        this.start_buffer(LastNameTag, passage);
       }
       //end save previous item
     }
   } else {
-    console.log("not empty buffer object, add more content to the buffer ....");
+    console.log("---> add this full context to buffer for this person:", this.scanBufferTempData.last_tag_name);
     this.scanBufferTempData.last_incomplete_sentence += context_data;
   }
+};
+cxpdfnMining.prototype.start_buffer = function (_nameTag0, _passage0) {
+  this.scanBufferTempData = {
+    last_tag_name: _nameTag0,
+    last_incomplete_sentence: _passage0,
+    from_page: this.options.from
+  };
 };
 cxpdfnMining.prototype.save_buffer_between = function (captured, name_tag) {
   const result = {
@@ -783,7 +771,7 @@ cxpdfnMining.prototype.save_buffer_between = function (captured, name_tag) {
     thread_date: this.document_date,
     data_speaker: name_tag
   };
-  console.log("> save thread between... ", enphizis(name_tag), captured);
+  console.log("> save thread between... ", enphizis(name_tag), shorten(captured), " | page:" + this.options.to);
   this.emit('scanpage', this.finalizeResultObject(result));
 };
 cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture_context) {
@@ -815,20 +803,16 @@ cxpdfnMining.prototype.betweenHeadFooterThreads = function (indices, pre_capture
  * @param pre_capture_context
  */
 cxpdfnMining.prototype.proc_context_type1 = function (pre_capture_context) {
-  var objLis = this.indexMetaList(pre_capture_context);
-  this.resolve_buffer_context(objLis, pre_capture_context);
-  this.betweenHeadFooterThreads(objLis, pre_capture_context);
+  if (this.scan_extras.length == 0) {
+    var objLis = this.indexMetaList(pre_capture_context);
+    this.resolve_buffer_context(objLis, pre_capture_context);
+    this.betweenHeadFooterThreads(objLis, pre_capture_context);
+  } else {
+    console.log('>> this page is Appendix page, we will skip this one @', this.options.to + "/" + this.maxpages);
+  }
   this.next_wave();
 };
 
-cxpdfnMining.prototype.checkDuplicateError = function (data) {
-  if (this.scan_error_check.indexOf(data) == -1) {
-    this.scan_error_check.push(data);
-    return false;
-  } else {
-    return true;
-  }
-};
 cxpdfnMining.prototype.errorNoPDFformat = function () {
   this.emit("complete", "next document.. no pdf format type can be found from this PDF");
 };
@@ -869,10 +853,8 @@ cxpdfnMining.prototype.process_pages_type3 = function () {
       this.next_wave();
       return;
     }
+    this.scan_extras = check_errors(data);
     const text = fixPreTool(data);
-    // console.log("=== xpdfUtil.pdfToText ===");
-    // console.log(text);
-    // console.log("=== xpdfUtil.pdfToText ===");
     this.proc_context_type1(text);
   }.bind(this));
 };

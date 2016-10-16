@@ -19,12 +19,17 @@ router.post('/crawl/v1/:year', function (req, res, next) {
 
   docScan.searchByYear(req, res);
 });
+
+router.get('/crawl/v4/test_year_2016', function (req, res, next) {
+  docScanFiles.DevScanMock("2015-2016");
+  return res.send({ackownledge: true});
+});
 router.get('/crawl/v3/:yearfiscal', function (req, res, next) {
-  docScanFiles.fisicalyear(req.params.yearfiscal);
+  docScanFiles.ProductionScanOneYear(req.params.yearfiscal);
   return res.send({ackownledge: true});
 });
 router.get('/crawl/v2/:start_from/', function (req, res, next) {
-  docScanFiles.latestyear(parseInt(req.params.start_from));
+  docScanFiles.ProductionScanYearSpan(parseInt(req.params.start_from));
   return res.send({ackownledge: true});
 });
 router.get('/test_webcrawler/', function (req, res, next) {
