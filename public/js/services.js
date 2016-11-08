@@ -54,7 +54,10 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
     var index_prefix = CALACA_CONFIGS.index_name;
     var check_index_indic = function (input) {
       var n = (input.year == null || input.year == "") ? "*" : input.year;
-      var index_n = n.indexOf(c_liyr1) > -1;
+      var index_n = c_liyr1.indexOf(n) > -1;
+      // console.log(c_liyr1);
+      //  console.log(input);
+      // console.log(index_n);
       return {
         index: index_prefix + n,
         nonnamefield: index_n
@@ -147,6 +150,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       }
 
       if (result_index_indicator.nonnamefield) {
+       // console.log("non name field");
         if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
           basic_search_obj.body.query = detailQueryNonSpeaker(line, queryobject.honourable);
         }
@@ -154,6 +158,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
           basic_search_obj.body.query.simple_query_string = detailQueryNonSpeaker("", queryobject.honourable);
         }
       } else {
+        //console.log("name field");
         if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
           basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
         }
