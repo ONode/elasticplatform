@@ -99,6 +99,19 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         }
       }
     };
+    var detailQueryNonSpeaker = function (line, person) {
+      return {
+        constant_score: {
+          filter: {
+            bool: {
+              must: [
+                {simple_query_string: queryDetail(line + " " + person)}
+              ]
+            }
+          }
+        }
+      }
+    };
     var queryDetailPerson = function (person) {
       return {
         simple_query_string: queryPerson(person)
@@ -132,15 +145,28 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       } else {
         line = queryobject.query;
       }
-      if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0 && result_index_indicator.nonnamefield) {
-        basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
+
+      if (result_index_indicator.nonnamefield) {
+        if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
+          basic_search_obj.body.query = detailQueryNonSpeaker(line, queryobject.honourable);
+        }
+        if (line.length == 0 && queryobject.honourable != null) {
+          basic_search_obj.body.query.simple_query_string = detailQueryNonSpeaker("", queryobject.honourable);
+        }
+      } else {
+        if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
+          basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
+        }
+
+        if (line.length == 0 && queryobject.honourable != null) {
+          basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
+        }
       }
+
       if (line.length > 0 && queryobject.honourable == null) {
         basic_search_obj.body.query.simple_query_string = queryDetail(line);
       }
-      if (line.length == 0 && queryobject.honourable != null && !result_index_indicator.nonnamefield) {
-        basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
-      }
+
       if (line.length == 0 && basic_search_obj.body.query.term == {}) {
         deferred.resolve({timeTook: 0, hitsCount: 0, hits: []});
         return deferred.promise;
