@@ -25,6 +25,7 @@ function truncateOnWord(str, limit) {
     return count <= limit;
   }).join('');
 }
+
 function toStringBlock(list) {
   var str = "";
   for (var i = 0; i < list.length; i++) {
@@ -32,16 +33,32 @@ function toStringBlock(list) {
   }
   return str;
 }
+var c_liyr1 = [
+  "yr15-16",
+  "yr14-15",
+  "yr13-14",
+  "yr12-13"
+];
+
+var c_liyr2 = [
+  "2015-2016",
+  "2014-2015",
+  "2013-2014",
+  "2012-2013"
+];
 /* Service to Elasticsearch */
 Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', function ($q, elasticsearch, $location, $http) {
     //Set default url if not configured
     CALACA_CONFIGS.url = (CALACA_CONFIGS.url.length > 0) ? CALACA_CONFIGS.url : $location.protocol() + '://' + $location.host() + ":9200";
     var client = elasticsearch({host: CALACA_CONFIGS.url});
     var index_prefix = CALACA_CONFIGS.index_name;
-    var getYr = function (input) {
+    var check_index_indic = function (input) {
       var n = (input.year == null || input.year == "") ? "*" : input.year;
-      //  console.log(index_prefix + n);
-      return index_prefix + n;
+      var index_n = n.indexOf(c_liyr1) > -1;
+      return {
+        index: index_prefix + n,
+        nonnamefield: index_n
+      };
     };
     var queryDetail = function (text) {
       // analyzer: "smartcn",
@@ -53,10 +70,8 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
        pre_tags: ["<b>"],
        post_tags: ["</b>"],
        fields: {
-       content: {}
-       }
-       }
-       };*/
+       content: {} }} };
+       */
       return {
         query: text,
         fields: ["content"],
@@ -93,8 +108,9 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       var deferred = $q.defer();
       //{type : "plain"}
       //{force_source: true}
+      var result_index_indicator = check_index_indic(queryobject);
       var basic_search_obj = {
-        index: getYr(queryobject),
+        index: result_index_indicator.index,
         type: CALACA_CONFIGS.type,
         body: {
           size: CALACA_CONFIGS.size,
@@ -116,13 +132,13 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       } else {
         line = queryobject.query;
       }
-      if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
+      if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0 && result_index_indicator.nonnamefield) {
         basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
       }
       if (line.length > 0 && queryobject.honourable == null) {
         basic_search_obj.body.query.simple_query_string = queryDetail(line);
       }
-      if (line.length == 0 && queryobject.honourable != null) {
+      if (line.length == 0 && queryobject.honourable != null && !result_index_indicator.nonnamefield) {
         basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
       }
       if (line.length == 0 && basic_search_obj.body.query.term == {}) {

@@ -5,6 +5,9 @@ const docScan = require('../common/documentlevel');
 const docScanFiles = require('../common/fileslevel');
 const webcrawler = require('../common/webcrawler');
 const testcase = require('../common/testxpdf');
+const result_bool = {
+  "acknowledge": true
+};
 /** GET suggestions */
 router.get('/suggest/:input', function (req, res, next) {
   /*elastic.getSuggestions(req.params.input).then(function (result) {
@@ -13,24 +16,20 @@ router.get('/suggest/:input', function (req, res, next) {
 });
 /** POST document to be indexed */
 router.post('/crawl/v1/:year', function (req, res, next) {
-  /*  elastic.addDocument(req.body).then(function (result) {
-   res.json(result);
-   });*/
-
   docScan.searchByYear(req, res);
 });
 
 router.get('/crawl/v4/test_year_2016', function (req, res, next) {
   docScanFiles.DevScanMock("2015-2016");
-  return res.send({ackownledge: true});
+  return res.send(result_bool);
 });
 router.get('/crawl/v3/:yearfiscal', function (req, res, next) {
   docScanFiles.ProductionScanOneYear(req.params.yearfiscal);
-  return res.send({ackownledge: true});
+  return res.send(result_bool);
 });
 router.get('/crawl/v2/:start_from/', function (req, res, next) {
   docScanFiles.ProductionScanYearSpan(parseInt(req.params.start_from));
-  return res.send({ackownledge: true});
+  return res.send(result_bool);
 });
 router.get('/test_webcrawler/', function (req, res, next) {
   webcrawler.makescan();
@@ -118,7 +117,6 @@ router.get('/localmock/', function (req, res, next) {
     year: 2012
   });
   if (elastic.isReady()) {
-
     async.series([
       function (callback) {
         var exists = elastic.indexExists();
@@ -154,43 +152,9 @@ router.get('/localmock/', function (req, res, next) {
     console.log("not ready");
   }
 });
+router.get('/test_v4/', function (req, res, next) {
+  const dest = path.dirname(module.main) + "/data/legcopdflist";
+  docScanFiles.ListFiles(dest);
+  res.json(result_bool);
+});
 module.exports = router;
-
-/**
- 開放資料網頁應用程式介面可在以下網址執行：
- http://app.legco.gov.hk/BillsDB/odata/Vbills （JSON 格式）
- http://app.legco.gov.hk/BillsDB/odata/Vbills?$format=xml （XML 格式）
- 如要取得數據集的資料架構，請執行以下命令：
- http://app.legco.gov.hk/BillsDB/odata/$metadata
- 可使用以下查詢選項：
- $format - 指明以 JSON 或 XML 格式傳回資料，例如 $format=json
- $top=N - 只選擇數據集首 N 項資料，N 為一個正整數,，例如 $top=10
- $skip=N - 只選擇餘下的資料（即由第 N+1 項開始），N 為一個正整數，例如 $skip=10
- $orderby - 以哪項資料排序，例如 $orderby=bill_title_eng
- $select - 選擇要傳回哪幾項資料，例如 $select=bill_title_eng,bill_title_chi,bill_gazette_date
- $filter - 按照所提供的條件搜尋特定資料，例如 $filter=year(bill_gazette_date) eq 2013
- $inlinecount - 指明“$inlinecount=allpages”，使傳回的資料包括紀錄總數
- 如欲了解更多選項所用的運算符和函數，請參閱 開放資料通訊協定的文件。
-
- 例子
- 以下例子說明根據開放資料通訊協定檢索資料的一些方法。
-
- 選擇第 501 至第 520 項紀錄（預設為 JSON 格式）：
- http://app.legco.gov.hk/BillsDB/odata/Vbills?$skip=500&$top=20
- 選擇最前的 20 項紀錄中的英文法案標題及中文法案標題，按英文法案標題排序，並以 XML 格式回傳：
- http://app.legco.gov.hk/BillsDB/odata/Vbills?$top=20&$format=xml&$select=bill_title_eng,bill_title_chi&$orderby=bill_title_eng
- 選擇所有中文法案標題包含“選舉”的紀錄，及符合此條件的紀錄總數，並以 XML 格式回傳：
- http://app.legco.gov.hk/BillsDB/odata/Vbills?$format=xml&$inlinecount=allpages&$filter=substringof('選舉',bill_title_chi) eq true
- 選擇所有法案刊登憲報日期在 2013 年的紀錄，及符合此條件的紀錄總數，並以 JSON 格式回傳：
- http://app.legco.gov.hk/BillsDB/odata/Vbills?$format=json&$inlinecount=allpages&$filter=year(bill_gazette_date) eq 2013
-
- **/
-
-
-/**
-
- var Chinese = require('chinese-s2t')
- Chinese.s2t('简体转繁体');
- Chinese.t2s('繁体转简体');
-
- */

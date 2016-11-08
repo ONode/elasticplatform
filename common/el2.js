@@ -60,9 +60,9 @@ var mapping_bonsai_v2 = {
 function elClient(config) {
   events.call(this);
   this.options = config;
-  //  this.options.connection_url = process.env.AWS_EC2_MASTER_NODE;
+  //this.options.connection_url = process.env.AWS_EC2_MASTER_NODE;
   this.options.connection_url = 'http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9200';
-//= 'localhost:9200'; || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io' || ;
+  //= 'localhost:9200'; || 'https://woygrxy:kxs3a7a752xn27y0@cypress-6596621.us-east-1.bonsai.io' || ;
   if (this.isReady()) {
     const elasticClient = new elasticsearch.Client({
       host: this.options.connection_url,
@@ -88,7 +88,9 @@ function elClient(config) {
 }
 util.inherits(elClient, events);
 elClient.prototype.getIndexName = function () {
-  return indexName + this.options.year;
+  var name = indexName + this.options.year;
+  console.log("el", "index name:", name);
+  return name;
 };
 elClient.prototype.isReady = function () {
   return this.options.connection_url != '';
@@ -119,7 +121,6 @@ elClient.prototype.initMapping = function () {
 };
 
 elClient.prototype.addDoc = function (document) {
-  //  var timeInMs = new Date();
   var timeInMs = Date.now();
   //timeInMs.toUTCString()
   //id: timeInMs,

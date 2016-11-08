@@ -15,6 +15,8 @@
  */
 Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce', '$q',
   function (results, $scope, $location, _sce, _q) {
+
+
     //Init empty array
     $scope.results = [];
     //Init offset
@@ -104,13 +106,16 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
     };
 
     $scope._index_year = [""];
-    for (var nowyr = 2016; nowyr >= 2008; nowyr--) {
-      $scope._index_year.push(nowyr + "");
-      var prev = nowyr - 1;
-      if (nowyr > 2012) {
-        $scope._index_year.push(prev + "-" + nowyr);
-      }
+    $scope._index_year = $scope._index_year.concat(c_liyr1);
+    $scope._index_year = $scope._index_year.concat(c_liyr2);
+    for (var now_yr = 2016; now_yr >= 2008; now_yr--) {
+      $scope._index_year.push(now_yr + "");
+      /* var prev = now_yr - 1;
+      if (now_yr > 2012) {
+        $scope._index_year.push(prev + "-" + now_yr);
+      }*/
     }
+
     $scope._selectionNames = [];
     $scope.selectedItem = "";
     $scope.searchText = "";
