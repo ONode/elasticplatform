@@ -69,28 +69,9 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       }
     };
     var queryMatchExact = function (text) {
-      /*  return {
-       query: {
-       match: {
-       content: text
-       }
-       },
-       fields: ["content"],
-       default_operator: "and",
-       highlight: {
-       pre_tags: ["<b>"],
-       post_tags: ["</b>"],
-       fields: {
-       content: {}
-       }
-       }
-       };*/
-
       return {
-        query: {
-          match_phrase: {
-            content: text
-          }
+        match_phrase: {
+          content: text
         }
       };
 
@@ -123,31 +104,19 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         }
       }
     };
-    var detailQueryNonSpeaker = function (line, person, exact) {
+    var detailQueryNonSpeaker = function (qline, exact) {
       if (exact) {
-
         return {
-          constant_score: {
-            filter: {
-              bool: {
-                must: [
-                  {
-                    simple_query_string: queryMatchExact(line + " " + person)
-                  }
-                ]
-              }
-            }
+          match_phrase: {
+            content: qline
           }
-        }
+        };
       } else {
         return {
-          constant_score: {
-            filter: {
-              bool: {
-                must: [
-                  {simple_query_string: queryDetail(line + " " + person)}
-                ]
-              }
+          match_phrase: {
+            content: {
+              query: qline,
+              slop: 2
             }
           }
         }
@@ -155,6 +124,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
     };
 
     var ___search = function (queryobject, mode, offset, usehightlight, exact_search) {
+      // console.log("is exact?", exact_search);
       var deferred = $q.defer();
       //{type : "plain"}
       //{force_source: true}
@@ -184,26 +154,27 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       }
 
       if (result_index_indicator.nonnamefield) {
-        // console.log("non name field");
-        if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
-          basic_search_obj.body.query = detailQueryNonSpeaker(line, queryobject.honourable, exact_search);
+        var q = queryobject.honourable == null ? line : line + " " + queryobject.honourable;
+
+        if (line.length > 0) {
+          basic_search_obj.body.query = detailQueryNonSpeaker(q, exact_search);
         }
-        if (line.length == 0 && queryobject.honourable != null) {
-          basic_search_obj.body.query.simple_query_string = detailQueryNonSpeaker("", queryobject.honourable, exact_search);
-        }
+
       } else {
-        //console.log("name field");
+
         if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
+          console.log("name field");
           basic_search_obj.body.query = detailQuery(line, queryobject.honourable);
         }
 
         if (line.length == 0 && queryobject.honourable != null) {
           basic_search_obj.body.query.simple_query_string = queryDetailPerson(queryobject.honourable);
         }
-      }
 
-      if (line.length > 0 && queryobject.honourable == null) {
-        basic_search_obj.body.query.simple_query_string = queryDetail(line);
+        if (line.length > 0 && queryobject.honourable == null) {
+          basic_search_obj.body.query.simple_query_string = queryDetail(line);
+        }
+
       }
 
       if (line.length == 0 && basic_search_obj.body.query.term == {}) {
