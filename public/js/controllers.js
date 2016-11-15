@@ -43,6 +43,7 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
 
     $scope.trustAsHtml = _sce.trustAsHtml;
     $scope.autoc = {
+      search_by_exact: false,
       search_highlight: false,
       simulateQuery: false,
       isDisabled: false,
@@ -109,9 +110,9 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
     for (var now_yr = 2016; now_yr >= 2008; now_yr--) {
       $scope._index_year.push(now_yr + "");
       /* var prev = now_yr - 1;
-      if (now_yr > 2012) {
-        $scope._index_year.push(prev + "-" + now_yr);
-      }*/
+       if (now_yr > 2012) {
+       $scope._index_year.push(prev + "-" + now_yr);
+       }*/
     }
 
     $scope._selectionNames = [];
@@ -144,7 +145,13 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', '$sce',
         $scope.search_query.honourable = $scope.selectedItem.full;
       }
       console.log($scope.offset);
-      results.ELsearch($scope.search_query, big_search_query_objec, $scope.offset, $scope.autoc.search_highlight).then(function (a) {
+      results.ELsearch(
+        $scope.search_query,
+        big_search_query_objec,
+        $scope.offset,
+        $scope.autoc.search_highlight,
+        $scope.autoc.search_by_exact
+      ).then(function (a) {
         //console.log(a);
         //Load results
         var i = 0;

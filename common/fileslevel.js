@@ -13,6 +13,7 @@ var es2 = require("./el2");
 var crackTool = require("./crackTool").crackTool;
 var _V6_ = require("./pdf_cpdf_name_base_v6");
 var _V7_ = require("./pdf_cpp_v7");
+var _V8_ = require("./pdf_cpp_v8");
 var list_pdf = require("./../data/total_data_final.json");
 var scan_item = 0;
 var onlyTestForOneYearDev = function (yearName) {
@@ -220,15 +221,15 @@ function exeArrayFuncV7(array_fun, which_year, next_callback) {
             console.log("> xpdf end", "===================");
           }
           console.log("> xpdf file creation", "===================");
-          _V7_.newInstance();
-          _V7_.initNewConfig(activity);
-          _V7_.on("complete", function (msg) {
+          _V8_.newInstance();
+          _V8_.initNewConfig(activity);
+          _V8_.on("complete", function (msg) {
             console.log("> =============================================== <");
-            console.log("> callback is call here upon _V7_ is complete", msg);
+            console.log("> callback is call here upon _V8_ is complete", msg);
             console.log("> =============================================== <");
             return callback(null, "done");
           });
-          _V7_.on("scanpage", function (doc) {
+          _V8_.on("scanpage", function (doc) {
             if (_.isObject(activity.el)) {
               activity.el.addDoc(doc).then(function (body) {
                 doc = null;
@@ -237,7 +238,7 @@ function exeArrayFuncV7(array_fun, which_year, next_callback) {
               });
             }
           });
-          _V7_.start();
+          _V8_.start();
           console.log("> xpdf start", "===================");
         });
 

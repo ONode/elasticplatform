@@ -63,18 +63,39 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         nonnamefield: index_n
       };
     };
-    var queryDetail = function (text) {
-      // analyzer: "smartcn",
-      /* return {
-       query: {match: {content: text}},
+    var queryDetailPerson = function (person) {
+      return {
+        simple_query_string: queryPerson(person)
+      }
+    };
+    var queryMatchExact = function (text) {
+      /*  return {
+       query: {
+       match: {
+       content: text
+       }
+       },
        fields: ["content"],
        default_operator: "and",
        highlight: {
        pre_tags: ["<b>"],
        post_tags: ["</b>"],
        fields: {
-       content: {} }} };
-       */
+       content: {}
+       }
+       }
+       };*/
+
+      return {
+        query: {
+          match_phrase: {
+            content: text
+          }
+        }
+      };
+
+    };
+    var queryDetail = function (text) {
       return {
         query: text,
         fields: ["content"],
@@ -102,25 +123,38 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
         }
       }
     };
-    var detailQueryNonSpeaker = function (line, person) {
-      return {
-        constant_score: {
-          filter: {
-            bool: {
-              must: [
-                {simple_query_string: queryDetail(line + " " + person)}
-              ]
+    var detailQueryNonSpeaker = function (line, person, exact) {
+      if (exact) {
+
+        return {
+          constant_score: {
+            filter: {
+              bool: {
+                must: [
+                  {
+                    simple_query_string: queryMatchExact(line + " " + person)
+                  }
+                ]
+              }
+            }
+          }
+        }
+      } else {
+        return {
+          constant_score: {
+            filter: {
+              bool: {
+                must: [
+                  {simple_query_string: queryDetail(line + " " + person)}
+                ]
+              }
             }
           }
         }
       }
     };
-    var queryDetailPerson = function (person) {
-      return {
-        simple_query_string: queryPerson(person)
-      }
-    };
-    var ___search = function (queryobject, mode, offset, usehightlight) {
+
+    var ___search = function (queryobject, mode, offset, usehightlight, exact_search) {
       var deferred = $q.defer();
       //{type : "plain"}
       //{force_source: true}
@@ -150,12 +184,12 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
       }
 
       if (result_index_indicator.nonnamefield) {
-       // console.log("non name field");
+        // console.log("non name field");
         if (queryobject.honourable != null && queryobject.honourable != "" && line.length > 0) {
-          basic_search_obj.body.query = detailQueryNonSpeaker(line, queryobject.honourable);
+          basic_search_obj.body.query = detailQueryNonSpeaker(line, queryobject.honourable, exact_search);
         }
         if (line.length == 0 && queryobject.honourable != null) {
-          basic_search_obj.body.query.simple_query_string = detailQueryNonSpeaker("", queryobject.honourable);
+          basic_search_obj.body.query.simple_query_string = detailQueryNonSpeaker("", queryobject.honourable, exact_search);
         }
       } else {
         //console.log("name field");

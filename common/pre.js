@@ -181,7 +181,7 @@ var sentence_marker_type2 = function (text, possible_index) {
   } else {
     return possible_end;
   }
-  console.log("======marker test===========");
+  console.log("====== marker test ========");
 };
 
 function chunkSubstr(str, size) {
