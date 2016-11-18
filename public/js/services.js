@@ -116,7 +116,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', '$http', functi
           match_phrase: {
             content: {
               query: qline,
-              slop: 2
+              slop: 50
             }
           }
         }
