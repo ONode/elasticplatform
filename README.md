@@ -14,12 +14,22 @@ Node.js
 
 Supported API
 Test for development mode
-api/crawl/v4/test_year_2016
+`api/crawl/v4/test_year_2016`
 
 Real scan
-api/crawl/v3/:yearfiscal
-api/crawl/v2/:start_from/
+`api/crawl/v3/:yearfiscal`
+`api/crawl/v2/:start_from/`
 
 Crawling website
-api/test_webcrawler/
-api/apitest_v1/
+`api/test_webcrawler/`
+`api/apitest_v1/`
+
+h2. How to start
+1. Connect and install the elasticsearch 5.2.0 on AWS ec2 instance and retrieve the instance url.
+2. Deploy this git to another instance for client server
+3. configuration of connection url between frontend and backend with same port 9200. 
+4. Get the test app running
+
+h2. any other questions
+please make the inquries to me by email.
+jobhesk [  @] gmail.com
