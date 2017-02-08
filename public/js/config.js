@@ -19,9 +19,10 @@
  */
 //	url: "https://cypress-6596621.us-east-1.bonsai.io",
 //	url: "http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9201",
+//	url: "ec2-52-27-2-167.us-west-2.compute.amazonaws.com:9200",
 //	url: "http://localhost:9200",
 var CALACA_CONFIGS = {
-	url: "http://ec2-54-69-72-231.us-west-2.compute.amazonaws.com:9200",
+	url: "http://ec2-52-27-2-167.us-west-2.compute.amazonaws.com:9200",
 	index_name: "legco-",
 	type: "page",
 	size: 10,
